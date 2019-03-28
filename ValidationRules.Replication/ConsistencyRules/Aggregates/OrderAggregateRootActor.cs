@@ -78,7 +78,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                         MessageTypeCode.LegalPersonProfileBargainShouldNotBeExpired,
                         MessageTypeCode.LegalPersonProfileWarrantyShouldNotBeExpired,
                         MessageTypeCode.LegalPersonShouldHaveAtLeastOneProfile,
-                        MessageTypeCode.LinkedCategoryAsterixMayBelongToFirm,
+                        MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm,
                         MessageTypeCode.LinkedCategoryFirmAddressShouldBeValid,
                         MessageTypeCode.LinkedCategoryShouldBeActive,
                         MessageTypeCode.LinkedCategoryShouldBelongToFirm,
@@ -136,13 +136,13 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
                    from position in _query.For<Facts::Position>().Where(x => x.Id == opa.PositionId)
                    from address in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId)
-                   let checkPoi = Facts.Position.CategoryCodesPoiAddressCheck.Contains(position.CategoryCode)
-                   let isPartnerAddress = Facts.Position.CategoryCodesAllowFirmMismatch.Contains(position.CategoryCode) && position.BindingObjectType == Facts.Position.BindingObjectTypeAddressMultiple
+                   let checkPoi = Facts::Position.CategoryCodesPoiAddressCheck.Contains(position.CategoryCode)
+                   let isPartnerAddress = Facts::Position.CategoryCodesAllowFirmMismatch.Contains(position.CategoryCode) && position.BindingObjectType == Facts::Position.BindingObjectTypeAddressMultiple
                    let state = address.FirmId != order.FirmId && !isPartnerAddress ? InvalidFirmAddressState.NotBelongToFirm
                                 : address.IsDeleted ? InvalidFirmAddressState.Deleted
                                 : !address.IsActive ? InvalidFirmAddressState.NotActive
                                 : address.IsClosedForAscertainment ? InvalidFirmAddressState.ClosedForAscertainment
-                                : checkPoi && address.BuildingPurposeCode.HasValue && Facts.FirmAddress.InvalidBuildingPurposeCodesForPoi.Contains(address.BuildingPurposeCode.Value) ? InvalidFirmAddressState.InvalidBuildingPurpose
+                                : checkPoi && address.BuildingPurposeCode.HasValue && Facts::FirmAddress.InvalidBuildingPurposeCodesForPoi.Contains(address.BuildingPurposeCode.Value) ? InvalidFirmAddressState.InvalidBuildingPurpose
                                 : checkPoi && !address.EntranceCode.HasValue ? InvalidFirmAddressState.MissingEntrance
                                 : InvalidFirmAddressState.NotSet
                    where state != InvalidFirmAddressState.NotSet // todo: интересно было бы глянуть на сгенерированный sql
@@ -213,7 +213,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.LinkedCategoryAsterixMayBelongToFirm,
+                        MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm,
                         MessageTypeCode.LinkedCategoryShouldBeActive,
                         MessageTypeCode.LinkedCategoryShouldBelongToFirm,
                     };
@@ -241,7 +241,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                             CategoryId = category.Id,
                             OrderPositionId = orderPosition.Id,
                             PositionId = opa.PositionId,
-                            MayNotBelongToFirm = position.BindingObjectType == Facts::Position.BindingObjectTypeCategoryMultipleAsterix,
+                            MayNotBelongToFirm = position.BindingObjectType == Facts::Position.BindingObjectTypeCategoryMultipleAsterisk,
                             State = state,
                         };
 

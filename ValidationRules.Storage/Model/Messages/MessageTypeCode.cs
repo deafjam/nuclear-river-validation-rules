@@ -34,7 +34,7 @@
         LinkedFirmAddressShouldBeValid = 29,
         LinkedCategoryFirmAddressShouldBeValid = 30,
         LinkedCategoryShouldBelongToFirm = 32,
-        LinkedCategoryAsterixMayBelongToFirm = 33,
+        LinkedCategoryAsteriskMayBelongToFirm = 33,
         LinkedCategoryShouldBeActive = 34,
         LinkedFirmShouldBeValid = 35,
         BillsSumShouldMatchOrder = 36,

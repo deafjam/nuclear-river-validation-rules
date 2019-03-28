@@ -21,7 +21,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Order { Id = 1, FirmId = 1 },
                     new Facts::OrderPosition { Id = 1, OrderId = 1 },
                     new Facts::Position { Id = 1 },
-                    new Facts::Position { Id = 2, BindingObjectType = Facts::Position.BindingObjectTypeCategoryMultipleAsterix },
+                    new Facts::Position { Id = 2, BindingObjectType = Facts::Position.BindingObjectTypeCategoryMultipleAsterisk },
                     new Facts::FirmAddress { Id = 1, FirmId = 1, IsActive = true },
 
                     // Активная рубрика принадлежит фирме
@@ -52,10 +52,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Aggregates::Order.InvalidCategory { OrderId = 1, CategoryId = 5, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.Inactive, MayNotBelongToFirm = true });
 
         // ReSharper disable once UnusedMember.Local
-        private static ArrangeMetadataElement LinkedCategoryAsterixMayBelongToFirm
+        private static ArrangeMetadataElement LinkedCategoryAsteriskMayBelongToFirm
             => ArrangeMetadataElement
                 .Config
-                .Name(nameof(LinkedCategoryAsterixMayBelongToFirm))
+                .Name(nameof(LinkedCategoryAsteriskMayBelongToFirm))
                 .Aggregate(
                     new Aggregates::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
                     new Aggregates::Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = true })
@@ -69,7 +69,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                                         new Reference<EntityTypeOrderPosition>(1),
                                         new Reference<EntityTypePosition>(2)))
                                 .ToXDocument(),
-                        MessageType = (int)MessageTypeCode.LinkedCategoryAsterixMayBelongToFirm,
+                        MessageType = (int)MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm,
                             PeriodStart = MonthStart(1),
                             PeriodEnd = MonthStart(2),
                             OrderId = 3,

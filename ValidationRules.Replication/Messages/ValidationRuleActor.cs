@@ -264,7 +264,7 @@ namespace NuClear.ValidationRules.Replication.Messages
                     new LegalPersonProfileBargainShouldNotBeExpired(_query),
                     new LegalPersonProfileWarrantyShouldNotBeExpired(_query),
                     new LegalPersonShouldHaveAtLeastOneProfile(_query),
-                    new LinkedCategoryAsterixMayBelongToFirm(_query),
+                    new LinkedCategoryAsteriskMayBelongToFirm(_query),
                     new LinkedCategoryFirmAddressShouldBeValid(_query),
                     new LinkedCategoryShouldBeActive(_query),
                     new LinkedCategoryShouldBelongToFirm(_query),
@@ -337,3 +337,4 @@ namespace NuClear.ValidationRules.Replication.Messages
         }
     }
 }
+

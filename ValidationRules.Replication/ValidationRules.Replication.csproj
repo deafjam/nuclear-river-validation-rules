@@ -280,7 +280,7 @@
     <Compile Include="ThemeRules\Validation\ThemeCategoryMustBeActiveAndNotDeleted.cs" />
     <Compile Include="ValidationResultAccessorBase.cs" />
     <Compile Include="IValidationResultAccessor.cs" />
-    <Compile Include="ConsistencyRules\Validation\LinkedCategoryAsterixMayBelongToFirm.cs" />
+    <Compile Include="ConsistencyRules\Validation\LinkedCategoryAsteriskMayBelongToFirm.cs" />
     <Compile Include="ConsistencyRules\Validation\LinkedCategoryShouldBelongToFirm.cs" />
     <Compile Include="ConsistencyRules\Validation\LinkedCategoryShouldBeActive.cs" />
     <Compile Include="ConsistencyRules\Validation\LinkedCategoryFirmAddressShouldBeValid.cs" />

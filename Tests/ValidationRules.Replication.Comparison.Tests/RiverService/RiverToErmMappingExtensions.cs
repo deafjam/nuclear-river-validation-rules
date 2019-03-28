@@ -39,7 +39,7 @@ namespace ValidationRules.Replication.Comparison.Tests.RiverService
                             { MessageTypeCode.LinkedFirmAddressShouldBeValid, 12 },
                             { MessageTypeCode.LinkedCategoryFirmAddressShouldBeValid, 12 },
                             { MessageTypeCode.LinkedCategoryShouldBelongToFirm, 12 },
-                            { MessageTypeCode.LinkedCategoryAsterixMayBelongToFirm, 12 },
+                            { MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm, 12 },
                             { MessageTypeCode.LinkedCategoryShouldBeActive, 12 },
                             { MessageTypeCode.LinkedFirmShouldBeValid, 11 },
                             { MessageTypeCode.BillsSumShouldMatchOrder, 7 },

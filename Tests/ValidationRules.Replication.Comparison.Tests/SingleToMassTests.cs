@@ -137,6 +137,8 @@ namespace ValidationRules.Replication.Comparison.Tests
 
         private class TestCheckMode : ICheckModeDescriptor
         {
+            public CheckMode CheckMode { get; set; }
+
             public IReadOnlyDictionary<MessageTypeCode, RuleSeverityLevel> Rules { get; set; }
 
             public DateTime GetValidationPeriodStart(Order order)

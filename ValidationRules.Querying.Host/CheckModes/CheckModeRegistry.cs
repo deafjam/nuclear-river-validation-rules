@@ -62,7 +62,7 @@ namespace NuClear.ValidationRules.Querying.Host.CheckModes
                     Rule(MessageTypeCode.LegalPersonShouldHaveAtLeastOneProfile,
                          single: RuleSeverityLevel.Error),
 
-                    Rule(MessageTypeCode.LinkedCategoryAsterixMayBelongToFirm,
+                    Rule(MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm,
                          single: RuleSeverityLevel.Info,
                          prerelease: RuleSeverityLevel.Info,
                          release: RuleSeverityLevel.Info),

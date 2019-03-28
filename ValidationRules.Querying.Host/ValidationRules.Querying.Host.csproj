@@ -236,7 +236,7 @@
     <Compile Include="Composition\Composers\LegalPersonProfileBargainShouldNotBeExpiredMessageComposer.cs" />
     <Compile Include="Composition\Composers\LegalPersonProfileWarrantyShouldNotBeExpiredMessageComposer.cs" />
     <Compile Include="Composition\Composers\LegalPersonShouldHaveAtLeastOneProfileMessageComposer.cs" />
-    <Compile Include="Composition\Composers\LinkedCategoryAsterixMayBelongToFirmMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LinkedCategoryAsteriskMayBelongToFirmMessageComposer.cs" />
     <Compile Include="Composition\Composers\LinkedCategoryFirmAddressShouldBeValidMessageComposer.cs" />
     <Compile Include="Composition\Composers\LinkedCategoryShouldBeActiveMessageComposer.cs" />
     <Compile Include="Composition\Composers\LinkedCategoryShouldBelongToFirmMessageComposer.cs" />

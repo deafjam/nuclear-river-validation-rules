@@ -13,9 +13,9 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Validation
     /// 
     /// Source: LinkingObjectsOrderValidationRule
     /// </summary>
-    public sealed class LinkedCategoryAsterixMayBelongToFirm : ValidationResultAccessorBase
+    public sealed class LinkedCategoryAsteriskMayBelongToFirm : ValidationResultAccessorBase
     {
-        public LinkedCategoryAsterixMayBelongToFirm(IQuery query) : base(query, MessageTypeCode.LinkedCategoryAsterixMayBelongToFirm)
+        public LinkedCategoryAsteriskMayBelongToFirm(IQuery query) : base(query, MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm)
         {
         }
 
