@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>ValidationRules.Hosting.Common</RootNamespace>
+    <AssemblyName>ValidationRules.Hosting.Common</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="2GIS.NuClear.Messaging.Transports.Kafka" Version="2.3.4" />
+    <PackageReference Include="Confluent.Kafka.StrongName" Version="0.11.4" />
+    <PackageReference Include="NuClear.River.Hosting.Common" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ValidationRules.Storage\ValidationRules.Storage.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+</Project>

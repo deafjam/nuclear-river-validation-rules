@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>NuClear.ValidationRules.Replication.Host</RootNamespace>
+    <AssemblyName>2GIS.NuClear.ValidationRules.Replication.Host</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="2GIS.NuClear.Aggregates.Storage.DI.Unity" Version="2.1.0" />
+    <PackageReference Include="2GIS.NuClear.Jobs.RemoteControl" Version="2.1.4" />
+    <PackageReference Include="2GIS.NuClear.Jobs.Unity" Version="2.1.4" />
+    <PackageReference Include="2GIS.NuClear.Messaging.DI.Factories.Unity" Version="2.3.4" />
+    <PackageReference Include="2GIS.NuClear.Metamodeling.Basics" Version="2.1.0" />
+    <PackageReference Include="2GIS.NuClear.OperationsLogging" Version="5.5.4" />
+    <PackageReference Include="2GIS.NuClear.OperationsProcessing" Version="5.5.4" />
+    <PackageReference Include="2GIS.NuClear.Security" Version="3.0.0" />
+    <PackageReference Include="2GIS.NuClear.Settings.Unity" Version="1.2.0" />
+    <PackageReference Include="2GIS.NuClear.Tracing.Log4Net" Version="2.2.3" />
+    <PackageReference Include="Common.Logging.Log4Net1213" Version="3.1.0" />
+    <PackageReference Include="librdkafka.redist" Version="0.11.4">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ValidationRules.OperationsProcessing\ValidationRules.OperationsProcessing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="quartz.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="quartz.kafka_config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

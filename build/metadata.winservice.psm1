@@ -109,10 +109,6 @@ function Get-WinServiceMetadata ($Context) {
 	$metadata += Get-TransformMetadata $Context
 	$metadata += Get-ServiceBusMetadata $Context
 	
-	$metadata += @{
-		'EntrypointType' = 'Desktop'
-	}
-	
 	return @{ "$($Context.EntryPoint)" = $metadata }
 }
 

@@ -6,9 +6,9 @@ $ErrorActionPreference = 'Stop'
 Import-Module "$BuildToolsRoot\modules\entrypoint.psm1" -DisableNameChecking
 Import-Module "$BuildToolsRoot\modules\artifacts.psm1" -DisableNameChecking
 
-function QueueBuild-BulkTool  {
+Task QueueBuild-BulkTool  {
 	if ($Metadata['ValidationRules.StateInitialization.Host']){
-		$projectFileName = Get-ProjectFileName '.' 'ValidationRules.StateInitialization.Host'
+		$projectFileName = Get-ProjectFileName 'src' 'ValidationRules.StateInitialization.Host'
 		QueueBuild-AppPackage $projectFileName 'ValidationRules.StateInitialization.Host'
 	}
 }

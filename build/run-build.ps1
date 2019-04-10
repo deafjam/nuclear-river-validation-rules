@@ -24,20 +24,17 @@ $Properties.BuildFile = Join-Path $PSScriptRoot 'default.ps1'
 
 # Restore-Packages
 & {
-	$NugetPath = Join-Path $Properties.SolutionDir '.nuget\NuGet_v3.5.0.exe'
-	if (!(Test-Path $NugetPath)){
-		$webClient = New-Object System.Net.WebClient
-		$webClient.UseDefaultCredentials = $true
-		$webClient.Proxy.Credentials = $webClient.Credentials
-		$webClient.DownloadFile('https://dist.nuget.org/win-x86-commandline/v3.5.0/nuget.exe', $NugetPath)
+	& 'dotnet' @('msbuild', '/nologo', '/verbosity:quiet', '/t:Restore', $PSScriptRoot)
+	if ($LastExitCode -ne 0) {
+		throw "dotnet restore failed with exit code $LastExitCode"
 	}
-	$solution = Get-ChildItem $Properties.SolutionDir -Filter '*.sln'
-	& $NugetPath @('restore', $solution.FullName, '-NonInteractive', '-Verbosity', 'quiet')
 }
 
 $packageName = "2GIS.NuClear.BuildTools"
-$packageVersion = (ConvertFrom-Json (Get-Content "$PSScriptRoot\project.json" -Raw)).dependencies.PSObject.Properties[$packageName].Value
-Import-Module "${env:UserProfile}\.nuget\packages\$packageName\$packageVersion\tools\buildtools.psm1" -DisableNameChecking -Force
+$packageVersion = ([xml](Get-Content "$PSScriptRoot\build.csproj" -Raw)).SelectSingleNode("//PackageReference[@Include='$packageName']").Version
+Import-Module "~\.nuget\packages\$packageName\$packageVersion\tools\buildtools.psm1" -DisableNameChecking -Force
+# for local debug
+#Import-Module "~\Projects\NuClear\buildtools\src\2GIS.NuClear.BuildTools\buildtools.psm1" -DisableNameChecking -Force
 
 $metadata = & "$PSScriptRoot\metadata.ps1" $Properties
 Add-Metadata $metadata

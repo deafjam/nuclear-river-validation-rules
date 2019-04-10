@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>NuClear.ValidationRules.Storage</RootNamespace>
+    <AssemblyName>2GIS.NuClear.ValidationRules.Storage</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="2GIS.NuClear.Messaging.Transports.CorporateBus" Version="2.3.4" />
+    <PackageReference Include="2GIS.NuClear.OperationsProcessing.Transports.ServiceBus" Version="5.5.4" />
+    <PackageReference Include="2GIS.NuClear.OperationsProcessing.Transports.SQLStore" Version="5.5.4" />
+    <PackageReference Include="2GIS.NuClear.OperationsTracking" Version="5.5.4" />
+    <PackageReference Include="2GIS.NuClear.Telemetry" Version="0.14.1" />
+    <PackageReference Include="2GIS.NuClear.Tracing.API" Version="2.2.3" />
+    <PackageReference Include="2GIS.NuClear.Tracing.Environment" Version="2.2.3" />
+    <PackageReference Include="NuClear.River.Replication" Version="7.0.0" />
+    <PackageReference Include="ServiceBus.v1_1" Version="1.0.6" />
+  </ItemGroup>
+
+</Project>

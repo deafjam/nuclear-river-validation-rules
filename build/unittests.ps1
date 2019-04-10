@@ -6,6 +6,6 @@ $ErrorActionPreference = 'Stop'
 Import-Module "$BuildToolsRoot\modules\unittests.psm1" -DisableNameChecking
 
 Task Run-DatabaseComparisonTests {
-	$project = Find-Projects '.' -Filter 'ValidationRules.Replication.DatabaseComparison.Tests.csproj'
-	Run-UnitTests $project 'UnitTests'
+	$project = Find-Projects 'test' -Filter 'ValidationRules.Replication.DatabaseComparison.Tests.csproj'
+	Run-UnitTestsCore $project
 }

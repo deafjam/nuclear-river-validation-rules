@@ -68,7 +68,7 @@ function Copy-ConvertUseCasesServiceToTempDir {
 	return $tempDir
 }
 
-function QueueDeploy-ConvertUseCasesService {
+Task QueueDeploy-ConvertUseCasesService {
 	if ($Metadata['ConvertUseCasesService']){
 
 		$useCaseRoute = $Metadata['ConvertUseCasesService'].ServiceBus.UseCaseRoute

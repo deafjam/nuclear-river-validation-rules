@@ -173,38 +173,38 @@ function Get-XdtMetadata($Context){
 
 	switch($Context.EntryPoint){
 		'ConvertUseCasesService-Production' {
-			$xdt += @("ConvertUseCases.Production.config")
+			$xdt += @("environments\ConvertUseCases.Production.config")
 		}
 		'ConvertUseCasesService' {
 			switch($Context.EnvType){
 				'Test' {
-					$xdt += @("Templates\ConvertUseCases.Test.config")
+					$xdt += @("environments\Templates\ConvertUseCases.Test.config")
 				}
 				'Load' {
-					$xdt += @("ConvertUseCases.Load.config")
+					$xdt += @("environments\ConvertUseCases.Load.config")
 				}
 				default {
-					$xdt += @("ConvertUseCases.config")
+					$xdt += @("environments\ConvertUseCases.config")
 				}
 			}
 		}
 		default {
 			$xdt += @(
-				'Common\Erm.Release.config'
+				'environments\Common\Erm.Release.config'
 			)
 
 			switch($Context.EnvType){
 				'Test' {
-					$xdt += @("Templates\Erm.Test.config")
+					$xdt += @("environments\Templates\Erm.Test.config")
 				}
 				'Production' {
-					$xdt += @("Erm.Production.config")
+					$xdt += @("environments\Erm.Production.config")
 				}
 				'Load' {
-					$xdt += @("Erm.Load.config")
+					$xdt += @("environments\Erm.Load.config")
 				}
 				default {
-					$xdt += @("Erm.config")
+					$xdt += @("environments\Erm.config")
 				}
 			}
 		}

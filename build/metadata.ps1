@@ -35,7 +35,7 @@ function Get-EntryPointsMetadata ($EntryPoints, $Context) {
 			$entryPointsMetadata += Get-AssemblyMetadata $Context
 		}
 
-        'ValidationRules.Replication.StateInitialization.Tests' {
+		'ValidationRules.Replication.StateInitialization.Tests' {
 			$Context.EntryPoint = $_
 			$entryPointsMetadata += Get-AssemblyMetadata $Context
 		}
@@ -52,15 +52,15 @@ function Get-BulkToolMetadata ($updateSchemas, $Context){
 	$metadata = @{}
 
 	$arguments = @()
-    if($updateSchemas -contains 'Facts') {
-        $arguments += @('-facts', '-aggregates', '-messages')
-    }
-    if($updateSchemas -contains 'Aggregates') {
-        $arguments += @('-aggregates', '-messages')
-    }
-    if($updateSchemas -contains 'Messages') {
-        $arguments += @('-messages')
-    }
+	if($updateSchemas -contains 'Facts') {
+		$arguments += @('-facts', '-aggregates', '-messages')
+	}
+	if($updateSchemas -contains 'Aggregates') {
+		$arguments += @('-aggregates', '-messages')
+	}
+	if($updateSchemas -contains 'Messages') {
+		$arguments += @('-messages')
+	}
 
 	$metadata += @{ 'Arguments' = ($arguments | select -Unique) }
 
@@ -70,8 +70,14 @@ function Get-BulkToolMetadata ($updateSchemas, $Context){
 	return @{ 'ValidationRules.StateInitialization.Host' = $metadata }
 }
 
-function Get-NuGetMetadata {
+function Get-CommonMetadata {
 	return @{
+		'MSBuild' = @{
+			'Setup' = @{
+				'UseVisualStudioBuild' = $true
+				'MaxCpuCount' = 1
+			}
+		}
 		'NuGet' = @{
 			'Publish' = @{
 				'Source' = 'https://www.nuget.org/api/v2/package'
@@ -90,19 +96,19 @@ function Parse-EnvironmentMetadata ($Properties) {
 
     if($Properties['BuildSystem']) {
 		$buildSystem = $Properties.BuildSystem
-    } else {
+	} else {
 		$buildSystem = 'Local'
 	}
 
 	$environmentMetadata += @{ 'BuildSystem' = $buildSystem } 
-	$environmentMetadata += Get-NuGetMetadata
+	$environmentMetadata += Get-CommonMetadata
 
 	$environmentName = $Properties['EnvironmentName']
 	if (!$environmentName){
 		return $environmentMetadata
 	}
 
-    $environmentMetadata += @{ 'Common' = @{ 'EnvironmentName' = $environmentName } }
+	$environmentMetadata += @{ 'Common' = @{ 'EnvironmentName' = $environmentName } }
 
 	$context = $AllEnvironments[$environmentName]
 	if ($context -eq $null){

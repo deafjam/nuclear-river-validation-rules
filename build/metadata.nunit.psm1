@@ -10,10 +10,6 @@ function Get-AssemblyMetadata ($Context) {
 	$metadata = @{}
 	$metadata += Get-TransformMetadata $Context
 	
-	$metadata += @{
-		'EntrypointType' = 'Desktop'
-	}
-	
 	return @{ "$($Context.EntryPoint)" = $metadata }
 }
 

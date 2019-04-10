@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A079B81C-62EC-4658-B8A6-F5E597976DAB}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NuClear.ValidationRules.Querying.Host</RootNamespace>
+    <AssemblyName>2GIS.NuClear.ValidationRules.Querying.Host</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort>44374</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Global.asax" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\HealthCheckExtensions.cs" />
+    <Compile Include="App_Start\LibRdKafkaLoader.cs" />
+    <Compile Include="App_Start\TelemetryMessageHandler.cs" />
+    <Compile Include="App_Start\LocalizationMessageHandler.cs" />
+    <Compile Include="App_Start\Int64ToStringConverter.cs" />
+    <Compile Include="App_Start\UnityConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="CheckModes\CheckModeDescriptorFactory.cs" />
+    <Compile Include="CheckModes\CheckModeRegistry.cs" />
+    <Compile Include="Composition\Composers\AtLeastOneLinkedPartnerFirmAddressShouldBeValidMessageComposer.cs" />
+    <Compile Include="Composition\Composers\MessageSeverityProvider.cs" />
+    <Compile Include="Composition\Composers\OptionalAdvertisementMustPassReviewMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionAdvertisementMustHaveOptionalAdvertisementMessageComposer.cs" />
+    <Compile Include="Composition\Composers\PartnerAdvertisementMustNotCauseProblemsToTheAdvertiserMessageComposer.cs" />
+    <Compile Include="Composition\Composers\PoiAmountForEntranceShouldMeetMaximumRestrictionsComposer.cs" />
+    <Compile Include="Composition\IMessageSeverityProvider.cs" />
+    <Compile Include="DataAccess\AliasForAmsFactsFlow.cs" />
+    <Compile Include="QueryingServiceSettings.cs" />
+    <Compile Include="Composition\Composers\AdvertisementAmountShouldMeetMaximumRestrictionsMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AmsMessagesShouldBeNewMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AdvertisementShouldNotHaveCommentsMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AdvertisementMustPassReviewMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AdvertisementMustBelongToFirmMessageComposer.cs" />
+    <Compile Include="Composition\Composers\FirmAddressMustBeLocatedOnTheMapMessageComposer.cs" />
+    <Compile Include="Composition\Composers\FirmAddressShouldNotHaveMultiplePartnerAdvertisementMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderMustHaveActiveDealMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionAdvertisementMustHaveAdvertisementMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionMustCorrespontToActualPriceMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionSalesModelMustMatchCategorySalesModelMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionCostPerClickMustBeSpecifiedMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionCostPerClickMustNotBeLessMinimumMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderMustNotIncludeReleasedPeriodMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderMustUseCategoriesOnlyAvailableInProjectMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderMustHaveActiveLegalEntitiesMessageComposer.cs" />
+    <Compile Include="Composition\Composers\PartnerAdvertisementShouldNotBeSoldToAdvertiserMessageComposer.cs" />
+    <Compile Include="Composition\Composers\ProjectMustContainCostPerClickMinimumRestrictionMessageComposer.cs" />
+    <Compile Include="Composition\Composers\Utils\PeriodUtils.cs" />
+    <Compile Include="Composition\IDistinctor.cs" />
+    <Compile Include="Composition\ReferenceExtensions.cs" />
+    <Compile Include="DataAccess\NameResolvingService.cs" />
+    <Compile Include="Composition\ResolvedNameContainer.cs" />
+    <Compile Include="Controllers\ManualWithAccountController.cs" />
+    <Compile Include="Controllers\SingleForCancelController.cs" />
+    <Compile Include="Controllers\SingleForApproveController.cs" />
+    <Compile Include="Controllers\SingleController.cs" />
+    <Compile Include="Controllers\ReleaseController.cs" />
+    <Compile Include="Controllers\PrereleaseController.cs" />
+    <Compile Include="Controllers\ManualController.cs" />
+    <Compile Include="Controllers\VersionController.cs" />
+    <Compile Include="DataAccess\DataConnectionFactory.cs" />
+    <Compile Include="Composition\Message.cs" />
+    <Compile Include="DataAccess\ValidationResultRepositiory.cs" />
+    <Compile Include="DataAccess\VersioningService.cs" />
+    <Compile Include="DI\Bootstrapper.cs" />
+    <Compile Include="DI\UnityDependencyResolver.cs" />
+    <Compile Include="ExceptionTracer.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Composition\NamedReference.cs" />
+    <Compile Include="Composition\NamedReferenceExtensions.cs" />
+    <Compile Include="Model\ValidationResult.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Composition\ResultExtensions.cs" />
+    <Compile Include="Composition\IMessageComposer.cs" />
+    <Compile Include="Composition\ValidationResultFactory.cs" />
+    <Compile Include="Composition\Composers\AccountBalanceShouldBePositiveMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AccountShouldExistMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AdvertisementCountPerCategoryShouldBeLimitedMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AdvertisementCountPerThemeShouldBeLimitedMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AssociatedPositionWithoutPrincipalMessageComposer.cs" />
+    <Compile Include="Composition\Composers\BargainScanShouldPresentMessageComposer.cs" />
+    <Compile Include="Composition\Composers\BillsShouldBeCreatedMessageComposer.cs" />
+    <Compile Include="Composition\Composers\BillsSumShouldMatchOrderMessageComposer.cs" />
+    <Compile Include="Composition\Composers\ConflictingPrincipalPositionMessageComposer.cs" />
+    <Compile Include="Composition\Composers\DefaultThemeMustBeExactlyOneMessageComposer.cs" />
+    <Compile Include="Composition\Composers\DefaultThemeMustHaveOnlySelfAds.cs" />
+    <Compile Include="Composition\Composers\DeniedPositionsCheckMessageComposer.cs" />
+    <Compile Include="Composition\Composers\FirmAndOrderShouldBelongTheSameOrganizationUnitMessageComposer.cs" />
+    <Compile Include="Composition\Composers\FirmShouldHaveLimitedCategoryCountMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LegalPersonProfileBargainShouldNotBeExpiredMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LegalPersonProfileWarrantyShouldNotBeExpiredMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LegalPersonShouldHaveAtLeastOneProfileMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LinkedCategoryAsteriskMayBelongToFirmMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LinkedCategoryFirmAddressShouldBeValidMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LinkedCategoryShouldBeActiveMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LinkedCategoryShouldBelongToFirmMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LinkedFirmAddressShouldBeValidMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LinkedFirmShouldBeValidMessageComposer.cs" />
+    <Compile Include="Composition\Composers\LinkedObjectsMissedInPrincipalsMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AdvertisementAmountShouldMeetRestrictionsMassMessageComposer.cs" />
+    <Compile Include="Composition\Composers\AdvertisementAmountShouldMeetMinimumRestrictionsMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderBeginDistrubutionShouldBeFirstDayOfMonthMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderEndDistrubutionShouldBeLastSecondOfMonthMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionAdvertisementMustBeCreatedMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionCorrespontToInactivePositionMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderPositionMayCorrespontToActualPriceMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderMustHaveActualPriceMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderRequiredFieldsShouldBeSpecifiedMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderScanShouldPresentMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderShouldHaveAtLeastOnePositionMessageComposer.cs" />
+    <Compile Include="Composition\Composers\OrderShouldNotBeSignedBeforeBargainMessageComposer.cs" />
+    <Compile Include="Composition\Composers\SatisfiedPrincipalPositionDifferentOrderMessageComposer.cs" />
+    <Compile Include="Composition\Composers\ThemeCategoryMustBeActiveAndNotDeletedMessageComposer.cs" />
+    <Compile Include="Composition\Composers\ThemePeriodMustContainOrderPeriodMessageComposer.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ValidationRules.Hosting.Common\ValidationRules.Hosting.Common.csproj">
+      <Project>{876CF585-D099-4C5A-949E-E76DA08764D8}</Project>
+      <Name>ValidationRules.Hosting.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ValidationRules.SingleCheck\ValidationRules.SingleCheck.csproj">
+      <Project>{2aee5eb1-9f9f-49d3-8aa3-a9c9338aaf4b}</Project>
+      <Name>ValidationRules.SingleCheck</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ValidationRules.Storage\ValidationRules.Storage.csproj">
+      <Project>{e799a2ee-408f-467a-8b50-fc729e92d3f3}</Project>
+      <Name>ValidationRules.Storage</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.cs.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.en-AE.resx" />
+    <EmbeddedResource Include="Properties\Resources.en.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.kk-KZ.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="2GIS.NuClear.Settings.Unity" Version="1.2.0" />
+    <PackageReference Include="2GIS.NuClear.Tracing.Log4Net" Version="2.2.3" />
+    <PackageReference Include="librdkafka.redist" Version="0.11.4">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.3" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:49171/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="BeforeBuild" Label="workaround для бага в пакете librdkafka.redist, меняем тип Content на тип None">
+    <ItemGroup>
+      <ContentFiltered Include="@(Content)" Condition="'%(Extension)' == '.dll'" />
+      <Content Remove="@(ContentFiltered)" />
+      <None Include="@(ContentFiltered)">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -9,7 +9,7 @@ Import-Module "$BuildToolsRoot\modules\buildqueue.psm1" -DisableNameChecking
 Import-Module "$BuildToolsRoot\modules\deployqueue.psm1" -DisableNameChecking
 Import-Module "$BuildToolsRoot\modules\deploy.winservice.psm1" -DisableNameChecking
 
-Include "$BuildToolsRoot\psake\nuget.ps1"
+Include "$BuildToolsRoot\psake\common.ps1"
 Include "$BuildToolsRoot\psake\unittests.ps1"
 Include 'servicebus.ps1'
 Include 'convertusecases.ps1'
@@ -17,40 +17,40 @@ Include 'bulktool.ps1'
 Include 'unittests.ps1'
 
 # Querying.Host
-function QueueBuild-QueryingHost {
+Task QueueBuild-QueryingHost {
 	if ($Metadata['ValidationRules.Querying.Host']){
-		$projectFileName = Get-ProjectFileName '.' 'ValidationRules.Querying.Host'
+		$projectFileName = Get-ProjectFileName 'src' 'ValidationRules.Querying.Host'
 		QueueBuild-WebPackage $projectFileName 'ValidationRules.Querying.Host'
 	}
 }
-function QueueDeploy-QueryingHost {
+Task QueueDeploy-QueryingHost {
 	if ($Metadata['ValidationRules.Querying.Host']){
 		QueueDeploy-WebPackage 'ValidationRules.Querying.Host'
 	}
 }
 
 # Replication.Host
-function QueueBuild-ReplicationHost {
+Task QueueBuild-ReplicationHost {
 	if ($Metadata['ValidationRules.Replication.Host']){
-		$projectFileName = Get-ProjectFileName '.' 'ValidationRules.Replication.Host'
+		$projectFileName = Get-ProjectFileName 'src' 'ValidationRules.Replication.Host'
 		QueueBuild-AppPackage $projectFileName 'ValidationRules.Replication.Host'
 	}
 }
-function QueueDeploy-ReplicationHost {
+Task QueueDeploy-ReplicationHost {
 	if ($Metadata['ValidationRules.Replication.Host']){
 		QueueDeploy-WinService 'ValidationRules.Replication.Host'
 	}
 }
 
 # Replication.Host
-function QueueBuild-Tests {
+Task QueueBuild-Tests {
 	if ($Metadata['ValidationRules.Replication.Comparison.Tests']){
-		$projectFileName = Get-ProjectFileName 'Tests' 'ValidationRules.Replication.Comparison.Tests'
+		$projectFileName = Get-ProjectFileName 'test' 'ValidationRules.Replication.Comparison.Tests'
 		QueueBuild-AppPackage $projectFileName 'ValidationRules.Replication.Comparison.Tests'
 	}
-    
+
 	if ($Metadata['ValidationRules.Replication.StateInitialization.Tests']){
-		$projectFileName = Get-ProjectFileName 'Tests' 'ValidationRules.Replication.StateInitialization.Tests'
+		$projectFileName = Get-ProjectFileName 'test' 'ValidationRules.Replication.StateInitialization.Tests'
 		QueueBuild-AppPackage $projectFileName 'ValidationRules.Replication.StateInitialization.Tests'
 	}
 }
@@ -60,38 +60,21 @@ Task Stop-ReplicationHost -Precondition { $Metadata['ValidationRules.Replication
 	Take-WinServiceOffline 'ValidationRules.Replication.Host'
 }
 
-Task QueueBuild-Packages {
-
-	QueueBuild-BulkTool
-	QueueBuild-QueryingHost
-	QueueBuild-ReplicationHost
-	QueueBuild-Tests
-
-	Invoke-MSBuildQueue
-}
-
-Task QueueDeploy-Packages {
-
-	QueueDeploy-ConvertUseCasesService
-	QueueDeploy-QueryingHost
-	QueueDeploy-ReplicationHost
-
-	Invoke-DeployQueue
-}
-
-Task Build-NuGetOnly {
-    $projects = Find-Projects '.' -Filter '*.nuproj'
-    Build-PackagesFromNuProjs $projects 'NuGet'
-}
-
-Task Validate-PullRequest -depends Run-UnitTests
+Task Validate-PullRequest -depends Run-UnitTestsCore
 
 Task Build-Packages -depends `
-    Build-ConvertUseCasesService, `
-    QueueBuild-Packages
+	Build-ConvertUseCasesService, `
+	QueueBuild-BulkTool, `
+	QueueBuild-QueryingHost, `
+	QueueBuild-ReplicationHost, `
+	QueueBuild-Tests, `
+	Build-Queue
 
 Task Deploy-Packages -depends `
-    Stop-ReplicationHost, `
-    Deploy-ServiceBus, `
-    Run-BulkTool, `
-    QueueDeploy-Packages
+	Stop-ReplicationHost, `
+	Deploy-ServiceBus, `
+	Run-BulkTool, `
+	QueueDeploy-ConvertUseCasesService, `
+	QueueDeploy-QueryingHost, `
+	QueueDeploy-ReplicationHost, `
+	Deploy-Queue
