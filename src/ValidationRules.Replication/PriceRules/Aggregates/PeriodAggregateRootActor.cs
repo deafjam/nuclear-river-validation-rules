@@ -64,7 +64,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Period> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var dates = commands.Cast<SyncPeriodCommand>().Select(c => c.Date).Distinct();
+                var dates = commands.Cast<SyncPeriodCommand>().Select(c => c.Date).ToHashSet();
                 return Periods(dates);
             }
 

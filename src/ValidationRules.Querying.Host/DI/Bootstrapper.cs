@@ -83,11 +83,10 @@ namespace NuClear.ValidationRules.Querying.Host.DI
         {
             var interfaceType = typeof(TContract);
             var implementerTypes = interfaceType.Assembly.GetTypes()
-                                                .Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract)
-                                                .ToArray();
+                                                .Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract);
 
             container.RegisterType(typeof(IReadOnlyCollection<TContract>),
-                                   new InjectionFactory(c => implementerTypes.Select(t => c.Resolve(t)).Cast<TContract>().ToArray()));
+                                   new InjectionFactory(c => implementerTypes.Select(t => c.Resolve(t)).Cast<TContract>().ToList()));
 
             return container;
         }
@@ -100,11 +99,10 @@ namespace NuClear.ValidationRules.Querying.Host.DI
             var interfaceType = typeof(IEntityType);
             var type = typeof(EntityTypeOrder);
             var entityTypes = type.Assembly.GetTypes()
-                                  .Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract)
-                                  .ToArray();
+                                  .Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract);
 
             container.RegisterType(typeof(IReadOnlyCollection<IEntityType>),
-                                   new InjectionFactory(c => entityTypes.Select(t => c.Resolve(t)).Cast<IEntityType>().ToArray()));
+                                   new InjectionFactory(c => entityTypes.Select(t => c.Resolve(t)).Cast<IEntityType>().ToList()));
 
             return container;
         }

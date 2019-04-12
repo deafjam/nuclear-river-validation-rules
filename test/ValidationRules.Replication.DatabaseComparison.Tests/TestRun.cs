@@ -12,6 +12,12 @@ namespace ValidationRules.Replication.DatabaseComparison.Tests
     [TestFixture]
     public sealed class TestRun
     {
+        private static readonly Type[] ExcludedTypes =
+        {
+            // causes OutOfMemoryException
+            typeof(NuClear.ValidationRules.Storage.Model.Facts.EntityName)
+        };
+
         public static IEnumerable TestCaseData()
         {
             return TestCaseDataFor(StorageDescriptor.Erm, StorageDescriptor.Facts)
@@ -33,11 +39,25 @@ namespace ValidationRules.Replication.DatabaseComparison.Tests
 
         private static IEnumerable<TestCaseData> TestCaseDataFor(StorageDescriptor sourceDescriptor, StorageDescriptor destDescriptor)
             => TypeProvider.GetDataObjectTypes(destDescriptor.MappingSchema)
-               //.Where(x => x == typeof(NuClear.ValidationRules.Storage.Model.Facts.Position))
+               .Where(x => !ExcludedTypes.Contains(x))
                .Select(x => new TestCaseData(x, sourceDescriptor, destDescriptor)
-               .SetName($"{destDescriptor.ConnectionStringName}.{x.Name}"));
+                            .SetName(TestName(x)));
 
         public IEnumerable<object> AsJson(IEnumerable<object> enumerable)
             => enumerable.Select(x => JsonConvert.SerializeObject(x, Formatting.None));
+
+        private static string TestName(Type type)
+        {
+            const string SearchPattern = "Model.";
+
+            var fullName = type.FullName;
+            if (fullName == null)
+            {
+                throw new ArgumentException("Type fullname is null");
+            }
+
+            var index = fullName.IndexOf(SearchPattern, StringComparison.OrdinalIgnoreCase);
+            return index != -1 ? fullName.Substring(index + SearchPattern.Length) : fullName;
+        }
     }
 }

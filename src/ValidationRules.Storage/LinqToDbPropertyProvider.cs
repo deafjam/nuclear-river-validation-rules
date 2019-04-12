@@ -31,7 +31,7 @@ namespace NuClear.ValidationRules.Storage
 
         private IReadOnlyCollection<PropertyInfo> FindProperties(Type type, Func<ColumnDescriptor, bool> predicate)
         {
-            return _schema.GetEntityDescriptor(type).Columns.Where(predicate).Select(x => x.MemberInfo).Cast<PropertyInfo>().ToArray();
+            return _schema.GetEntityDescriptor(type).Columns.Where(predicate).Select(x => x.MemberInfo).Cast<PropertyInfo>().ToList();
         }
     }
 }

@@ -326,7 +326,7 @@ namespace NuClear.ValidationRules.Replication
         {
             var ids = commands.Cast<SyncDataObjectCommand>()
                               .Where(c => c.DataObjectType == type)
-                              .Distinct()
+                              .ToHashSet()
                               .Select(c => new { Id = c.DataObjectId, EntityType = typeId }).ToList();
 
             return SpecificationFactory<EntityName>.Contains(x => new { x.Id, x.EntityType }, ids);

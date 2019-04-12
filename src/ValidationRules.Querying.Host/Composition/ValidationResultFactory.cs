@@ -107,7 +107,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
 
             public IEnumerable<Message> Distinct(IEnumerable<Message> messages)
                 => messages.GroupBy(x => new { x.OrderId, x.ProjectId })
-                           .SelectMany(x => x.Distinct(this));
+                           .SelectMany(x => x.ToHashSet(this));
 
             bool IEqualityComparer<Message>.Equals(Message x, Message y)
                 => x.References.Count == y.References.Count

@@ -69,8 +69,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                 var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
                                            .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
                                            .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Distinct()
-                                           .ToArray();
+                                           .ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -108,7 +107,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
         public FindSpecification<Order.AddressAdvertisementNonOnTheMap> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.AddressAdvertisementNonOnTheMap>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -149,7 +148,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Order.CategoryAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.CategoryAdvertisement>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -187,7 +186,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Order.CostPerClickAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.CostPerClickAdvertisement>(x => aggregateIds.Contains(x.OrderId));
             }
         }

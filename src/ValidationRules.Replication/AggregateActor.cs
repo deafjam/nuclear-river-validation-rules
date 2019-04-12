@@ -27,8 +27,7 @@ namespace NuClear.ValidationRules.Replication
             var aggregateCommands =
                 commands.OfType<IAggregateCommand>()
                         .Where(x => x.AggregateRootType == _aggregateRootActor.EntityType)
-                        .Distinct()
-                        .ToArray();
+                        .ToHashSet();
 
             IEnumerable<IEvent> events = Array<IEvent>.Empty;
 
@@ -37,7 +36,7 @@ namespace NuClear.ValidationRules.Replication
                 return Array<IEvent>.Empty;
             }
 
-            var aggregateNameParts = _aggregateRootActor.EntityType.FullName.Split('.').Reverse().ToArray();
+            var aggregateNameParts = _aggregateRootActor.EntityType.FullName.Split('.').Reverse().ToList();
             using (Probe.Create("Aggregate", aggregateNameParts[2], aggregateNameParts[0]))
             {
                 var recalculateCommands =
@@ -47,7 +46,7 @@ namespace NuClear.ValidationRules.Replication
                                                          new SyncDataObjectCommand(next.AggregateRootType, next.AggregateRootId),
                                                          new ReplaceValueObjectCommand(next.AggregateRootId)
                                                      })
-                                     .ToArray();
+                                     .ToList();
                 events = events.Union(_rootToLeafActor.ExecuteCommands(recalculateCommands));
 
                 var recalculatePeriodCommands =
@@ -56,10 +55,10 @@ namespace NuClear.ValidationRules.Replication
                                          {
                                              new SyncPeriodCommand(next.AggregateRootType, next.Point.Date)
                                          })
-                                     .ToArray();
+                                     .ToList();
                 events = events.Union(_rootToLeafActor.ExecuteCommands(recalculatePeriodCommands));
 
-                return events.ToArray();
+                return events.ToList();
             }
         }
     }

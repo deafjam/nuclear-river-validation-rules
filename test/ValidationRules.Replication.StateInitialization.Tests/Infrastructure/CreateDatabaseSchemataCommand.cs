@@ -39,8 +39,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests.Infrastr
                 var entities = _contextEntityTypesProvider.GetTypesFromContext(metadataElement.Context);
                 var schemaNames = entities.Select(x => dataConnection.MappingSchema.GetAttribute<TableAttribute>(x)?.Schema)
                                           .Where(x => !string.IsNullOrEmpty(x) && database.Schemas[x] == null)
-                                          .Distinct()
-                                          .ToArray();
+                                          .ToHashSet();
 
                 foreach (var schemaName in schemaNames)
                 {

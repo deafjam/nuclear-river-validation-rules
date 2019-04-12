@@ -58,10 +58,10 @@ namespace NuClear.ValidationRules.SingleCheck
                     factReplicators = CreateReplicators(_factAccessorTypes, erm.CreateQuery(), wrap(store.CreateStore()));
                     aggregateReplicators = CreateReplicators(_aggregateAccessorTypes, store.CreateQuery(), wrap(store.CreateStore()));
                     messageReplicators = CreateReplicators(_messageAccessorTypes, store.CreateQuery(), wrap(messages.CreateStore()))
-                        .Where(x => x.DataObjectType == typeof(Version.ValidationResult) && checkModeDescriptor.Rules.ContainsKey(x.Rule)).ToArray();
+                        .Where(x => x.DataObjectType == typeof(Version.ValidationResult) && checkModeDescriptor.Rules.ContainsKey(x.Rule)).ToList();
 
                     var predicates = factReplicators.Concat(aggregateReplicators).Concat(messageReplicators).SelectMany(x => x.DependencyPredicates);
-                    optimization.PrepareToUse(predicates.Distinct());
+                    optimization.PrepareToUse(predicates.ToHashSet());
                 }
 
                 ErmDataLoader.ResolvedOrderSummary orderSummary;
@@ -96,7 +96,7 @@ namespace NuClear.ValidationRules.SingleCheck
                     return messages.CreateQuery()
                                    .For<Version.ValidationResult>()
                                    .Where(x => x.OrderId == orderId && checkModeDescriptor.Rules.Keys.Contains((MessageTypeCode)x.MessageType) && x.PeriodEnd >= validationPeriodStart)
-                                   .ToArray();
+                                   .ToList();
                 }
             }
         }
@@ -129,7 +129,7 @@ namespace NuClear.ValidationRules.SingleCheck
             => accessorTypes
                 .Select(x => new { Accessor = x, DataObject = GetAccessorDataObject(x) })
                 .Select(x => Replicator.Create(x.Accessor, x.DataObject, source, target))
-                .ToArray();
+                .ToList();
 
         private static Type GetAccessorDataObject(Type type)
             => type.GetInterfaces().Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IStorageBasedDataObjectAccessor<>)).GetGenericArguments().Single();

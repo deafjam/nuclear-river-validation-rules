@@ -52,7 +52,7 @@ namespace NuClear.ValidationRules.Replication
                 => _dictionary.Add(ruleCode, x => x.Any() ? new ResultPartiallyOutdatedEvent(ruleCode, onChange.Invoke(x)) : null);
 
             IReadOnlyCollection<IEvent> IRuleInvalidator.Invalidate(IReadOnlyCollection<T> dataObjects)
-                => _dictionary.Select(x => x.Value.Invoke(dataObjects)).Where(x => x != null).ToArray();
+                => _dictionary.Select(x => x.Value.Invoke(dataObjects)).Where(x => x != null).ToList();
 
             IEnumerator IEnumerable.GetEnumerator()
                 => ((IEnumerable)_dictionary).GetEnumerator();

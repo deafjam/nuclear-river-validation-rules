@@ -50,7 +50,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<LegalPersonProfile> dataObjects)
         {
             var legalPersonProfileIds = dataObjects.Select(x => x.Id).ToList();
-            var legalPersonIds = dataObjects.Select(x => x.LegalPersonId).Distinct().ToList();
+            var legalPersonIds = dataObjects.Select(x => x.LegalPersonId).ToHashSet();
 
             var orderIds =
                 from order in _query.For<Order>()

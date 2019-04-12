@@ -80,7 +80,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
                 var requiredContexts = TestCaseMetadataSource.Tests
                     .SelectMany(x => x.Arrange.Contexts)
-                    .Distinct();
+                    .ToHashSet();
 
                 SchemaMetadataSource = new SchemaMetadataSource(requiredContexts);
             }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
-using Confluent.Kafka;
-
+﻿using Confluent.Kafka;
 using NuClear.Assembling.TypeProcessing;
 using NuClear.Messaging.API.Flows;
 using NuClear.Replication.Core;
@@ -21,7 +15,10 @@ using NuClear.ValidationRules.StateInitialization.Host.Kafka;
 using NuClear.ValidationRules.StateInitialization.Host.Kafka.Ams;
 using NuClear.ValidationRules.StateInitialization.Host.Kafka.Rulesets;
 using NuClear.ValidationRules.Storage.Connections;
-
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using ValidationRules.Hosting.Common;
 using ValidationRules.Hosting.Common.Settings;
 using ValidationRules.Hosting.Common.Settings.Connections;
@@ -73,16 +70,13 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             var tracer = CreateTracer(environmentSettings, businessModelSettings);
 
-            var kafkaSettingsFactory =
-                new KafkaSettingsFactory(new Dictionary<IMessageFlow, string>
-                                             {
-                                                 [AmsFactsFlow.Instance] =
-                                                     connectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance),
-                                                 [RulesetFactsFlow.Instance] =
-                                                     connectionStringSettings.GetConnectionString(RulesetConnectionStringIdentity.Instance)
-                                             },
-                                         environmentSettings,
-                                         Offset.Beginning);
+            var kafkaSettingsFactory = new KafkaSettingsFactory(new Dictionary<IMessageFlow, string>
+                {
+                    {AmsFactsFlow.Instance, connectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance)},
+                    {RulesetFactsFlow.Instance, connectionStringSettings.GetConnectionString(RulesetConnectionStringIdentity.Instance)}
+                },
+                environmentSettings,
+                Offset.Beginning);
 
             var kafkaMessageFlowReceiverFactory = new KafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
 
@@ -123,6 +117,5 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                                                                   .Property(nameof(IBusinessModelSettings.BusinessModel), businessModelSettings.BusinessModel))
                                        .Build;
         }
-
     }
 }

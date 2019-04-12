@@ -38,7 +38,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
                 return;
             }
 
-            var firmIds = firmAddresses.Select(x => x.FirmId).Distinct().ToList();
+            var firmIds = firmAddresses.Select(x => x.FirmId).ToHashSet();
 
             // Нужны заказы этих фирм - вдруг фирма является рекламодателем.
             var firmOrders = query.GetTable<Order>()

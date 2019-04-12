@@ -27,7 +27,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
         public IReadOnlyCollection<IEvent> ExecuteCommands(IReadOnlyCollection<ICommand> commands)
         {
-            var schemaInitializationCommands = commands.OfType<SchemaInitializationCommand>().Distinct();
+            var schemaInitializationCommands = commands.OfType<SchemaInitializationCommand>().ToHashSet();
 
             foreach (var cmd in schemaInitializationCommands)
             {

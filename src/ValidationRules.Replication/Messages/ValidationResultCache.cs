@@ -64,7 +64,7 @@ namespace NuClear.ValidationRules.Replication.Messages
             }
         }
 
-        private byte[] Serialize(IReadOnlyCollection<Version.ValidationResult> value)
+        private static byte[] Serialize(IReadOnlyCollection<Version.ValidationResult> value)
         {
             using (var compressedStream = new MemoryStream())
             {

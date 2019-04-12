@@ -23,7 +23,7 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
             var references = messages
                 .SelectMany(x => x.References)
                 .Concat(messages.SelectMany(x => x.References).SelectMany(x => x.Children))
-                .Distinct(Reference.Comparer);
+                .ToHashSet(Reference.Comparer);
 
             return new ResolvedNameContainer(Resolve(references));
         }

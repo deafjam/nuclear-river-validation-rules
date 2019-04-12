@@ -55,8 +55,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                 var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
                                            .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
                                            .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Distinct()
-                                           .ToArray();
+                                           .ToHashSet();
                 return new FindSpecification<Firm>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -111,7 +110,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
 
             public FindSpecification<Firm.CategoryPurchase> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Firm.CategoryPurchase>(x => aggregateIds.Contains(x.FirmId));
             }
         }

@@ -54,8 +54,7 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
             }
 
             var rulesetsIds = dataObjects.Select(x => x.RulesetId)
-                                         .Distinct()
-                                         .ToList();
+                                         .ToHashSet();
 
             var firmIds = from ruleset in _query.For<Ruleset>().Where(x => rulesetsIds.Contains(x.Id))
                           from rulesetProject in _query.For<Ruleset.RulesetProject>().Where(x => x.RulesetId == ruleset.Id)
@@ -68,7 +67,7 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
 
             return new EventCollectionHelper<Ruleset>
                 {
-                    { typeof(Firm), firmIds.Distinct() }
+                    { typeof(Firm), firmIds.ToHashSet() }
                 };
         }
     }

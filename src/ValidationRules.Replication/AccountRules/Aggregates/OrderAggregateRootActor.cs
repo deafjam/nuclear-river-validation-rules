@@ -60,8 +60,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
                 var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
                                            .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
                                            .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Distinct()
-                                           .ToArray();
+                                           .ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -92,7 +91,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
 
             public FindSpecification<Order.DebtPermission> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.DebtPermission>(x => aggregateIds.Contains(x.OrderId));
             }
         }

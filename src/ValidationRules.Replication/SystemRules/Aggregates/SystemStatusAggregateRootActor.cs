@@ -51,8 +51,7 @@ namespace NuClear.ValidationRules.Replication.SystemRules.Aggregates
                 var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
                                            .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
                                            .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Distinct()
-                                           .ToArray();
+                                           .ToHashSet();
                 return new FindSpecification<SystemStatus>(x => aggregateIds.Contains(x.Id));
             }
         }

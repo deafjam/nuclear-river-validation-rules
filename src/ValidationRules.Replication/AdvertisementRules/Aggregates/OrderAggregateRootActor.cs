@@ -70,8 +70,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
                 var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
                                            .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
                                            .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Distinct()
-                                           .ToArray();
+                                           .ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -124,7 +123,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order.MissingAdvertisementReference> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.MissingAdvertisementReference>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -176,7 +175,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order.MissingOrderPositionAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.MissingOrderPositionAdvertisement>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -218,7 +217,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order.AdvertisementNotBelongToFirm> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.AdvertisementNotBelongToFirm>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -262,7 +261,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order.AdvertisementFailedReview> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.AdvertisementFailedReview>(x => aggregateIds.Contains(x.OrderId));
             }
         }

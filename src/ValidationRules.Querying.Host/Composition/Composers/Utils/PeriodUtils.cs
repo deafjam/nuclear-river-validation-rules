@@ -15,7 +15,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.Composers.Utils
 
         public static Dictionary<string, string> StorePeriods(this IReadOnlyCollection<Message> messages, Dictionary<string, string> extra)
         {
-            extra.Add("periods", messages.Select(x => x.Extra).SelectMany(MonthlySplit).Distinct().ConvertToString());
+            extra.Add("periods", messages.Select(x => x.Extra).SelectMany(MonthlySplit).ToHashSet().ConvertToString());
             return extra;
         }
 

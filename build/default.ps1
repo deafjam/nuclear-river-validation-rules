@@ -14,7 +14,7 @@ Include "$BuildToolsRoot\psake\unittests.ps1"
 Include 'servicebus.ps1'
 Include 'convertusecases.ps1'
 Include 'bulktool.ps1'
-Include 'unittests.ps1'
+Include 'tests.ps1'
 
 # Querying.Host
 Task QueueBuild-QueryingHost {
@@ -60,7 +60,7 @@ Task Stop-ReplicationHost -Precondition { $Metadata['ValidationRules.Replication
 	Take-WinServiceOffline 'ValidationRules.Replication.Host'
 }
 
-Task Validate-PullRequest -depends Run-UnitTestsCore
+Task Validate-PullRequest -depends Run-UnitTestsExplicit
 
 Task Build-Packages -depends `
 	Build-ConvertUseCasesService, `

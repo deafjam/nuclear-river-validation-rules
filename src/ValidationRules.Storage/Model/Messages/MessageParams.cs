@@ -23,7 +23,7 @@ namespace NuClear.ValidationRules.Storage.Model.Messages
         public IReadOnlyCollection<Reference> Children { get; }
 
         public XDocument ToXDocument()
-            => new XDocument(new XElement("root", ExtraParameters.Select(ToAttribute).Concat(Children.Select(ToElement).ToArray())));
+            => new XDocument(new XElement("root", ExtraParameters.Select(ToAttribute).Concat(Children.Select(ToElement).ToList())));
 
         private static object ToAttribute(KeyValuePair<string, object> pair)
             => new XAttribute(pair.Key, pair.Value);

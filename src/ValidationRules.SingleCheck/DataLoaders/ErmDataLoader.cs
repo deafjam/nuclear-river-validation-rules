@@ -97,7 +97,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
                                       .Execute();
             store.AddRange(orderPositions);
             var orderPositionIds = orderPositions.Select(x => x.Id).ToList();
-            var usedPricePositionIds = orderPositions.Select(x => x.PricePositionId).Distinct().ToList();
+            var usedPricePositionIds = orderPositions.Select(x => x.PricePositionId).ToHashSet();
 
             var opas = query.GetTable<OrderPositionAdvertisement>()
                             .Where(op => orderPositionIds.Contains(op.OrderPositionId))
@@ -161,11 +161,9 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
             var usedPriceIds = usedPricePositions.Select(x => x.PriceId).Union(actualPrice != null ? new[] { actualPrice.Id } : Array.Empty<long>()).Union(monthlyUsedPrices.Select(x => x.Id)).ToList();
 
             var soldPackagesIds = usedPricePositions.Select(p => p.PositionId)
-                                                    .Distinct()
-                                                    .ToList();
+                                                    .ToHashSet();
             var soldPackageElementsIds = opas.Select(y => y.PositionId)
-                                             .Distinct()
-                                             .ToList();
+                                             .ToHashSet();
 
             var usedPositionIds = soldPackagesIds.Union(soldPackageElementsIds).ToList();
 

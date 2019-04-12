@@ -31,7 +31,7 @@ namespace NuClear.ValidationRules.Replication.Host.Factories
 
         public IReadOnlyCollection<IEventLoggingStrategy<TEvent>> Get<TEvent>(IReadOnlyCollection<TEvent> events)
         {
-            var messageFlow = events.Cast<FlowEvent>().Select(x => x.Flow).Distinct().Single();
+            var messageFlow = events.Cast<FlowEvent>().Select(x => x.Flow).ToHashSet().Single();
 
             IEventLoggingStrategy<TEvent> strategy;
 

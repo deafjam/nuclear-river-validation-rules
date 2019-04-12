@@ -50,7 +50,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<CategoryOrganizationUnit> dataObjects)
         {
-            var ids = dataObjects.Select(x => x.OrganizationUnitId).Distinct();
+            var ids = dataObjects.Select(x => x.OrganizationUnitId).ToHashSet();
 
             var projectIds =
                 from project in _query.For<Project>().Where(x => ids.Contains(x.OrganizationUnitId))

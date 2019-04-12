@@ -33,7 +33,7 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
 
         public void DeleteAllTablesInSchema(string schemaName)
         {
-            var tables = _dataConnection.GetTable<TableInfo>().Where(x => x.Schema == schemaName).ToArray();
+            var tables = _dataConnection.GetTable<TableInfo>().Where(x => x.Schema == schemaName).ToList();
             foreach (var table in tables)
             {
                 _dataConnection.DropTable<object>(tableName: table.Name, schemaName: table.Schema);

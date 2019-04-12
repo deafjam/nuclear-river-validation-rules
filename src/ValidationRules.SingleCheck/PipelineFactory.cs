@@ -27,8 +27,7 @@ namespace NuClear.ValidationRules.SingleCheck
                                                                    .SelectMany(x => x.Value)
                                                                    .Select(x => x.GetInterfaces().Single(IsAccessorInterface))
                                                                    .Select(GetAccessorDataObject)
-                                                                   .Distinct()
-                                                                   .ToArray());
+                                                                   .ToHashSet());
 
         public Pipeline Create()
         {

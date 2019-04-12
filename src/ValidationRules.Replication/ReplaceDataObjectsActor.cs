@@ -35,8 +35,7 @@ namespace NuClear.ValidationRules.Replication
         {
             var commandsToExecute = commands.OfType<IReplaceDataObjectCommand>()
                                             .Where(x => x.DataObjectType == typeof(TDataObject))
-                                            .Distinct()
-                                            .ToArray();
+                                            .ToHashSet();
 
             if (!commandsToExecute.Any())
             {

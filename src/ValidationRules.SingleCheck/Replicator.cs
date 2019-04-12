@@ -73,16 +73,7 @@ namespace NuClear.ValidationRules.SingleCheck
 
             public override void Process(bool isEmpty)
             {
-                TDataType[] data;
-                if (isEmpty)
-                {
-                    data = Array.Empty<TDataType>();
-                }
-                else
-                {
-                    data = _accessor.GetSource().Execute();
-                }
-
+                var data = isEmpty ? Array.Empty<TDataType>() : _accessor.GetSource().Execute();
                 _target.AddRange(data);
             }
         }

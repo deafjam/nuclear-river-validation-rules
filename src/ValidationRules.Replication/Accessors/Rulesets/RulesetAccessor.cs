@@ -71,7 +71,7 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
 
             return new EventCollectionHelper<Ruleset>
                 {
-                    { typeof(Firm), firmIds.Distinct() },
+                    { typeof(Firm), firmIds.ToHashSet() },
                     { typeof(Ruleset), rulesetsIds }
                 };
         }

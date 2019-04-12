@@ -59,8 +59,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
                 var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
                                            .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
                                            .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Distinct()
-                                           .ToArray();
+                                           .ToHashSet();
                 return new FindSpecification<Theme>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -96,7 +95,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
 
             public FindSpecification<Theme.InvalidCategory> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Theme.InvalidCategory>(x => aggregateIds.Contains(x.ThemeId));
             }
         }

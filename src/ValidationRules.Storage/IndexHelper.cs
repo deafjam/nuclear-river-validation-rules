@@ -44,7 +44,7 @@ namespace NuClear.ValidationRules.Storage
             {
                 _dataConnection.Execute("SET SHOWPLAN_XML ON");
                 var plan = _dataConnection.Execute<XDocument>(sql);
-                return plan.Descendants().Where(x => x.Name.LocalName == "MissingIndex").Select(MissingIndex.FromXml).ToArray();
+                return plan.Descendants().Where(x => x.Name.LocalName == "MissingIndex").Select(MissingIndex.FromXml).ToList();
             }
             finally
             {
@@ -60,8 +60,8 @@ namespace NuClear.ValidationRules.Storage
                     {
                         Schema = index.Attribute("Schema").Value,
                         Table = index.Attribute("Table").Value,
-                        Columns = ColumnNames(index.Elements(), "EQUALITY").Concat(ColumnNames(index.Elements(), "INEQUALITY")).ToArray(),
-                        Include = ColumnNames(index.Elements(), "INCLUDE").ToArray(),
+                        Columns = ColumnNames(index.Elements(), "EQUALITY").Concat(ColumnNames(index.Elements(), "INEQUALITY")).ToList(),
+                        Include = ColumnNames(index.Elements(), "INCLUDE").ToList(),
                     };
             }
 

@@ -53,8 +53,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
                                            .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
                                            .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Distinct()
-                                           .ToArray();
+                                           .ToHashSet();
                 return new FindSpecification<Firm>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -82,7 +81,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 => GetRelatedOrders(arg.Select(x => x.FirmId), query);
 
             private static IReadOnlyCollection<long> GetRelatedOrders(IEnumerable<long> firmIds, IQuery query)
-                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).Distinct().ToArray();
+                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).ToHashSet();
 
             public IQueryable<Firm.FirmPosition> GetSource()
             {
@@ -126,7 +125,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Firm.FirmPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Firm.FirmPosition>(x => aggregateIds.Contains(x.FirmId));
             }
         }
@@ -153,7 +152,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 => GetRelatedOrders(arg.Select(x => x.FirmId), query);
 
             private static IReadOnlyCollection<long> GetRelatedOrders(IEnumerable<long> firmIds, IQuery query)
-                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).Distinct().ToArray();
+                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).ToHashSet();
 
             public IQueryable<Firm.FirmAssociatedPosition> GetSource()
             {
@@ -189,7 +188,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Firm.FirmAssociatedPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Firm.FirmAssociatedPosition>(x => aggregateIds.Contains(x.FirmId));
             }
         }
@@ -213,7 +212,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 => GetRelatedOrders(arg.Select(x => x.FirmId), query);
 
             private static IReadOnlyCollection<long> GetRelatedOrders(IEnumerable<long> firmIds, IQuery query)
-                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).Distinct().ToArray();
+                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).ToHashSet();
 
             public IQueryable<Firm.FirmDeniedPosition> GetSource()
             {
@@ -248,7 +247,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Firm.FirmDeniedPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).Distinct().ToArray();
+                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Firm.FirmDeniedPosition>(x => aggregateIds.Contains(x.FirmId));
             }
         }

@@ -66,8 +66,8 @@ namespace NuClear.ValidationRules.SingleCheck.Store
             using (var scope = CreateTransaction())
             using (var db = CreateConnection())
             {
-                var result = db.GetTable<Lock>().ToArray();
-                var activeLocks = result.Where(x => x.InUse && x.Expires > DateTime.UtcNow).ToArray();
+                var result = db.GetTable<Lock>().ToList();
+                var activeLocks = result.Where(x => x.InUse && x.Expires > DateTime.UtcNow).ToList();
 
                 if (activeLocks.Any())
                 {

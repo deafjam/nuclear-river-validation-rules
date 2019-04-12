@@ -87,6 +87,10 @@ function Get-CommonMetadata {
 				'PrereleaseSymbolSource' = 'http://nuget.2gis.local/SymbolServer/NuGet'
 			}
 		}
+		'UnitTests' = @{
+			# database unit tests performance optimization
+			'Configuration' = 'Release'
+		}
 	}
 }
 
@@ -148,7 +152,6 @@ function Parse-EnvironmentMetadata ($Properties) {
 $AllEntryPoints = @(
 	'ValidationRules.Querying.Host'
 	'ValidationRules.Replication.Host'
-	'ConvertUseCasesService'
 )
 
 $AllEnvironments = @{

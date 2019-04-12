@@ -39,7 +39,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.Composers
         }
 
         public IEnumerable<Message> Distinct(IEnumerable<Message> messages)
-            => messages.Distinct(RuleMessageEqualityComparer.Instance);
+            => messages.ToHashSet(RuleMessageEqualityComparer.Instance);
 
         internal sealed class RuleMessageEqualityComparer : IEqualityComparer<Message>
         {
@@ -52,7 +52,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.Composers
                     return false;
                 }
 
-                var uniqueReferenceCount = x.References.Concat(y.References).Distinct(Reference.Comparer).Count();
+                var uniqueReferenceCount = x.References.Concat(y.References).ToHashSet(Reference.Comparer).Count;
                 return uniqueReferenceCount == x.References.Count;
             }
 

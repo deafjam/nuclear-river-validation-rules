@@ -42,7 +42,7 @@ namespace ValidationRules.Hosting.Common.Settings.Connections
         {
             var unresolvedConnectionStrings = new HashSet<IConnectionStringIdentity>();
             var resolvedConnectionStrings = new Dictionary<IConnectionStringIdentity, string> ();
-            foreach (var identity in identities.Distinct())
+            foreach (var identity in identities.ToHashSet())
             {
                 if (!Identities2NamesMap.TryGetValue(identity, out var connectionStringName))
                 {
