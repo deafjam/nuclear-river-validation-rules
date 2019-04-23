@@ -62,7 +62,7 @@ function Get-BulkToolMetadata ($updateSchemas, $Context){
 		$arguments += @('-messages')
 	}
 
-	$metadata += @{ 'Arguments' = ($arguments | select -Unique) }
+	$metadata += @{ 'Arguments' = ( ($arguments + @('-webapp')) | select -Unique) }
 
 	$Context.EntryPoint = 'ValidationRules.StateInitialization.Host'
 	$metadata += Get-TransformMetadata $Context
@@ -127,7 +127,7 @@ function Parse-EnvironmentMetadata ($Properties) {
 		$entryPoints = $Properties['EntryPoints']
 	
 		if ($entryPoints -and $entryPoints -isnot [array]){
-			$entryPoints = $entryPoints.Split(@(','), 'RemoveEmptyEntries')
+			$entryPoints = $entryPoints.Split(@(','), [System.StringSplitOptions]::RemoveEmptyEntries)
 		}
 
 	} else {
@@ -139,12 +139,11 @@ function Parse-EnvironmentMetadata ($Properties) {
 	$updateSchemas = $Properties['UpdateSchemas']
 	if ($updateSchemas){
 		if ($updateSchemas -isnot [array]){
-			$updateSchemas = $updateSchemas.Split(@(','), 'RemoveEmptyEntries')
+			$updateSchemas = $updateSchemas.Split(@(','), [System.StringSplitOptions]::RemoveEmptyEntries)
 		}
-
-		$environmentMetadata += Get-BulkToolMetadata $updateSchemas $context
 		$environmentMetadata += @{ 'UpdateSchemas' = $true }
 	}
+	$environmentMetadata += Get-BulkToolMetadata $updateSchemas $context
 
 	return $environmentMetadata
 }

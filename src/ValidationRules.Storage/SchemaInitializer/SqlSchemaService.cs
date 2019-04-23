@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using LinqToDB;
+﻿using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.Mapping;
+using LinqToDB.SchemaProvider;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NuClear.ValidationRules.Storage.SchemaInitializer
 {
@@ -11,12 +12,9 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
     {
         private readonly DataConnection _dataConnection;
 
-        public SqlSchemaService(DataConnection dataConnection)
-        {
-            _dataConnection = dataConnection;
-        }
+        public SqlSchemaService(DataConnection dataConnection) => _dataConnection = dataConnection;
 
-        public void CreateTablesWithIndices(MappingSchema schema, IEnumerable<Type> dataObjectTypes)
+        public void CreateTables(IEnumerable<Type> dataObjectTypes)
         {
             foreach (var dataObjectType in dataObjectTypes)
             {
@@ -31,13 +29,19 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
             }
         }
 
-        public void DeleteAllTablesInSchema(string schemaName)
+        public void DropTables(IEnumerable<TableSchema> tables)
         {
-            var tables = _dataConnection.GetTable<TableInfo>().Where(x => x.Schema == schemaName).ToList();
             foreach (var table in tables)
             {
-                _dataConnection.DropTable<object>(tableName: table.Name, schemaName: table.Schema);
+                _dataConnection.DropTable<object>(tableName: table.TableName, schemaName: table.SchemaName);
             }
+        }
+
+        public IReadOnlyList<TableSchema> AllTables()
+        {
+            var dataProvider = DataConnection.GetDataProvider(_dataConnection.ConfigurationString);
+            var schemaProvider = dataProvider.GetSchemaProvider();
+            return schemaProvider.GetSchema(_dataConnection).Tables;
         }
 
         private abstract class TableManager
@@ -52,10 +56,7 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
 
             private sealed class TableManagerImpl<T> : TableManager where T : class
             {
-                public override void CreateTable(DataConnection db)
-                {
-                    db.CreateTable<T>();
-                }
+                public override void CreateTable(DataConnection db) => db.CreateTable<T>();
             }
         }
 
@@ -63,10 +64,7 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
         {
             private readonly Type _dataObjectType;
 
-            public IndexManager(Type dataObjectType)
-            {
-                _dataObjectType = dataObjectType;
-            }
+            public IndexManager(Type dataObjectType) => _dataObjectType = dataObjectType;
 
             public void CreateIndices(DataConnection db)
             {
@@ -75,7 +73,9 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
                 foreach (var index in indices)
                 {
                     var command = db.CreateCommand();
-                    command.CommandText = $"CREATE INDEX IX_{table.Name}_{string.Join("_", index.Fields.Select(x => x.Name))} ON [{table.Schema ?? "dbo"}].[{table.Name ?? _dataObjectType.Name}] "
+                    var tableName = table.Name ?? _dataObjectType.Name;
+
+                    command.CommandText = $"CREATE INDEX [IX_{tableName}_{string.Join("_", index.Fields.Select(x => x.Name))}] ON [{table.Schema ?? "dbo"}].[{tableName}] "
                                           + $"({string.Join(", ", index.Fields.Select(x => "[" + x.Name + "]"))})"
                                           + (index.Include.Any() ? $" INCLUDE ({string.Join(", ", index.Include.Select(x => "[" + x.Name + "]"))})" : string.Empty);
                     command.ExecuteNonQuery();
@@ -87,10 +87,7 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
         {
             private readonly Type _dataObjectType;
 
-            public SchemaManager(Type dataObjectType)
-            {
-                _dataObjectType = dataObjectType;
-            }
+            public SchemaManager(Type dataObjectType) => _dataObjectType = dataObjectType;
 
             public void CreateSchema(DataConnection db)
             {
@@ -102,16 +99,5 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
                 command.ExecuteNonQuery();
             }
         }
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        [Table(Name = "TABLES", Schema = "INFORMATION_SCHEMA")]
-	    private sealed class TableInfo
-	    {
-		    [Column(Name = "TABLE_SCHEMA")]
-		    public string Schema { get; set; }
-
-		    [Column(Name = "TABLE_NAME")]
-		    public string Name { get; set; }
-	    }
 	}
 }

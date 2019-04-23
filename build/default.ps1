@@ -55,7 +55,7 @@ Task QueueBuild-Tests {
 	}
 }
 
-Task Stop-ReplicationHost -Precondition { $Metadata['ValidationRules.Replication.Host'] -or $Metadata['ValidationRules.StateInitialization.Host']} {
+Task Stop-ReplicationHost -Precondition { $Metadata['ValidationRules.Replication.Host'] -or $Metadata['UpdateSchemas']} {
 	Load-WinServiceModule 'ValidationRules.Replication.Host'
 	Take-WinServiceOffline 'ValidationRules.Replication.Host'
 }
@@ -77,4 +77,5 @@ Task Deploy-Packages -depends `
 	QueueDeploy-ConvertUseCasesService, `
 	QueueDeploy-QueryingHost, `
 	QueueDeploy-ReplicationHost, `
-	Deploy-Queue
+	Deploy-Queue, `
+	Run-BulkTool-Drop

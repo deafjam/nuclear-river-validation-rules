@@ -23,8 +23,8 @@ namespace NuClear.ValidationRules.Storage
         private const string ThemeAggregatesSchema = "ThemeAggregates";
         private const string SystemAggregatesSchema = "SystemAggregates";
 
-        public static MappingSchema Aggregates
-            => new MappingSchema(nameof(Aggregates), new SqlServerMappingSchema())
+        public static MappingSchema Aggregates { get; } =
+             new MappingSchema(nameof(Aggregates), new SqlServerMappingSchema())
                 .RegisterDataTypes()
                 .GetFluentMappingBuilder()
                 .RegisterPriceAggregates()

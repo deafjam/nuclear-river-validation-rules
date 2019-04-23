@@ -110,6 +110,7 @@ namespace NuClear.ValidationRules.Querying.Host.DI
         private static IUnityContainer ConfigureSingleCheck(this IUnityContainer container)
         {
             container.RegisterType<PipelineFactory>();
+            container.RegisterType<VersionHelper>(new ContainerControlledLifetimeManager());
 
             return container;
         }

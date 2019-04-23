@@ -8,7 +8,7 @@ Import-Module "$BuildToolsRoot\modules\servicebus.psm1" -DisableNameChecking
 Import-Module "$BuildToolsRoot\modules\transform.psm1" -DisableNameChecking
 
 # TODO: QueueDeploy-ServiceBus
-Task Deploy-ServiceBus {
+Task Deploy-ServiceBus -Precondition { $Metadata['UpdateSchemas'] } {
 
 	if ($Metadata['ValidationRules.Replication.Host']){
 		Deploy-ServiceBus 'ValidationRules.Replication.Host'	

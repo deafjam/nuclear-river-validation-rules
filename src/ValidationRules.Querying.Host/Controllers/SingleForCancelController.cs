@@ -4,6 +4,7 @@ using NuClear.ValidationRules.Querying.Host.CheckModes;
 using NuClear.ValidationRules.Querying.Host.Composition;
 using NuClear.ValidationRules.SingleCheck;
 using NuClear.ValidationRules.Storage.Model.Messages;
+using ValidationRules.Hosting.Common;
 
 namespace NuClear.ValidationRules.Querying.Host.Controllers
 {
@@ -12,19 +13,21 @@ namespace NuClear.ValidationRules.Querying.Host.Controllers
     {
         private readonly ValidationResultFactory _factory;
         private readonly PipelineFactory _pipelineFactory;
+        private readonly VersionHelper _versionHelper;
         private readonly ICheckModeDescriptor _checkModeDescriptor;
 
-        public SingleForCancelController(ValidationResultFactory factory, PipelineFactory pipelineFactory, CheckModeDescriptorFactory descriptorFactory)
+        public SingleForCancelController(ValidationResultFactory factory, PipelineFactory pipelineFactory, CheckModeDescriptorFactory descriptorFactory, VersionHelper versionHelper)
         {
             _factory = factory;
             _pipelineFactory = pipelineFactory;
+            _versionHelper = versionHelper;
             _checkModeDescriptor = descriptorFactory.GetDescriptorFor(CheckMode.SingleForCancel);
         }
 
         [Route(""), HttpPost]
         public IHttpActionResult Post([FromBody]ApiRequest request)
         {
-            var pipeline = _pipelineFactory.Create();
+            var pipeline = _pipelineFactory.Create(_versionHelper.Version);
             var validationResults = pipeline.Execute(request.OrderId, _checkModeDescriptor);
             var result = _factory.GetValidationResult(validationResults, _checkModeDescriptor);
             return Ok(result);

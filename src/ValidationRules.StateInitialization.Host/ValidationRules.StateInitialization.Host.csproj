@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ValidationRules.OperationsProcessing\ValidationRules.OperationsProcessing.csproj" />
+    <ProjectReference Include="..\ValidationRules.SingleCheck\ValidationRules.SingleCheck.csproj" />
   </ItemGroup>
 
   <ItemGroup>

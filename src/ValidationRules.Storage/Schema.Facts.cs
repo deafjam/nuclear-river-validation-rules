@@ -9,8 +9,8 @@ namespace NuClear.ValidationRules.Storage
     {
         private const string FactsSchema = "Facts";
 
-        public static MappingSchema Facts
-            => new MappingSchema(nameof(Facts), new SqlServerMappingSchema())
+        public static MappingSchema Facts { get; } =
+            new MappingSchema(nameof(Facts), new SqlServerMappingSchema())
                 .RegisterDataTypes()
                 .GetFluentMappingBuilder()
                 .RegisterFacts()

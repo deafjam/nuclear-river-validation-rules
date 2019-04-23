@@ -1,10 +1,5 @@
-﻿using System.Xml.Linq;
-
-using LinqToDB;
-using LinqToDB.Data;
-using LinqToDB.DataProvider.SqlServer;
+﻿using LinqToDB.DataProvider.SqlServer;
 using LinqToDB.Mapping;
-using LinqToDB.SqlQuery;
 
 using NuClear.ValidationRules.Storage.Model.Messages;
 
@@ -15,8 +10,8 @@ namespace NuClear.ValidationRules.Storage
         private const string MessagesSchema = "Messages";
         private const string CacheSchema = "MessagesCache";
 
-        public static MappingSchema Messages
-            => new MappingSchema(nameof(Messages), new SqlServerMappingSchema())
+        public static MappingSchema Messages { get; } =
+            new MappingSchema(nameof(Messages), new SqlServerMappingSchema())
                 .RegisterDataTypes()
                 .GetFluentMappingBuilder()
                 .RegisterMessages()
@@ -58,22 +53,6 @@ namespace NuClear.ValidationRules.Storage
                    .HasPrimaryKey(x => x.MessageType);
 
             return builder;
-        }
-
-        private static MappingSchema RegisterDataTypes(this MappingSchema schema)
-        {
-            schema.SetDataType(typeof(decimal), new SqlDataType(DataType.Decimal, 19, 4));
-            schema.SetDataType(typeof(decimal?), new SqlDataType(DataType.Decimal, 19, 4));
-            schema.SetDataType(typeof(string), new SqlDataType(DataType.NVarChar, int.MaxValue));
-            schema.SetDataType(typeof(byte[]), new SqlDataType(DataType.VarBinary, int.MaxValue));
-
-            // XDocument mapping to nvarchar
-            schema.SetDataType(typeof(XDocument), new SqlDataType(DataType.NVarChar, 4000));
-            schema.SetConvertExpression<string, XDocument>(x => XDocument.Parse(x));
-            schema.SetConvertExpression<XDocument, string>(x => x.ToString(SaveOptions.DisableFormatting));
-            schema.SetConvertExpression<XDocument, DataParameter>(x => new DataParameter { DataType = DataType.NVarChar, Value = x.ToString(SaveOptions.DisableFormatting) });
-
-            return schema;
         }
     }
 }

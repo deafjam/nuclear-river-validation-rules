@@ -40,21 +40,18 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 // Надо подумать о лишней обёртке
                 commands.Add(new KafkaReplicationCommand(AmsFactsFlow.Instance, BulkReplicationCommands.AmsToFacts));
                 commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts));
-                commands.Add(SchemaInitializationCommands.WebApp);
                 commands.Add(SchemaInitializationCommands.Facts);
             }
 
             if (args.Contains("-aggregates"))
             {
                 commands.Add(BulkReplicationCommands.FactsToAggregates);
-                commands.Add(SchemaInitializationCommands.WebApp);
                 commands.Add(SchemaInitializationCommands.Aggregates);
             }
 
             if (args.Contains("-messages"))
             {
                 commands.Add(BulkReplicationCommands.AggregatesToMessages);
-                commands.Add(SchemaInitializationCommands.WebApp);
                 commands.Add(SchemaInitializationCommands.Messages);
             }
 
@@ -100,6 +97,17 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             bulkReplicationActor.ExecuteCommands(commands.Where(x => x == BulkReplicationCommands.ErmToFacts).ToList());
             kafkaReplicationActor.ExecuteCommands(commands);
             bulkReplicationActor.ExecuteCommands(commands.Where(x => x != BulkReplicationCommands.ErmToFacts).ToList());
+
+            var webAppSchemaHelper = new WebAppSchemaInitializationHelper(connectionStringSettings);
+            if (args.Contains("-webapp"))
+            {
+                webAppSchemaHelper.CreateWebAppSchema(SchemaInitializationCommands.WebApp);
+            }
+
+            if (args.Contains("-webapp-drop"))
+            {
+                webAppSchemaHelper.DropWebAppSchema(SchemaInitializationCommands.WebApp);
+            }
 
             Console.WriteLine($"Total time: {sw.ElapsedMilliseconds}ms");
         }

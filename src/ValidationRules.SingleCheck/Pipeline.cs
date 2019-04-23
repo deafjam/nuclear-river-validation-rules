@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Transactions;
 
 using LinqToDB.Data;
-
+using LinqToDB.Mapping;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.Storage.API.Readings;
 using NuClear.Telemetry.Probing;
@@ -24,17 +24,15 @@ namespace NuClear.ValidationRules.SingleCheck
         private readonly IReadOnlyCollection<Type> _factAccessorTypes;
         private readonly IReadOnlyCollection<Type> _aggregateAccessorTypes;
         private readonly IReadOnlyCollection<Type> _messageAccessorTypes;
-        private readonly SchemaManager _schemaManager; // todo: убрать, некрасиво
-        private readonly LockManager _lockManager;
+        private readonly MappingSchema _webAppMappingSchema; // todo: убрать, некрасиво
         private readonly IPipelineStrategy _strategy;
 
-        public Pipeline(IReadOnlyCollection<Type> factAccessorTypes, IReadOnlyCollection<Type> aggregateAccessorTypes, IReadOnlyCollection<Type> messageAccessorTypes, SchemaManager schemaManager)
+        public Pipeline(IReadOnlyCollection<Type> factAccessorTypes, IReadOnlyCollection<Type> aggregateAccessorTypes, IReadOnlyCollection<Type> messageAccessorTypes, MappingSchema webAppMappingSchema)
         {
             _factAccessorTypes = factAccessorTypes;
             _aggregateAccessorTypes = aggregateAccessorTypes;
             _messageAccessorTypes = messageAccessorTypes;
-            _schemaManager = schemaManager;
-            _lockManager = new LockManager();
+            _webAppMappingSchema = webAppMappingSchema;
             _strategy = new OverOptimizedPipelineStrategy(); // new OptimizedPipelineStrategy();
         }
 
@@ -42,11 +40,11 @@ namespace NuClear.ValidationRules.SingleCheck
         {
             // todo: можно использовать checkModeDescriptor для дальнейшей оптимизации
             var optimization = new Optimizer();
-            Func<IStore, IStore> wrap = store => new OptimizerStore(optimization, store);
+            IStore Wrap(IStore store) => new OptimizerStore(optimization, store);
 
             using (Probe.Create("Execute"))
             using (var erm = new HashSetStoreFactory())
-            using (var store = new PersistentTableStoreFactory(_lockManager, _schemaManager))
+            using (var store = new PersistentTableStoreFactory(_webAppMappingSchema))
             using (var messages = new HashSetStoreFactory())
             {
                 IReadOnlyCollection<Replicator> factReplicators;
@@ -55,9 +53,9 @@ namespace NuClear.ValidationRules.SingleCheck
 
                 using (Probe.Create("Initialization"))
                 {
-                    factReplicators = CreateReplicators(_factAccessorTypes, erm.CreateQuery(), wrap(store.CreateStore()));
-                    aggregateReplicators = CreateReplicators(_aggregateAccessorTypes, store.CreateQuery(), wrap(store.CreateStore()));
-                    messageReplicators = CreateReplicators(_messageAccessorTypes, store.CreateQuery(), wrap(messages.CreateStore()))
+                    factReplicators = CreateReplicators(_factAccessorTypes, erm.CreateQuery(), Wrap(store.CreateStore()));
+                    aggregateReplicators = CreateReplicators(_aggregateAccessorTypes, store.CreateQuery(), Wrap(store.CreateStore()));
+                    messageReplicators = CreateReplicators(_messageAccessorTypes, store.CreateQuery(), Wrap(messages.CreateStore()))
                         .Where(x => x.DataObjectType == typeof(Version.ValidationResult) && checkModeDescriptor.Rules.ContainsKey(x.Rule)).ToList();
 
                     var predicates = factReplicators.Concat(aggregateReplicators).Concat(messageReplicators).SelectMany(x => x.DependencyPredicates);
@@ -67,12 +65,12 @@ namespace NuClear.ValidationRules.SingleCheck
                 ErmDataLoader.ResolvedOrderSummary orderSummary;
                 using (Probe.Create("Erm -> Erm slice"))
                 {
-                    ReadErmSlice(orderId, wrap(erm.CreateStore()), out orderSummary);
+                    ReadErmSlice(orderId, Wrap(erm.CreateStore()), out orderSummary);
                 }
 
                 using (Probe.Create("Rulesets -> Facts"))
                 {
-                    ReadRulesetsSlice(orderSummary, wrap(store.CreateStore()));
+                    ReadRulesetsSlice(orderSummary, Wrap(store.CreateStore()));
                 }
 
                 using (Probe.Create("Erm slice -> Facts"))

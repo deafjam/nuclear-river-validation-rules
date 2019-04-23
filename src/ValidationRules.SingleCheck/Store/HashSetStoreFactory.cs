@@ -1,7 +1,4 @@
-﻿using System;
-
-using LinqToDB.Mapping;
-
+﻿using LinqToDB.Mapping;
 using NuClear.Replication.Core;
 using NuClear.Storage.API.Readings;
 using NuClear.ValidationRules.Storage;
@@ -11,31 +8,20 @@ namespace NuClear.ValidationRules.SingleCheck.Store
 {
     public sealed class HashSetStoreFactory : IStoreFactory
     {
-        public static readonly Lazy<MappingSchema> MappingSchema =
-            new Lazy<MappingSchema>(() => new MappingSchema(Schema.Erm, Schema.Facts, Schema.Aggregates, Schema.Messages));
-
-        public static readonly Lazy<EqualityComparerFactory> EqualityComparerFactory =
-            new Lazy<EqualityComparerFactory>(() => new EqualityComparerFactory(new LinqToDbPropertyProvider(MappingSchema.Value), new XDocumentComparer(), new DateTimeComparer()));
+        public static readonly EqualityComparerFactory EqualityComparerFactory =
+            new EqualityComparerFactory(
+                new LinqToDbPropertyProvider(new MappingSchema(Schema.Erm, Schema.Facts, Schema.Aggregates, Schema.Messages)),
+                new XDocumentComparer(),
+                new DateTimeComparer());
 
         private readonly HashSetStore _store;
 
-        public HashSetStoreFactory()
-        {
-            _store = new HashSetStore(EqualityComparerFactory.Value);
-        }
+        public HashSetStoreFactory() => _store = new HashSetStore(EqualityComparerFactory);
 
-        public IStore CreateStore()
-        {
-            return _store;
-        }
+        public IStore CreateStore() => _store;
 
-        public IQuery CreateQuery()
-        {
-            return _store;
-        }
+        public IQuery CreateQuery() => _store;
 
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
     }
 }

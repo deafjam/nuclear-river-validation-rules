@@ -7,7 +7,6 @@ using NuClear.Replication.Core.DataObjects;
 using NuClear.StateInitialization.Core.Commands;
 using NuClear.StateInitialization.Core.DataObjects;
 using NuClear.StateInitialization.Core.Factories;
-using NuClear.ValidationRules.StateInitialization.Host.Kafka;
 using NuClear.ValidationRules.Storage.Connections;
 
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
@@ -22,8 +21,6 @@ using ProjectAggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Agg
 using SystemAggregates = NuClear.ValidationRules.Storage.Model.SystemRules.Aggregates;
 
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
-
-using WebApp = NuClear.ValidationRules.Storage.Model.WebApp;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
@@ -174,11 +171,6 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(Messages::Version.ErmState),
                 typeof(Messages::Version.AmsState),
                 typeof(Messages::Cache.ValidationResult),
-            };
-
-        public static readonly Type[] WebAppTypes =
-            {
-                typeof(WebApp::Lock),
             };
 
         public IDataObjectTypesProvider Create(ReplicateInBulkCommand command)

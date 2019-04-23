@@ -1,18 +1,18 @@
+using LinqToDB.Data;
+using LinqToDB.DataProvider.SqlServer;
+using LinqToDB.Mapping;
+using NuClear.Replication.Core;
+using NuClear.Replication.Core.Actors;
+using NuClear.Storage.API.ConnectionStrings;
+using NuClear.ValidationRules.SingleCheck.Store;
+using NuClear.ValidationRules.Storage;
+using NuClear.ValidationRules.Storage.Connections;
+using NuClear.ValidationRules.Storage.SchemaInitializer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-
-using LinqToDB.Data;
-using LinqToDB.DataProvider.SqlServer;
-using LinqToDB.Mapping;
-
-using NuClear.Replication.Core;
-using NuClear.Replication.Core.Actors;
-using NuClear.Storage.API.ConnectionStrings;
-using NuClear.ValidationRules.Storage;
-using NuClear.ValidationRules.Storage.Connections;
-using NuClear.ValidationRules.Storage.SchemaInitializer;
+using ValidationRules.Hosting.Common;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
@@ -40,16 +40,19 @@ namespace NuClear.ValidationRules.StateInitialization.Host
         private void ExecuteCommand(SchemaInitializationCommand cmd)
         {
             using (var db = CreateDataConnection(cmd))
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
             {
                 var service = new SqlSchemaService(db);
-                foreach (var schema in cmd.SqlSchemas)
-                {
-                    service.DeleteAllTablesInSchema(schema);
-                }
+                var allTables = service.AllTables();
 
-                service.CreateTablesWithIndices(cmd.MappingSchema, cmd.DataTypes);
-                scope.Complete();
+                var tablesToDelete = allTables
+                    .Where(x => cmd.SqlSchemas.Contains(x.SchemaName));
+
+                using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
+                {
+                    service.DropTables(tablesToDelete);
+                    service.CreateTables(cmd.DataTypes);
+                    scope.Complete();
+                }
             }
         }
 
@@ -80,10 +83,6 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
     public static class SchemaInitializationCommands
     {
-        public static SchemaInitializationCommand WebApp { get; }
-            = new SchemaInitializationCommand(Schema.WebApp, DataObjectTypesProviderFactory.WebAppTypes, FactsConnectionStringIdentity.Instance, 
-                new[] { "WebApp" });
-
         public static SchemaInitializationCommand Facts { get; }
             = new SchemaInitializationCommand(Schema.Facts,
                                               DataObjectTypesProviderFactory.AllSourcesFactTypes,
@@ -97,5 +96,9 @@ namespace NuClear.ValidationRules.StateInitialization.Host
         public static SchemaInitializationCommand Messages { get; }
             = new SchemaInitializationCommand(Schema.Messages, DataObjectTypesProviderFactory.MessagesTypes, MessagesConnectionStringIdentity.Instance,
                 new[] { "Messages", "MessagesCache" });
+
+        public static SchemaInitializationCommand WebApp { get; }
+            = new SchemaInitializationCommand(WebAppMappingSchemaHelper.GetWebAppMappingSchema(new VersionHelper().Version), WebAppMappingSchemaHelper.DataObjectTypes, FactsConnectionStringIdentity.Instance,
+                new[] { "WebApp" });
     }
 }
