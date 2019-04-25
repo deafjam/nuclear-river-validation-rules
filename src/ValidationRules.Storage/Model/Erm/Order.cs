@@ -26,6 +26,8 @@ namespace NuClear.ValidationRules.Storage.Model.Erm
 
         public static readonly int[] FilteredStates = { OrderStateArchive, OrderStateRejected };
 
+        public const int OrderSaleTypeSelfSale = 2;
+
         public long Id { get; set; }
         public long FirmId { get; set; }
         public long DestOrganizationUnitId { get; set; }
@@ -42,6 +44,7 @@ namespace NuClear.ValidationRules.Storage.Model.Erm
         public DateTime EndDistributionDatePlan { get; set; }
         public int WorkflowStepId { get; set; }
         public int OrderType { get; set; }
+        public int SaleType { get; set; }
         public string Number { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }

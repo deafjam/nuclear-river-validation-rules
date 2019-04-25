@@ -67,7 +67,6 @@
 
         OrderMustHaveActiveDeal = 62,
         OrderMustHaveActiveLegalEntities = 63,
-        AdvantageousPurchasesBannerMustBeSoldInTheSameCategory = 64,
 
         FirmAddressMustNotHaveMultiplePremiumPartnerAdvertisement = 71,
         FirmAddressShouldNotHaveMultiplePartnerAdvertisement = 72,

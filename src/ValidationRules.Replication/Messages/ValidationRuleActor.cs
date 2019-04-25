@@ -259,7 +259,6 @@ namespace NuClear.ValidationRules.Replication.Messages
             {
                 return new IValidationResultAccessor[]
                 {
-                    new AdvantageousPurchasesBannerMustBeSoldInTheSameCategory(_query),
                     new BargainScanShouldPresent(_query),
                     new LegalPersonProfileBargainShouldNotBeExpired(_query),
                     new LegalPersonProfileWarrantyShouldNotBeExpired(_query),

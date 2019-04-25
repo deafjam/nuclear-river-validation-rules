@@ -50,6 +50,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 WorkflowStep = order.WorkflowStepId,
                 IsFreeOfCharge = Erm::Order.FreeOfChargeTypes.Contains(order.OrderType),
                 IsSelfAds = order.OrderType == Erm::Order.OrderTypeSelfAds,
+                IsSelfSale = order.SaleType == Erm::Order.OrderSaleTypeSelfSale,
             });
 
         public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

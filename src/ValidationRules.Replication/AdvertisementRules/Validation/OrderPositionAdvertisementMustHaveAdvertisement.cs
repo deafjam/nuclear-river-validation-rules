@@ -22,7 +22,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Validation
         {
             var ruleResults =
                 from order in query.For<Order>()
-                from fail in query.For<Order.MissingAdvertisementReference>().Where(x => x.OrderId == order.Id && !x.AdvertisementIsOptional)
+                from fail in query.For<Order.MissingAdvertisementReference>().Where(x => !x.AdvertisementIsOptional).Where(x => x.OrderId == order.Id)
                 select new Version.ValidationResult
                     {
                         MessageParams =

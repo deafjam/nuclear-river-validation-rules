@@ -38,12 +38,6 @@ namespace NuClear.ValidationRules.Querying.Host.CheckModes
                          prerelease: RuleSeverityLevel.Warning,
                          release: RuleSeverityLevel.Warning),
 
-                    Rule(MessageTypeCode.AdvantageousPurchasesBannerMustBeSoldInTheSameCategory,
-                         single: RuleSeverityLevel.Error,
-                         manualReport: RuleSeverityLevel.Error,
-                         prerelease: RuleSeverityLevel.Error,
-                         release: RuleSeverityLevel.Error),
-
                     Rule(MessageTypeCode.BargainScanShouldPresent,
                          single: RuleSeverityLevel.Warning),
 

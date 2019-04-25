@@ -25,6 +25,7 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
         public int WorkflowStep { get; set; }
         public bool IsFreeOfCharge { get; set; }
         public bool IsSelfAds { get; set; }
+        public bool IsSelfSale { get; set; }
 
         public static class State
         {

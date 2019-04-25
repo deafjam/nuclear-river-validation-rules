@@ -242,7 +242,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
             public IQueryable<Order.AdvertisementFailedReview> GetSource()
             {
                 var result =
-                    from order in _query.For<Facts::Order>()
+                    from order in _query.For<Facts::Order>().Where(x => !x.IsSelfSale)
                     from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
                     from p in _query.For<Facts::Position>().Where(x => x.Id == opa.PositionId)
