@@ -58,6 +58,8 @@ namespace ValidationRules.Replication.DatabaseComparison.Tests
                 using (var source = new DataConnection(sourceDescriptor.ConnectionStringName).AddMappingSchema(sourceDescriptor.MappingSchema))
                 using (var dest = new DataConnection(destDescriptor.ConnectionStringName).AddMappingSchema(destDescriptor.MappingSchema))
                 {
+                    source.CommandTimeout = 0;
+
                     var accessorTypes = TypeProvider.GetAccessorTypes(destDescriptor.MappingSchema, typeof(T));
                     var completeChanges = new EntityChanges<T>(_objectReader.ReadSource(source, accessorTypes), _objectReader.ReadDest(dest), CompleteComparer);
                     var changes = new EntityChanges<T>(completeChanges.SourceOnly, completeChanges.DestOnly, IdentityComparer);

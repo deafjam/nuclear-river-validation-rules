@@ -63,6 +63,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             var connectionString = _connectionStringSettings.GetConnectionString(connectionStringIdentity);
             var dataConnection = SqlServerTools.CreateDataConnection(connectionString);
             dataConnection.AddMappingSchema(mappingSchema);
+            dataConnection.CommandTimeout = 0;
             return dataConnection;
         }
     }

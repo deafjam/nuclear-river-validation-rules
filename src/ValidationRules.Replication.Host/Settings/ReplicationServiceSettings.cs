@@ -31,9 +31,7 @@ namespace NuClear.ValidationRules.Replication.Host.Settings
             var connectionStrings = ConnectionStrings.For(ErmConnectionStringIdentity.Instance,
                                                           AmsConnectionStringIdentity.Instance,
                                                           RulesetConnectionStringIdentity.Instance,
-                                                          FactsConnectionStringIdentity.Instance,
-                                                          AggregatesConnectionStringIdentity.Instance,
-                                                          MessagesConnectionStringIdentity.Instance,
+                                                          ValidationRulesConnectionStringIdentity.Instance,
                                                           ServiceBusConnectionStringIdentity.Instance,
                                                           InfrastructureConnectionStringIdentity.Instance,
                                                           LoggingConnectionStringIdentity.Instance);

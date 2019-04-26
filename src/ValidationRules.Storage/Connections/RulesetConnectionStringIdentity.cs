@@ -7,6 +7,6 @@ namespace NuClear.ValidationRules.Storage.Connections
     {
         public override int Id => 20;
 
-        public override string Description => "Ruleset connection string identity";
+        public override string Description => nameof(RulesetConnectionStringIdentity);
     }
 }

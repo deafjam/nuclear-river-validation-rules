@@ -7,6 +7,6 @@ namespace NuClear.ValidationRules.Storage.Connections
     {
         public override int Id => 19;
 
-        public override string Description => "AMS connection string identity";
+        public override string Description => nameof(AmsConnectionStringIdentity);
     }
 }

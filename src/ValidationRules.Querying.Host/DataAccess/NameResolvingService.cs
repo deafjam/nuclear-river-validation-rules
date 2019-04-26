@@ -9,8 +9,6 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 {
     public class NameResolvingService
     {
-        private const string ConfigurationString = "Facts";
-
         private readonly DataConnectionFactory _factory;
 
         public NameResolvingService(DataConnectionFactory factory)
@@ -32,7 +30,7 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
         {
             var searchKeys = references.Select(x => new { x.Id, x.EntityType });
 
-            using (var connection = _factory.CreateDataConnection(ConfigurationString))
+            using (var connection = _factory.CreateDataConnection())
             {
                 return connection
                     .GetTable<EntityName>()

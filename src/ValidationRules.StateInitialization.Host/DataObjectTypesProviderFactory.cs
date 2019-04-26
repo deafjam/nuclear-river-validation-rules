@@ -7,6 +7,7 @@ using NuClear.Replication.Core.DataObjects;
 using NuClear.StateInitialization.Core.Commands;
 using NuClear.StateInitialization.Core.DataObjects;
 using NuClear.StateInitialization.Core.Factories;
+using NuClear.ValidationRules.Storage;
 using NuClear.ValidationRules.Storage.Connections;
 
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
@@ -26,11 +27,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 {
     public sealed class DataObjectTypesProviderFactory : IDataObjectTypesProviderFactory
     {
-        public static IReadOnlyCollection<Type> AllSourcesFactTypes =>
-            DataObjectTypesProviderFactory.ErmFactTypes
-                                          .Union(DataObjectTypesProviderFactory.AmsFactTypes)
-                                          .Union(DataObjectTypesProviderFactory.RulesetFactTypes)
-                                          .ToList();
+        public static IReadOnlyCollection<Type> AllSourcesFactTypes => ErmFactTypes.Union(AmsFactTypes).Union(RulesetFactTypes).ToList();
 
         public static readonly Type[] ErmFactTypes =
             {
@@ -175,13 +172,14 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
         public IDataObjectTypesProvider Create(ReplicateInBulkCommand command)
         {
-            if (command.TargetStorageDescriptor.ConnectionStringIdentity is FactsConnectionStringIdentity)
+            if (command.TargetStorageDescriptor.MappingSchema == Schema.Facts)
             {
                 if (command.SourceStorageDescriptor.ConnectionStringIdentity is AmsConnectionStringIdentity)
                 {
                     return new DataObjectTypesProvider(AmsFactTypes);
                 }
-                else if (command.SourceStorageDescriptor.ConnectionStringIdentity is RulesetConnectionStringIdentity)
+
+                if (command.SourceStorageDescriptor.ConnectionStringIdentity is RulesetConnectionStringIdentity)
                 {
                     return new DataObjectTypesProvider(RulesetFactTypes);
                 }
@@ -189,12 +187,12 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 return new CommandRegardlessDataObjectTypesProvider(ErmFactTypes);
             }
 
-            if (command.TargetStorageDescriptor.ConnectionStringIdentity is AggregatesConnectionStringIdentity)
+            if (command.TargetStorageDescriptor.MappingSchema == Schema.Aggregates)
             {
                 return new CommandRegardlessDataObjectTypesProvider(AggregateTypes);
             }
 
-            if (command.TargetStorageDescriptor.ConnectionStringIdentity is MessagesConnectionStringIdentity)
+            if (command.TargetStorageDescriptor.MappingSchema == Schema.Messages)
             {
                 return new CommandRegardlessDataObjectTypesProvider(MessagesTypes);
             }

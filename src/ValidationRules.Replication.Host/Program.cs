@@ -58,19 +58,19 @@ namespace NuClear.ValidationRules.Replication.Host
                         schedulerManager.Start();
                     }
 
-                    Console.WriteLine("Advanced Search Replication service successfully started.");
+                    Console.WriteLine("ERM Validation Rules Replication service successfully started.");
                     Console.WriteLine("Press ENTER to stop...");
 
                     Console.ReadLine();
 
-                    Console.WriteLine("Advanced Search Replication service is stopping...");
+                    Console.WriteLine("ERM Validation Rules Replication service is stopping...");
 
                     foreach (var schedulerManager in schedulerManagers)
                     {
                         schedulerManager.Stop();
                     }
 
-                    Console.WriteLine("Advanced Search Replication service stopped successfully. Press ENTER to exit...");
+                    Console.WriteLine("ERM Validation Rules Replication service stopped successfully. Press ENTER to exit...");
                     Console.ReadLine();
                 }
                 else

@@ -32,7 +32,6 @@
         public const int PricePosition = 154;
         public const int Project = 158;
         public const int ReleaseInfo = 203;
-        public const int ReleaseWithdrawal = 215;
         public const int Theme = 221;
         public const int ThemeCategory = 223;
         public const int ThemeOrganizationUnit = 224;

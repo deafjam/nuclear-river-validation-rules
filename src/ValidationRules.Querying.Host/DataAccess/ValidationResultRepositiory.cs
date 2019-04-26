@@ -15,8 +15,6 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 {
     public sealed class ValidationResultRepositiory
     {
-        private const string ConfigurationString = "Messages";
-
         private readonly DataConnectionFactory _factory;
 
         public ValidationResultRepositiory(DataConnectionFactory factory)
@@ -26,7 +24,7 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 
         public IReadOnlyCollection<Version.ValidationResult> GetResults(long versionId, IReadOnlyCollection<long> orderIds, long? projectId, DateTime start, DateTime end, ICheckModeDescriptor checkModeDescriptor)
         {
-            using (var connection = _factory.CreateDataConnection(ConfigurationString))
+            using (var connection = _factory.CreateDataConnection())
             {
                 var orderIdentities = ToTemporaryTable(connection, orderIds);
                 var validationResults = connection.GetTable<Version.ValidationResult>()

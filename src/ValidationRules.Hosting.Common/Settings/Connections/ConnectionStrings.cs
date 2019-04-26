@@ -14,15 +14,13 @@ namespace ValidationRules.Hosting.Common.Settings.Connections
         private static readonly IReadOnlyDictionary<IConnectionStringIdentity, string> Identities2NamesMap =
             new Dictionary<IConnectionStringIdentity, string>
             {
-                [ErmConnectionStringIdentity.Instance] = Names.Erm,
-                [AmsConnectionStringIdentity.Instance] = Names.Ams,
-                [RulesetConnectionStringIdentity.Instance] = Names.Rulesets,
-                [FactsConnectionStringIdentity.Instance] = Names.Facts,
-                [AggregatesConnectionStringIdentity.Instance] = Names.Aggregates,
-                [MessagesConnectionStringIdentity.Instance] = Names.Messages,
-                [ServiceBusConnectionStringIdentity.Instance] = Names.ServiceBus,
-                [InfrastructureConnectionStringIdentity.Instance] = Names.Infrastructure,
-                [LoggingConnectionStringIdentity.Instance] = Names.Logging
+                {ErmConnectionStringIdentity.Instance, Names.Erm},
+                {AmsConnectionStringIdentity.Instance,  Names.Ams},
+                {RulesetConnectionStringIdentity.Instance, Names.Rulesets},
+                {ValidationRulesConnectionStringIdentity.Instance, Names.ValidationRules},
+                {ServiceBusConnectionStringIdentity.Instance, Names.ServiceBus},
+                {InfrastructureConnectionStringIdentity.Instance, Names.Infrastructure},
+                {LoggingConnectionStringIdentity.Instance, Names.Logging}
             };
 
         public static class Names
@@ -30,9 +28,7 @@ namespace ValidationRules.Hosting.Common.Settings.Connections
             public const string Erm = "Erm";
             public const string Ams = "Ams";
             public const string Rulesets = "Rulesets";
-            public const string Facts = "Facts";
-            public const string Aggregates = "Aggregates";
-            public const string Messages = "Messages";
+            public const string ValidationRules = "ValidationRules";
             public const string ServiceBus = "ServiceBus";
             public const string Infrastructure = "Infrastructure";
             public const string Logging = "Logging";
@@ -41,7 +37,7 @@ namespace ValidationRules.Hosting.Common.Settings.Connections
         public static IReadOnlyDictionary<IConnectionStringIdentity, string> For(params IConnectionStringIdentity[] identities)
         {
             var unresolvedConnectionStrings = new HashSet<IConnectionStringIdentity>();
-            var resolvedConnectionStrings = new Dictionary<IConnectionStringIdentity, string> ();
+            var resolvedConnectionStrings = new Dictionary<IConnectionStringIdentity, string>();
             foreach (var identity in identities.ToHashSet())
             {
                 if (!Identities2NamesMap.TryGetValue(identity, out var connectionStringName))

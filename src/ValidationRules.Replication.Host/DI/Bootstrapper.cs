@@ -420,16 +420,16 @@ namespace NuClear.ValidationRules.Replication.Host.DI
             var readConnectionStringNameMap = new Dictionary<string, IConnectionStringIdentity>
                 {
                     { Scope.Erm, ErmConnectionStringIdentity.Instance },
-                    { Scope.Facts, FactsConnectionStringIdentity.Instance },
-                    { Scope.Aggregates, AggregatesConnectionStringIdentity.Instance },
-                    { Scope.Messages, MessagesConnectionStringIdentity.Instance },
+                    { Scope.Facts, ValidationRulesConnectionStringIdentity.Instance },
+                    { Scope.Aggregates, ValidationRulesConnectionStringIdentity.Instance },
+                    { Scope.Messages, ValidationRulesConnectionStringIdentity.Instance },
                 };
 
             var writeConnectionStringNameMap = new Dictionary<string, IConnectionStringIdentity>
                 {
-                    { Scope.Facts, FactsConnectionStringIdentity.Instance },
-                    { Scope.Aggregates, AggregatesConnectionStringIdentity.Instance },
-                    { Scope.Messages, MessagesConnectionStringIdentity.Instance },
+                    { Scope.Facts, ValidationRulesConnectionStringIdentity.Instance },
+                    { Scope.Aggregates, ValidationRulesConnectionStringIdentity.Instance },
+                    { Scope.Messages, ValidationRulesConnectionStringIdentity.Instance },
                 };
 
             return container.RegisterInstance<IConnectionStringIdentityResolver>(new ConnectionStringIdentityResolver(readConnectionStringNameMap, writeConnectionStringNameMap));

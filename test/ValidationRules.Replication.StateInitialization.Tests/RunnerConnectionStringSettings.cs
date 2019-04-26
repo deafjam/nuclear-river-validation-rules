@@ -9,9 +9,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
     {
         public RunnerConnectionStringSettings()
             : base(ConnectionStrings.For(ErmConnectionStringIdentity.Instance,
-                                         FactsConnectionStringIdentity.Instance,
-                                         AggregatesConnectionStringIdentity.Instance,
-                                         MessagesConnectionStringIdentity.Instance))
+                                         ValidationRulesConnectionStringIdentity.Instance))
         {
         }
     }

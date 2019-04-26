@@ -11,6 +11,7 @@
     <PackageReference Include="2GIS.NuClear.OperationsProcessing.Transports.ServiceBus" Version="5.5.4" />
     <PackageReference Include="2GIS.NuClear.OperationsProcessing.Transports.SQLStore" Version="5.5.4" />
     <PackageReference Include="2GIS.NuClear.OperationsTracking" Version="5.5.4" />
+    <PackageReference Include="2GIS.NuClear.Storage.LinqToDB" Version="2.1.1" />
     <PackageReference Include="2GIS.NuClear.Telemetry" Version="0.14.1" />
     <PackageReference Include="2GIS.NuClear.Tracing.API" Version="2.2.3" />
     <PackageReference Include="2GIS.NuClear.Tracing.Environment" Version="2.2.3" />

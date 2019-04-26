@@ -6,6 +6,7 @@
     <AssemblyName>2GIS.NuClear.ValidationRules.Replication.Host</AssemblyName>
     <OutputType>Exe</OutputType>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <StartArguments>console</StartArguments>
   </PropertyGroup>
 
   <ItemGroup>

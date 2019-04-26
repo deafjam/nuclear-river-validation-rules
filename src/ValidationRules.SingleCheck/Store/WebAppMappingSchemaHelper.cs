@@ -31,9 +31,13 @@ namespace NuClear.ValidationRules.SingleCheck.Store
                 .SelectMany(x => x.Value)
                 .Select(x => x.GetInterfaces().Single(IsAccessorInterface))
                 .Select(GetAccessorDataObject)
+
+                // Ruleset мы добавляем тут explicitly, потому что хоть мы его и импортируем через kafka
+                // но в тоже время для single-check режима хотим выбирать напрямую из базы ERM
+                // это спорное поведение, на эту тему создан тикет
+                // TODO: ERM-12478
                 .Concat(new[]
                 {
-                    // TODO: разобраться почему так
                     typeof(Ruleset),
                     typeof(Ruleset.AssociatedRule),
                     typeof(Ruleset.DeniedRule),

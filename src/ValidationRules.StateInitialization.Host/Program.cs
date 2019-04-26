@@ -57,9 +57,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             var connectionStrings = ConnectionStrings.For(ErmConnectionStringIdentity.Instance,
                                                           AmsConnectionStringIdentity.Instance,
-                                                          FactsConnectionStringIdentity.Instance,
-                                                          AggregatesConnectionStringIdentity.Instance,
-                                                          MessagesConnectionStringIdentity.Instance,
+                                                          ValidationRulesConnectionStringIdentity.Instance,
                                                           RulesetConnectionStringIdentity.Instance);
             var connectionStringSettings = new ConnectionStringSettingsAspect(connectionStrings);
             var environmentSettings = new EnvironmentSettingsAspect();

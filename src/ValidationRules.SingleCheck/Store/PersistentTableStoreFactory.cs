@@ -21,7 +21,7 @@ namespace NuClear.ValidationRules.SingleCheck.Store
         {
             using (Probe.Create("Get lock"))
             {
-                _connection = new DataConnection("Messages").AddMappingSchema(webAppMappingSchema);
+                _connection = new DataConnection("ValidationRules").AddMappingSchema(webAppMappingSchema);
 
                 // чтобы параллельные запуски single-проверок не накладывали блокировки на webapp-таблицы и не ждали друг друга
                 // запускаем single-проверки в транзакции с режимом snapshot, который не накладывает никаких блокировок

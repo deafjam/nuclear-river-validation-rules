@@ -14,8 +14,6 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 {
     public sealed class VersioningService
     {
-        private const string ConfigurationString = "Messages";
-
         private static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(15);
         private static readonly TimeSpan WaitInterval = TimeSpan.FromSeconds(5);
 
@@ -30,7 +28,7 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 
         public long GetLatestVersion()
         {
-            using (var connection = _factory.CreateDataConnection(ConfigurationString))
+            using (var connection = _factory.CreateDataConnection())
             {
                 return connection.GetTable<Version.ValidationResult>().Max(x => x.VersionId);
             }
@@ -55,7 +53,7 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
             }
             var amsOffset = amsCount - 1;
 
-            using (var connection = _factory.CreateDataConnection(ConfigurationString))
+            using (var connection = _factory.CreateDataConnection())
             {
                 var connectionLocal = connection;
 

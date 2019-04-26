@@ -1,31 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-
-using LinqToDB.Data;
-using LinqToDB.Mapping;
-
+﻿using LinqToDB.Data;
 using NuClear.ValidationRules.Storage;
 
 namespace NuClear.ValidationRules.Querying.Host.DataAccess
 {
     public class DataConnectionFactory
     {
-        private static readonly Dictionary<string, MappingSchema> Schemas = new Dictionary<string, MappingSchema>
+        public DataConnection CreateDataConnection()
         {
-            { "Facts", Schema.Facts },
-            { "Messages", Schema.Messages},
-        };
-
-        public DataConnection CreateDataConnection(string configurationString)
-        {
-            if (!Schemas.TryGetValue(configurationString, out var schema))
-            {
-                throw new ArgumentException(nameof(configurationString));
-            }
-
-            var connection = new DataConnection(configurationString);
-            connection.AddMappingSchema(schema);
-            //connection.BeginTransaction(System.Data.IsolationLevel.Snapshot);
+            var connection = new DataConnection("ValidationRules");
+            connection
+                // Schema.Facts needed for Facts.EntityName table
+                .AddMappingSchema(Schema.Facts)
+                .AddMappingSchema(Schema.Messages);
             return connection;
         }
     }

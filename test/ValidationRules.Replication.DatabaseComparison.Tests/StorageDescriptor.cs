@@ -1,23 +1,22 @@
 ﻿using LinqToDB.Mapping;
-
 using NuClear.ValidationRules.Storage;
 
 namespace ValidationRules.Replication.DatabaseComparison.Tests
 {
     public sealed class StorageDescriptor
     {
-        public static StorageDescriptor Erm = new StorageDescriptor(Schema.Erm);
-        public static StorageDescriptor Facts = new StorageDescriptor(Schema.Facts);
-        public static StorageDescriptor Aggregates = new StorageDescriptor(Schema.Aggregates);
-        public static StorageDescriptor Messages = new StorageDescriptor(Schema.Messages);
+        public static StorageDescriptor Erm = new StorageDescriptor(Schema.Erm, "Erm");
+        public static StorageDescriptor Facts = new StorageDescriptor(Schema.Facts, "ValidationRules");
+        public static StorageDescriptor Aggregates = new StorageDescriptor(Schema.Aggregates, "ValidationRules");
+        public static StorageDescriptor Messages = new StorageDescriptor(Schema.Messages, "ValidationRules");
 
-        public StorageDescriptor(MappingSchema mappingSchema)
+        public StorageDescriptor(MappingSchema mappingSchema, string connectionStringName)
         {
             MappingSchema = mappingSchema;
-            ConnectionStringName = mappingSchema.ConfigurationList[0];
+            ConnectionStringName = connectionStringName;
         }
 
-        public string ConnectionStringName { get; }
         public MappingSchema MappingSchema { get; }
+        public string ConnectionStringName { get; }
     }
 }

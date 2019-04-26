@@ -12,7 +12,7 @@ namespace NuClear.ValidationRules.Storage
         private const string OrderValidationSchema = "OrderValidation";
 
         public static MappingSchema Erm { get; } =
-            new MappingSchema(nameof(Aggregates), new SqlServerMappingSchema())
+            new MappingSchema(nameof(Erm), new SqlServerMappingSchema())
                 .GetFluentMappingBuilder()
                 .RegisterErm()
                 .MappingSchema;

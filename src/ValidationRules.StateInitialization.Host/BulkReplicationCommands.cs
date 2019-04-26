@@ -11,26 +11,26 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
         public static ReplicateInBulkCommand AggregatesToMessages { get; } =
             ReplicateFromDbToDbCommand(
-                new StorageDescriptor(AggregatesConnectionStringIdentity.Instance, Schema.Aggregates),
-                new StorageDescriptor(MessagesConnectionStringIdentity.Instance, Schema.Messages));
+                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Aggregates),
+                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Messages));
 
         public static ReplicateInBulkCommand FactsToAggregates { get; } =
             ReplicateFromDbToDbCommand(
-                new StorageDescriptor(FactsConnectionStringIdentity.Instance, Schema.Facts),
-                new StorageDescriptor(AggregatesConnectionStringIdentity.Instance, Schema.Aggregates));
+                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
+                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Aggregates));
 
         public static ReplicateInBulkCommand ErmToFacts { get; } =
             ReplicateFromDbToDbCommand(
                 new StorageDescriptor(ErmConnectionStringIdentity.Instance, Schema.Erm),
-                new StorageDescriptor(FactsConnectionStringIdentity.Instance, Schema.Facts));
+                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts));
 
         public static ReplicateInBulkCommand AmsToFacts { get; } =
             new ReplicateInBulkCommand(new StorageDescriptor(AmsConnectionStringIdentity.Instance, null),
-                                       new StorageDescriptor(FactsConnectionStringIdentity.Instance, Schema.Facts));
+                                       new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts));
 
         public static ReplicateInBulkCommand RulesetsToFacts { get; } =
             new ReplicateInBulkCommand(new StorageDescriptor(RulesetConnectionStringIdentity.Instance, null),
-                                       new StorageDescriptor(FactsConnectionStringIdentity.Instance, Schema.Facts),
+                                       new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
                                        databaseManagementMode:DbManagementMode.UpdateTableStatistics);
 
         /// <summary>

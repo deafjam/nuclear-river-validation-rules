@@ -11,27 +11,50 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D5758A2D-B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "replication", "replication", "{CC56ADEE-00EC-45F4-9BA6-548BA40C45F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.Storage", "src\ValidationRules.Storage\ValidationRules.Storage.csproj", "{E799A2EE-408F-467A-8B50-FC729E92D3F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.Storage", "src\ValidationRules.Storage\ValidationRules.Storage.csproj", "{E799A2EE-408F-467A-8B50-FC729E92D3F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.Hosting.Common", "src\ValidationRules.Hosting.Common\ValidationRules.Hosting.Common.csproj", "{876CF585-D099-4C5A-949E-E76DA08764D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.Hosting.Common", "src\ValidationRules.Hosting.Common\ValidationRules.Hosting.Common.csproj", "{876CF585-D099-4C5A-949E-E76DA08764D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.OperationsProcessing", "src\ValidationRules.OperationsProcessing\ValidationRules.OperationsProcessing.csproj", "{6C1F4B07-10E4-4072-929A-0FDCDF53BF1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.OperationsProcessing", "src\ValidationRules.OperationsProcessing\ValidationRules.OperationsProcessing.csproj", "{6C1F4B07-10E4-4072-929A-0FDCDF53BF1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.SingleCheck", "src\ValidationRules.SingleCheck\ValidationRules.SingleCheck.csproj", "{2AEE5EB1-9F9F-49D3-8AA3-A9C9338AAF4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.SingleCheck", "src\ValidationRules.SingleCheck\ValidationRules.SingleCheck.csproj", "{2AEE5EB1-9F9F-49D3-8AA3-A9C9338AAF4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.Replication", "src\ValidationRules.Replication\ValidationRules.Replication.csproj", "{855B881B-8AF1-4E7D-9CB4-9BD8232AAFBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.Replication", "src\ValidationRules.Replication\ValidationRules.Replication.csproj", "{855B881B-8AF1-4E7D-9CB4-9BD8232AAFBC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.Querying.Host", "src\ValidationRules.Querying.Host\ValidationRules.Querying.Host.csproj", "{A079B81C-62EC-4658-B8A6-F5E597976DAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.Replication.Host", "src\ValidationRules.Replication.Host\ValidationRules.Replication.Host.csproj", "{EFBD4527-7297-4329-81E3-3D1C0C99EC2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.Replication.Host", "src\ValidationRules.Replication.Host\ValidationRules.Replication.Host.csproj", "{EFBD4527-7297-4329-81E3-3D1C0C99EC2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.StateInitialization.Host", "src\ValidationRules.StateInitialization.Host\ValidationRules.StateInitialization.Host.csproj", "{007E4716-14A6-457E-991C-66AFFD9D212E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.StateInitialization.Host", "src\ValidationRules.StateInitialization.Host\ValidationRules.StateInitialization.Host.csproj", "{007E4716-14A6-457E-991C-66AFFD9D212E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.Replication.Tests", "test\ValidationRules.Replication.Tests\ValidationRules.Replication.Tests.csproj", "{0AC56434-B3DA-48FB-B896-96E45D3122CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.Replication.Tests", "test\ValidationRules.Replication.Tests\ValidationRules.Replication.Tests.csproj", "{0AC56434-B3DA-48FB-B896-96E45D3122CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.Replication.StateInitialization.Tests", "test\ValidationRules.Replication.StateInitialization.Tests\ValidationRules.Replication.StateInitialization.Tests.csproj", "{70926221-57BA-4FBC-949F-2BFABA903480}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.Replication.StateInitialization.Tests", "test\ValidationRules.Replication.StateInitialization.Tests\ValidationRules.Replication.StateInitialization.Tests.csproj", "{70926221-57BA-4FBC-949F-2BFABA903480}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationRules.Replication.DatabaseComparison.Tests", "test\ValidationRules.Replication.DatabaseComparison.Tests\ValidationRules.Replication.DatabaseComparison.Tests.csproj", "{3E0D8363-B4B7-475A-975E-6A2FDAB8831E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidationRules.Replication.DatabaseComparison.Tests", "test\ValidationRules.Replication.DatabaseComparison.Tests\ValidationRules.Replication.DatabaseComparison.Tests.csproj", "{3E0D8363-B4B7-475A-975E-6A2FDAB8831E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "environments", "environments", "{2BD0C7B2-8BF2-4867-AEA9-069B1587A45E}"
+	ProjectSection(SolutionItems) = preProject
+		environments\ConvertUseCases.config = environments\ConvertUseCases.config
+		environments\ConvertUseCases.Load.config = environments\ConvertUseCases.Load.config
+		environments\ConvertUseCases.Production.config = environments\ConvertUseCases.Production.config
+		environments\Erm.config = environments\Erm.config
+		environments\Erm.Load.config = environments\Erm.Load.config
+		environments\Erm.Production.config = environments\Erm.Production.config
+		environments\quartz.Production.config = environments\quartz.Production.config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{286AF053-EC9B-4746-93B9-28A3DBB7C9F3}"
+	ProjectSection(SolutionItems) = preProject
+		environments\Common\Erm.Release.config = environments\Common\Erm.Release.config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{20619483-64A9-4413-9167-E9436494D22E}"
+	ProjectSection(SolutionItems) = preProject
+		environments\Templates\ConvertUseCases.Test.config = environments\Templates\ConvertUseCases.Test.config
+		environments\Templates\Erm.Test.config = environments\Templates\Erm.Test.config
+		environments\Templates\quartz.Test.config = environments\Templates\quartz.Test.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,9 +124,11 @@ Global
 		{0AC56434-B3DA-48FB-B896-96E45D3122CE} = {D5758A2D-BB93-47E5-A13B-4EEC203D4371}
 		{70926221-57BA-4FBC-949F-2BFABA903480} = {D5758A2D-BB93-47E5-A13B-4EEC203D4371}
 		{3E0D8363-B4B7-475A-975E-6A2FDAB8831E} = {D5758A2D-BB93-47E5-A13B-4EEC203D4371}
+		{286AF053-EC9B-4746-93B9-28A3DBB7C9F3} = {2BD0C7B2-8BF2-4867-AEA9-069B1587A45E}
+		{20619483-64A9-4413-9167-E9436494D22E} = {2BD0C7B2-8BF2-4867-AEA9-069B1587A45E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {E2E29DCD-1A76-42B9-A70B-05333BA3C557}
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8;packages\EnterpriseLibrary.TransientFaultHandling.ServiceBus.6.0.1304.0\lib\NET45
+		SolutionGuid = {E2E29DCD-1A76-42B9-A70B-05333BA3C557}
 	EndGlobalSection
 EndGlobal

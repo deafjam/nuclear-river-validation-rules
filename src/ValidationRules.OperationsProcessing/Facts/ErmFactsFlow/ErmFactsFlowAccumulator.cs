@@ -5,8 +5,6 @@ using NuClear.Messaging.API.Processing.Actors.Accumulators;
 using NuClear.OperationsTracking.API.UseCases;
 using NuClear.Replication.Core;
 using NuClear.Replication.OperationsProcessing;
-using NuClear.Storage.API.Readings;
-using NuClear.Tracing.API;
 using NuClear.ValidationRules.Replication;
 using NuClear.ValidationRules.Replication.Commands;
 
@@ -14,16 +12,10 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
 {
     public sealed class ErmFactsFlowAccumulator : MessageProcessingContextAccumulatorBase<ErmFactsFlow, TrackedUseCase, AggregatableMessage<ICommand>>
     {
-        private const int TotalWaitMilliseconds = 60000;
-
-        private readonly IQuery _query;
-        private readonly ITracer _tracer;
         private readonly ICommandFactory<TrackedUseCase> _commandFactory;
 
-        public ErmFactsFlowAccumulator(IQuery query, ITracer tracer)
+        public ErmFactsFlowAccumulator()
         {
-            _query = query;
-            _tracer = tracer;
             _commandFactory = new FactsCommandFactory();
         }
 

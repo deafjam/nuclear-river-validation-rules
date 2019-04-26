@@ -15,23 +15,23 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
     {
         public ReplicateInBulkCommand Command =>
             new ReplicateInBulkCommand(new StorageDescriptor(ErmConnectionStringIdentity.Instance, Schema.Erm),
-                                       new StorageDescriptor(FactsConnectionStringIdentity.Instance, Schema.Facts),
+                                       new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
                                        DbManagementMode.None);
     }
 
     public sealed class Aggregates : IKey
     {
         public ReplicateInBulkCommand Command =>
-            new ReplicateInBulkCommand(new StorageDescriptor(FactsConnectionStringIdentity.Instance, Schema.Facts),
-                                       new StorageDescriptor(AggregatesConnectionStringIdentity.Instance, Schema.Aggregates),
+            new ReplicateInBulkCommand(new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
+                                       new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Aggregates),
                                        DbManagementMode.None);
     }
 
     public sealed class Messages : IKey
     {
         public ReplicateInBulkCommand Command =>
-            new ReplicateInBulkCommand(new StorageDescriptor(AggregatesConnectionStringIdentity.Instance, Schema.Aggregates),
-                                       new StorageDescriptor(MessagesConnectionStringIdentity.Instance, Schema.Messages),
+            new ReplicateInBulkCommand(new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Aggregates),
+                                       new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Messages),
                                        DbManagementMode.None);
     }
 }

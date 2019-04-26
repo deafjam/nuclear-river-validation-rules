@@ -71,7 +71,14 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
         }
 
         private ValidationResult.Reference ConvertReference(NamedReference reference)
-            => new ValidationResult.Reference { Id = reference.Reference.Id, Name = reference.Name, Type = _knownEntityTypes[reference.Reference.EntityType] };
+            => new ValidationResult.Reference
+            {
+                Id = reference.Reference.Id,
+                Name = reference.Name,
+
+                TypeId = reference.Reference.EntityType,
+                Type = _knownEntityTypes[reference.Reference.EntityType]
+            };
 
         private IEnumerable<Message> MakeDistinct(IEnumerable<Message> messages)
             => messages.GroupBy(x => x.MessageType)

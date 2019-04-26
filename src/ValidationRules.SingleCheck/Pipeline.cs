@@ -111,7 +111,7 @@ namespace NuClear.ValidationRules.SingleCheck
         private static void ReadRulesetsSlice(ErmDataLoader.ResolvedOrderSummary orderSummary, IStore store)
         {
             using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
-            using (var connection = new DataConnection("Facts").AddMappingSchema(Schema.Facts))
+            using (var connection = new DataConnection("ValidationRules").AddMappingSchema(Schema.Facts))
             {
                 RulesetsDataLoader.Load(orderSummary, connection, store);
             }

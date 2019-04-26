@@ -19,17 +19,17 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
         private static readonly SchemaMetadataElement Facts = SchemaMetadataElement.Config
             .For(ContextName.Facts)
-            .HasConnectionString<FactsConnectionStringIdentity>()
+            .HasConnectionString<ValidationRulesConnectionStringIdentity>()
             .HasSchema(Schema.Facts);
 
         private static readonly SchemaMetadataElement Aggregates = SchemaMetadataElement.Config
             .For(ContextName.Aggregates)
-            .HasConnectionString<AggregatesConnectionStringIdentity>()
+            .HasConnectionString<ValidationRulesConnectionStringIdentity>()
             .HasSchema(Schema.Aggregates);
 
         private static readonly SchemaMetadataElement Messages = SchemaMetadataElement.Config
             .For(ContextName.Messages)
-            .HasConnectionString<MessagesConnectionStringIdentity>()
+            .HasConnectionString<ValidationRulesConnectionStringIdentity>()
             .HasSchema(Schema.Messages);
 
         public SchemaMetadataSource(IEnumerable<string> requiredContexts)
