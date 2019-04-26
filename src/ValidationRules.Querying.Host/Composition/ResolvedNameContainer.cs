@@ -36,12 +36,6 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                 return new NamedReference(orderPosition, For(itemPosition).Name);
             }
 
-            if (reference.EntityType == EntityTypeAdvertisementElement.Instance.Id)
-            {
-                var template = Get<EntityTypeAdvertisementElementTemplate>(reference).First();
-                return new NamedReference(reference, For(template).Name);
-            }
-
             if (reference.EntityType == EntityTypePricePosition.Instance.Id)
             {
                 var position = Get<EntityTypePosition>(reference).First();
