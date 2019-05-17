@@ -131,14 +131,14 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                     from position in _query.For<Facts::Position>().Where(x => Facts::Position.CategoryCodesCategoryCodePremiumPartnerAdvertising.Contains(x.CategoryCode))
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.PositionId == position.Id)
                     from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
-                    select op;
+                    select (long?)op.OrderId;
 
                 var addressPositions =
                     from position in _query.For<Facts::Position>().Where(x => x.CategoryCode == Facts::Position.CategoryCodePartnerAdvertisingAddress)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue).Where(x => x.PositionId == position.Id)
                     from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                     from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value)
-                    from orderWithPremium in ordersWithPremium.Where(x => x.OrderId == op.OrderId).DefaultIfEmpty()
+                    from orderWithPremium in ordersWithPremium.Where(x => x == op.OrderId).DefaultIfEmpty()
                     select new Order.PartnerPosition
                     {
                         OrderId = op.OrderId,

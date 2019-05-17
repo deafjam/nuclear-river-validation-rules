@@ -98,7 +98,8 @@ namespace NuClear.ValidationRules.Storage
                    .HasIndex(x => new { x.FirmId }, x => new { x.DestOrganizationUnitId, x.BeginDistribution });
             builder.Entity<OrderItem>()
                    .HasSchemaName(FactsSchema)
-                   .HasIndex(x => new { x.OrderId }, x => new { x.OrderPositionId, x.PackagePositionId, x.ItemPositionId });
+                   .HasIndex(x => new { x.OrderId }, x => new { x.OrderPositionId, x.PackagePositionId, x.ItemPositionId })
+                   .HasIndex(x => new { x.OrderPositionId });
             builder.Entity<OrderPosition>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
