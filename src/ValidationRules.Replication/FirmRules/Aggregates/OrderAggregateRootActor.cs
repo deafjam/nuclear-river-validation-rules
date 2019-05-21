@@ -24,7 +24,8 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             IBulkRepository<Order> bulkRepository,
             IBulkRepository<Order.FirmOrganiationUnitMismatch> invalidFirmRepository,
             IBulkRepository<Order.InvalidFirm> orderInvalidFirmRepository,
-            IBulkRepository<Order.PartnerPosition> premiumProfilePositionRepository,
+            IBulkRepository<Order.PartnerPosition> partnerPositionRepository,
+            IBulkRepository<Order.PremiumPartnerPosition> premiumPartnerPositionRepository,
             IBulkRepository<Order.FmcgCutoutPosition> fmcgCutoutPositionRepository)
             : base(query, equalityComparerFactory)
         {
@@ -32,7 +33,8 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                           bulkRepository,
                           HasValueObject(new OrderFirmOrganiationUnitMismatchAccessor(query), invalidFirmRepository),
                           HasValueObject(new OrderInvalidFirmAccessor(query), orderInvalidFirmRepository),
-                          HasValueObject(new PartnerPositionAccessor(query), premiumProfilePositionRepository),
+                          HasValueObject(new PartnerPositionAccessor(query), partnerPositionRepository),
+                          HasValueObject(new PremiumPartnerPositionAccessor(query), premiumPartnerPositionRepository),
                           HasValueObject(new FmcgCutoutPositionAccessor(query), fmcgCutoutPositionRepository));
         }
 
@@ -127,24 +129,16 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
 
             public IQueryable<Order.PartnerPosition> GetSource()
             {
-                var ordersWithPremium =
-                    from position in _query.For<Facts::Position>().Where(x => Facts::Position.CategoryCodesCategoryCodePremiumPartnerAdvertising.Contains(x.CategoryCode))
-                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.PositionId == position.Id)
-                    from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
-                    select (long?)op.OrderId;
-
                 var addressPositions =
                     from position in _query.For<Facts::Position>().Where(x => x.CategoryCode == Facts::Position.CategoryCodePartnerAdvertisingAddress)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue).Where(x => x.PositionId == position.Id)
                     from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                     from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value)
-                    from orderWithPremium in ordersWithPremium.Where(x => x == op.OrderId).DefaultIfEmpty()
                     select new Order.PartnerPosition
                     {
                         OrderId = op.OrderId,
                         DestinationFirmAddressId = opa.FirmAddressId.Value,
                         DestinationFirmId = fa.FirmId,
-                        IsPremium = orderWithPremium != null,
                     };
 
                 return addressPositions;
@@ -154,6 +148,42 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             {
                 var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
                 return new FindSpecification<Order.PartnerPosition>(x => aggregateIds.Contains(x.OrderId));
+            }
+        }
+
+        public sealed class PremiumPartnerPositionAccessor : DataChangesHandler<Order.PremiumPartnerPosition>, IStorageBasedDataObjectAccessor<Order.PremiumPartnerPosition>
+        {
+            private readonly IQuery _query;
+
+            public PremiumPartnerPositionAccessor(IQuery query) : base(CreateInvalidator())
+            {
+                _query = query;
+            }
+
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator
+            {
+                MessageTypeCode.FirmAddressMustNotHaveMultiplePremiumPartnerAdvertisement,
+                MessageTypeCode.FirmAddressShouldNotHaveMultiplePartnerAdvertisement,
+            };
+
+            public IQueryable<Order.PremiumPartnerPosition> GetSource()
+            {
+                var ordersWithPremium =
+                    from position in _query.For<Facts::Position>().Where(x => Facts::Position.CategoryCodesCategoryCodePremiumPartnerAdvertising.Contains(x.CategoryCode))
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.PositionId == position.Id)
+                    from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
+                    select new Order.PremiumPartnerPosition
+                    {
+                        OrderId = op.OrderId
+                    };
+
+                return ordersWithPremium;
+            }
+
+            public FindSpecification<Order.PremiumPartnerPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
+            {
+                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                return new FindSpecification<Order.PremiumPartnerPosition>(x => aggregateIds.Contains(x.OrderId));
             }
         }
 

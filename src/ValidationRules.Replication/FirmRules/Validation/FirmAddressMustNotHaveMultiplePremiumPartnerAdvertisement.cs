@@ -23,7 +23,8 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
         {
             var sales =
                 from order in query.For<Order>()
-                from fa in query.For<Order.PartnerPosition>().Where(x => x.IsPremium).Where(x => x.OrderId == order.Id)
+                from fa in query.For<Order.PartnerPosition>().Where(x => x.OrderId == order.Id)
+                from premium in query.For<Order.PremiumPartnerPosition>().Where(x => x.OrderId == order.Id)
                 select new { fa.OrderId, FirmAddressId = fa.DestinationFirmAddressId, FirmId = fa.DestinationFirmId, order.Scope, order.Begin, order.End };
 
             var multipleSales =

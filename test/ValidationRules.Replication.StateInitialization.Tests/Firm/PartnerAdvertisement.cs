@@ -20,7 +20,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Aggregate(
                     // Заказ с змк в адрес РД
                     new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 2, DestinationFirmAddressId = 2, IsPremium = false },
+                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 2, DestinationFirmAddressId = 2 },
 
                     // Заказ РД
                     new Aggregates::Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 0 }
@@ -49,11 +49,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Aggregate(
                     // Одобренный заказ с змк в адрес третьей фирмы (не видит второго)
                     new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3, IsPremium = false },
+                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
 
                     // Заказ на оформлении с змк в адрес третьей фирмы (видит первого)
                     new Aggregates::Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3, IsPremium = false }
+                    new Aggregates::Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -79,11 +79,13 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Aggregate(
                     // Одобренный заказ с премиум-змк в адрес третьей фирмы (не видит второго)
                     new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3, IsPremium = true },
+                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
+                    new Aggregates::Order.PremiumPartnerPosition { OrderId = 1 },
 
                     // Заказ на оформлении с премиум-змк в адрес третьей фирмы (видит первого)
                     new Aggregates::Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3, IsPremium = true }
+                    new Aggregates::Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
+                    new Aggregates::Order.PremiumPartnerPosition { OrderId = 2 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult

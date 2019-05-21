@@ -28,7 +28,11 @@ namespace NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates
             public long OrderId { get; set; }
             public long DestinationFirmId { get; set; }
             public long DestinationFirmAddressId { get; set; }
-            public bool IsPremium { get; set; }
+        }
+
+        public sealed class PremiumPartnerPosition
+        {
+            public long OrderId { get; set; }
         }
 
         public sealed class FmcgCutoutPosition

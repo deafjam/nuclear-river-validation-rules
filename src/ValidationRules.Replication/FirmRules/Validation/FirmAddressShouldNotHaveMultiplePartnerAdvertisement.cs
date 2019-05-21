@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using NuClear.Storage.API.Readings;
@@ -27,7 +26,8 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
             var sales =
                 from order in query.For<Order>()
                 from fa in query.For<Order.PartnerPosition>().Where(x => x.OrderId == order.Id)
-                select new { fa.OrderId, FirmAddressId = fa.DestinationFirmAddressId, FirmId = fa.DestinationFirmId, fa.IsPremium, order.Scope, order.Begin, order.End };
+                from premium in query.For<Order.PremiumPartnerPosition>().Where(x => x.OrderId == order.Id).DefaultIfEmpty()
+                select new { fa.OrderId, FirmAddressId = fa.DestinationFirmAddressId, FirmId = fa.DestinationFirmId, IsPremium = premium != null, order.Scope, order.Begin, order.End };
 
             var multipleSales =
                 from sale in sales
