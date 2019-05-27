@@ -11,7 +11,7 @@ using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Messages;
 
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
-using Ruleset = NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates.Ruleset;
+using Ruleset = NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules.Ruleset;
 
 namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 {

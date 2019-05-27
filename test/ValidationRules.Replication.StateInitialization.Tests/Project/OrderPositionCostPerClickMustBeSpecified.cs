@@ -2,9 +2,8 @@
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -45,20 +44,20 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::CostPerClickCategoryRestriction { Begin = MonthStart(1), CategoryId = 12 })
                 .Aggregate(
                     // Заказ с позицией с покликовой моделью, но без ставки - есть ошибка
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12, SalesModel = 12 },
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12, SalesModel = 12 },
 
                     // Заказ с позицией с обычной моделью - нет ошибки
-                    new Aggregates::Order { Id = 2, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 2, OrderPositionId = 2, PositionId = 5, CategoryId = 12, SalesModel = 11 },
+                    new Order { Id = 2, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CategoryAdvertisement { OrderId = 2, OrderPositionId = 2, PositionId = 5, CategoryId = 12, SalesModel = 11 },
 
                     // Заказ с позицией с покликовой моделью, со ставкой - нет ошибки
-                    new Aggregates::Order { Id = 3, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 3, OrderPositionId = 3, PositionId = 4, CategoryId = 12, SalesModel = 12 },
-                    new Aggregates::Order.CostPerClickAdvertisement { OrderId = 3, OrderPositionId = 3, PositionId = 4, CategoryId = 12 },
+                    new Order { Id = 3, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CategoryAdvertisement { OrderId = 3, OrderPositionId = 3, PositionId = 4, CategoryId = 12, SalesModel = 12 },
+                    new Order.CostPerClickAdvertisement { OrderId = 3, OrderPositionId = 3, PositionId = 4, CategoryId = 12 },
 
-                    new Aggregates::Project.Category { CategoryId = 12 },
-                    new Aggregates::Project.CostPerClickRestriction { CategoryId = 12, Begin = MonthStart(1), End = DateTime.MaxValue })
+                    new Project.Category { CategoryId = 12 },
+                    new Project.CostPerClickRestriction { CategoryId = 12, Begin = MonthStart(1), End = DateTime.MaxValue })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

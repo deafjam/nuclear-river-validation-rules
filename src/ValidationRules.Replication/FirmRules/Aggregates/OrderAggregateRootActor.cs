@@ -8,11 +8,11 @@ using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Specifications;
-using NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates;
+using NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
 
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
-using Order = NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates.Order;
+using Order = NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules.Order;
 
 namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
 {
@@ -262,8 +262,8 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                                    : InvalidFirmState.NotSet
                    select new Order.InvalidFirm
                    {
-                       FirmId = firm.Id,
                        OrderId = order.Id,
+                       FirmId = firm.Id,
                        State = state,
                    };
 

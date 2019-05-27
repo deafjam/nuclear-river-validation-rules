@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -25,12 +24,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Order { Id = 3, FirmId = 2, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb, WorkflowStep = 5 })
 
                 .Aggregate(
-                    new Aggregates::Firm { Id = 1, },
-                    new Aggregates::Order { Id = 2, FirmId = 1, Begin = FirstDayJan, End = FirstDayFeb },
-                    new Aggregates::Order.FirmOrganiationUnitMismatch { OrderId = 2 },
+                    new Firm { Id = 1, },
+                    new Order { Id = 2, FirmId = 1, Begin = FirstDayJan, End = FirstDayFeb },
+                    new Order.FirmOrganiationUnitMismatch { OrderId = 2 },
 
-                    new Aggregates::Firm { Id = 2, },
-                    new Aggregates::Order { Id = 3, FirmId = 2, Begin = FirstDayJan, End = FirstDayFeb })
+                    new Firm { Id = 2, },
+                    new Order { Id = 3, FirmId = 2, Begin = FirstDayJan, End = FirstDayFeb })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

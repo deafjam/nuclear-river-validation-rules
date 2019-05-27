@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates
+namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
 {
     /// <summary>
     /// Неявная сущность из ERM, элементарные периоды размещения заказа/наличия прайс-листа.

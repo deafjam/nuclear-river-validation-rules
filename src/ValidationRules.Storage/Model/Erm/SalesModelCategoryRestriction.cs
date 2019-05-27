@@ -2,7 +2,7 @@
 
 namespace NuClear.ValidationRules.Storage.Model.Erm
 {
-    public class SalesModelCategoryRestriction
+    public sealed class SalesModelCategoryRestriction
     {
         public long ProjectId { get; set; }
         public long CategoryId { get; set; }

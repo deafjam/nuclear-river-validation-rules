@@ -5,7 +5,7 @@
     <!-- !! Этот файл попадает на Production как есть !!
          Коммитить аккуратно
     -->
-    
+
     <job>
       <name>AmsFactsFlow</name>
       <group>ValidationRules</group>

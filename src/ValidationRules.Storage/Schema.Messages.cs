@@ -39,8 +39,8 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<Version.ValidationResult>()
                    .HasSchemaName(MessagesSchema)
-                   .HasIndex(x => new { x.Resolved })
-                   .HasIndex(x => new { x.VersionId })
+                   .HasIndex(x => x.Resolved)
+                   .HasIndex(x => x.VersionId)
                    .HasIndex(x => new { x.Resolved, x.VersionId }, x => new { x.MessageType, x.MessageParams, x.PeriodStart, x.PeriodEnd, x.ProjectId, x.OrderId });
 
             builder.Entity<Version.ValidationResultBulkDelete>()

@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ThemeRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ThemeRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -29,11 +28,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::ThemeCategory { ThemeId = 5, CategoryId = 6 }
                 )
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb },
-                    new Aggregates::Order.OrderTheme { OrderId = 1, ThemeId = 5 },
+                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb },
+                    new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
 
-                    new Aggregates::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb },
-                    new Aggregates::Theme.InvalidCategory { ThemeId = 5, CategoryId = 6 }
+                    new Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb },
+                    new Theme.InvalidCategory { ThemeId = 5, CategoryId = 6 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -69,13 +68,13 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::ThemeCategory { ThemeId = 5, CategoryId = 6 }
                 )
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayMar },
-                    new Aggregates::Order { Id = 2, ProjectId = 3, BeginDistributionDate = FirstDayFeb, EndDistributionDateFact = FirstDayApr },
-                    new Aggregates::Order.OrderTheme { OrderId = 1, ThemeId = 5 },
-                    new Aggregates::Order.OrderTheme { OrderId = 2, ThemeId = 5 },
+                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayMar },
+                    new Order { Id = 2, ProjectId = 3, BeginDistributionDate = FirstDayFeb, EndDistributionDateFact = FirstDayApr },
+                    new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
+                    new Order.OrderTheme { OrderId = 2, ThemeId = 5 },
 
-                    new Aggregates::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayApr },
-                    new Aggregates::Theme.InvalidCategory { ThemeId = 5, CategoryId = 6 }
+                    new Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayApr },
+                    new Theme.InvalidCategory { ThemeId = 5, CategoryId = 6 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -108,10 +107,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::ThemeCategory { ThemeId = 5, CategoryId = 6 }
                 )
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb },
-                    new Aggregates::Order.OrderTheme { OrderId = 1, ThemeId = 5 },
+                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb },
+                    new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
 
-                    new Aggregates::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb }
+                    new Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb }
                 )
                 .Message(
                 );

@@ -1,6 +1,5 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
-using NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates;
-
+using NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
 using Version = NuClear.ValidationRules.Storage.Model.Messages.Version;
 using Cache = NuClear.ValidationRules.Storage.Model.Messages.Cache;
 

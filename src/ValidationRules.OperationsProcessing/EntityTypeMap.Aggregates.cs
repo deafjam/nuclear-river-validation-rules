@@ -4,14 +4,14 @@ using System.Linq;
 
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 
-using AccountAggregates = NuClear.ValidationRules.Storage.Model.AccountRules.Aggregates;
-using AdvertisementAggregates = NuClear.ValidationRules.Storage.Model.AdvertisementRules.Aggregates;
-using PriceAggregates = NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates;
-using ProjectAggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
-using ConsistencyAggregates = NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
-using FirmAggregates = NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates;
-using ThemeAggregates = NuClear.ValidationRules.Storage.Model.ThemeRules.Aggregates;
-using SystemAggregates = NuClear.ValidationRules.Storage.Model.SystemRules.Aggregates;
+using AccountAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.AccountRules;
+using AdvertisementAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules;
+using PriceAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
+using ProjectAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
+using ConsistencyAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
+using FirmAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
+using ThemeAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ThemeRules;
+using SystemAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.SystemRules;
 
 namespace NuClear.ValidationRules.OperationsProcessing
 {

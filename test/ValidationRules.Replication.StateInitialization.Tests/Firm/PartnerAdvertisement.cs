@@ -2,9 +2,8 @@
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
 
@@ -19,11 +18,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(PartnerAdvertisementShouldNotBeSoldToAdvertiser))
                 .Aggregate(
                     // Заказ с змк в адрес РД
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 2, DestinationFirmAddressId = 2 },
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
+                    new Order.PartnerPosition { OrderId = 1, DestinationFirmId = 2, DestinationFirmAddressId = 2 },
 
                     // Заказ РД
-                    new Aggregates::Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 0 }
+                    new Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 0 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -48,12 +47,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmAddressShouldNotHaveMultiplePartnerAdvertisement))
                 .Aggregate(
                     // Одобренный заказ с змк в адрес третьей фирмы (не видит второго)
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
+                    new Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
 
                     // Заказ на оформлении с змк в адрес третьей фирмы (видит первого)
-                    new Aggregates::Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 }
+                    new Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
+                    new Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -78,14 +77,14 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmAddressMustNotHaveMultiplePremiumPartnerAdvertisement))
                 .Aggregate(
                     // Одобренный заказ с премиум-змк в адрес третьей фирмы (не видит второго)
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
-                    new Aggregates::Order.PremiumPartnerPosition { OrderId = 1 },
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
+                    new Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
+                    new Order.PremiumPartnerPosition { OrderId = 1 },
 
                     // Заказ на оформлении с премиум-змк в адрес третьей фирмы (видит первого)
-                    new Aggregates::Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
-                    new Aggregates::Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
-                    new Aggregates::Order.PremiumPartnerPosition { OrderId = 2 }
+                    new Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
+                    new Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
+                    new Order.PremiumPartnerPosition { OrderId = 2 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult

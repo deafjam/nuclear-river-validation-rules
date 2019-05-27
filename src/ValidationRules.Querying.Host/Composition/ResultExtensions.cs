@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-
-using NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
-using NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates;
-
-using Order = NuClear.ValidationRules.Storage.Model.AdvertisementRules.Aggregates.Order;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
+using NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
+using Order = NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules.Order;
 
 namespace NuClear.ValidationRules.Querying.Host.Composition
 {

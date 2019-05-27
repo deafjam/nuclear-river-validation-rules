@@ -1,7 +1,4 @@
-﻿using System;
-using System.Xml.Linq;
-
-namespace NuClear.ValidationRules.Storage.Model.Messages
+﻿namespace NuClear.ValidationRules.Storage.Model.Messages
 {
     public sealed class Cache
     {

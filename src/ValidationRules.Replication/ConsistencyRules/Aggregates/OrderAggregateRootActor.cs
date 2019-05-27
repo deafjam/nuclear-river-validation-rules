@@ -8,7 +8,7 @@ using NuClear.Replication.Core.Equality;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
-using NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
 
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
@@ -276,7 +276,6 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                    select new Order.BargainSignedLaterThanOrder
                    {
                        OrderId = order.Id,
-                       BargainId = order.BargainId.Value,
                    };
 
             public FindSpecification<Order.BargainSignedLaterThanOrder> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

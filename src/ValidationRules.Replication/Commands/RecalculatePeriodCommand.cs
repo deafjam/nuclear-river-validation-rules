@@ -1,7 +1,7 @@
 ﻿using System;
 
 using NuClear.Replication.Core.Commands;
-using NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates;
+using NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 
 namespace NuClear.ValidationRules.Replication.Commands
 {

@@ -8,9 +8,8 @@ using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Specifications;
+using NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-using NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates;
-
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 
 namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
@@ -102,13 +101,25 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 => GetSource1().Concat(GetSource2());
 
             public IQueryable<Order.OrderPeriod> GetSource1()
-                => from order in _query.For<Facts::Order>()
-                   select new Order.OrderPeriod { OrderId = order.Id, Begin = order.BeginDistribution, End = order.EndDistributionFact, Scope = Scope.Compute(order.WorkflowStep, order.Id) };
+                => _query.For<Facts::Order>()
+                        .Select(x => new Order.OrderPeriod
+                        {
+                            OrderId = x.Id,
+                            Begin = x.BeginDistribution,
+                            End = x.EndDistributionFact,
+                            Scope = Scope.Compute(x.WorkflowStep, x.Id)
+                        });
 
             public IQueryable<Order.OrderPeriod> GetSource2()
-                => from order in _query.For<Facts::Order>()
-                   where order.EndDistributionFact != order.EndDistributionPlan
-                   select new Order.OrderPeriod { OrderId = order.Id, Begin = order.EndDistributionFact, End = order.EndDistributionPlan, Scope = order.Id };
+                => _query.For<Facts::Order>()
+                        .Where(x => x.EndDistributionFact != x.EndDistributionPlan)
+                        .Select(x => new Order.OrderPeriod
+                        {
+                            OrderId = x.Id,
+                            Begin = x.EndDistributionFact,
+                            End = x.EndDistributionPlan,
+                            Scope = x.Id
+                        });
 
             public FindSpecification<Order.OrderPeriod> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

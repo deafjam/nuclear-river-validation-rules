@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NuClear.ValidationRules.Storage.Model.Facts
+﻿namespace NuClear.ValidationRules.Storage.Model.Facts
 {
     public sealed class Deal
     {

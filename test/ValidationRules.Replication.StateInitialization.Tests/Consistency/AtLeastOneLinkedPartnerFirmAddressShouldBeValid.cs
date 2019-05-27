@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -42,10 +41,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Position { Id = 2 },
                     new Facts::Position { Id = 3 })
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.MissingValidPartnerFirmAddresses { OrderId = 1, OrderPositionId = 1, PositionId = 2 })
+                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.MissingValidPartnerFirmAddresses { OrderId = 1, OrderPositionId = 1, PositionId = 2 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

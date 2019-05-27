@@ -1,6 +1,6 @@
 namespace NuClear.ValidationRules.Storage.Model.Erm
 {
-    public class CategoryOrganizationUnit
+    public sealed class CategoryOrganizationUnit
     {
         public long Id { get; set; }
         public long CategoryId { get; set; }

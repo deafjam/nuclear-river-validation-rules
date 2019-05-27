@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ThemeRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ThemeRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -23,7 +22,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Project { Id = 1, OrganizationUnitId = 2 }
                 )
                 .Aggregate(
-                    new Aggregates::Project { Id = 1 }
+                    new Project { Id = 1 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -50,10 +49,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Theme { Id = 3, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = true }
                 )
                 .Aggregate(
-                    new Aggregates::Project { Id = 1 },
-                    new Aggregates::Project.ProjectDefaultTheme { ProjectId = 1, ThemeId = 3, Start = FirstDayJan, End = FirstDayFeb },
+                    new Project { Id = 1 },
+                    new Project.ProjectDefaultTheme { ProjectId = 1, ThemeId = 3, Start = FirstDayJan, End = FirstDayFeb },
 
-                    new Aggregates::Theme { Id = 3, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = true }
+                    new Theme { Id = 3, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = true }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -92,12 +91,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Theme { Id = 4, BeginDistribution = FirstDayFeb, EndDistribution = FirstDayMar, IsDefault = true }
                 )
                 .Aggregate(
-                    new Aggregates::Project { Id = 1 },
-                    new Aggregates::Project.ProjectDefaultTheme { ProjectId = 1, ThemeId = 3, Start = FirstDayJan, End = FirstDayMar },
-                    new Aggregates::Project.ProjectDefaultTheme { ProjectId = 1, ThemeId = 4, Start = FirstDayFeb, End = FirstDayMar },
+                    new Project { Id = 1 },
+                    new Project.ProjectDefaultTheme { ProjectId = 1, ThemeId = 3, Start = FirstDayJan, End = FirstDayMar },
+                    new Project.ProjectDefaultTheme { ProjectId = 1, ThemeId = 4, Start = FirstDayFeb, End = FirstDayMar },
 
-                    new Aggregates::Theme { Id = 3, BeginDistribution = FirstDayJan, EndDistribution = FirstDayMar, IsDefault = true },
-                    new Aggregates::Theme { Id = 4, BeginDistribution = FirstDayFeb, EndDistribution = FirstDayMar, IsDefault = true }
+                    new Theme { Id = 3, BeginDistribution = FirstDayJan, EndDistribution = FirstDayMar, IsDefault = true },
+                    new Theme { Id = 4, BeginDistribution = FirstDayFeb, EndDistribution = FirstDayMar, IsDefault = true }
                 )
                 .Message(
                     new Messages::Version.ValidationResult

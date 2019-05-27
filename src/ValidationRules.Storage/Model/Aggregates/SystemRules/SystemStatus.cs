@@ -1,4 +1,4 @@
-﻿namespace NuClear.ValidationRules.Storage.Model.SystemRules.Aggregates
+﻿namespace NuClear.ValidationRules.Storage.Model.Aggregates.SystemRules
 {
     public sealed class SystemStatus
     {

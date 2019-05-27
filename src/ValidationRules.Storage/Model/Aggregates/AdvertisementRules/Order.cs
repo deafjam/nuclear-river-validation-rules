@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NuClear.ValidationRules.Storage.Model.AdvertisementRules.Aggregates
+namespace NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules
 {
     public sealed class Order
     {

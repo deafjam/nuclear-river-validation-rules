@@ -2,9 +2,8 @@
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -35,14 +34,14 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::LegalPerson { Id = 2 },
                     new Facts::LegalPersonProfile { Id = 2 })
                 .Aggregate(
-                    new Aggregates::Order.InactiveReference { OrderId = 1, BranchOffice = false, BranchOfficeOrganizationUnit = true, LegalPerson = false, LegalPersonProfile = false },
-                    new Aggregates::Order.InactiveReference { OrderId = 2, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = true, LegalPersonProfile = false },
-                    new Aggregates::Order.InactiveReference { OrderId = 3, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = true },
-                    new Aggregates::Order.InactiveReference { OrderId = 4, BranchOffice = true, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = false },
+                    new Order.InactiveReference { OrderId = 1, BranchOffice = false, BranchOfficeOrganizationUnit = true, LegalPerson = false, LegalPersonProfile = false },
+                    new Order.InactiveReference { OrderId = 2, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = true, LegalPersonProfile = false },
+                    new Order.InactiveReference { OrderId = 3, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = true },
+                    new Order.InactiveReference { OrderId = 4, BranchOffice = true, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = false },
 
-                    new Aggregates::Order.InactiveReference { OrderId = 5, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = false },
-                    new Aggregates::Order.InactiveReference { OrderId = 6, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = false },
-                    new Aggregates::Order.InactiveReference { OrderId = 7, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = false });
+                    new Order.InactiveReference { OrderId = 5, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = false },
+                    new Order.InactiveReference { OrderId = 6, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = false },
+                    new Order.InactiveReference { OrderId = 7, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = false, LegalPersonProfile = false });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderMustHaveActiveLegalEntitiesMessage
@@ -50,11 +49,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustHaveActiveLegalEntitiesMessage))
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.InactiveReference { OrderId = 1, BranchOffice = true, BranchOfficeOrganizationUnit = true, LegalPerson = false, LegalPersonProfile = false },
+                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.InactiveReference { OrderId = 1, BranchOffice = true, BranchOfficeOrganizationUnit = true, LegalPerson = false, LegalPersonProfile = false },
 
-                    new Aggregates::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.InactiveReference { OrderId = 2, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = true, LegalPersonProfile = true })
+                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.InactiveReference { OrderId = 2, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = true, LegalPersonProfile = true })
                 .Message(
                     new Messages::Version.ValidationResult
                     {

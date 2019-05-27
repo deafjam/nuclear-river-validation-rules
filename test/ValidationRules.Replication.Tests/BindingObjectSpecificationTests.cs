@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using NuClear.ValidationRules.Replication.Specifications;
-using NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates;
-
+using NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 using NUnit.Framework;
 
 namespace NuClear.ValidationRules.Replication.Tests

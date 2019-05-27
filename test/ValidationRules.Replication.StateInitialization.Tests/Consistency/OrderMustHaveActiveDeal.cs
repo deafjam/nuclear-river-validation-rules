@@ -2,9 +2,8 @@
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -26,17 +25,17 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Deal { Id = 3 },
                     new Facts::Project())
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
                     CreateOrderMissingRequiredField(orderId: 1, deal: true),
-                    new Aggregates::Order.InactiveReference { OrderId = 1, Deal = false },
+                    new Order.InactiveReference { OrderId = 1, Deal = false },
 
-                    new Aggregates::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
                     CreateOrderMissingRequiredField(orderId: 2, deal: false),
-                    new Aggregates::Order.InactiveReference { OrderId = 2, Deal = true },
+                    new Order.InactiveReference { OrderId = 2, Deal = true },
 
-                    new Aggregates::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
                     CreateOrderMissingRequiredField(orderId: 3, deal: false),
-                    new Aggregates::Order.InactiveReference { OrderId = 3, Deal = false });
+                    new Order.InactiveReference { OrderId = 3, Deal = false });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderMustHaveActiveDealMessage
@@ -44,22 +43,22 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustHaveActiveDealMessage))
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.MissingRequiredField { OrderId = 1, Deal = true },
-                    new Aggregates::Order.InactiveReference { OrderId = 1, Deal = false },
+                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.MissingRequiredField { OrderId = 1, Deal = true },
+                    new Order.InactiveReference { OrderId = 1, Deal = false },
 
-                    new Aggregates::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.MissingRequiredField { OrderId = 2, Deal = false },
-                    new Aggregates::Order.InactiveReference { OrderId = 2, Deal = true },
+                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.MissingRequiredField { OrderId = 2, Deal = false },
+                    new Order.InactiveReference { OrderId = 2, Deal = true },
 
-                    new Aggregates::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.MissingRequiredField { OrderId = 3, Deal = false },
-                    new Aggregates::Order.InactiveReference { OrderId = 3, Deal = false })
+                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.MissingRequiredField { OrderId = 3, Deal = false },
+                    new Order.InactiveReference { OrderId = 3, Deal = false })
                 .Message(
                     new Messages::Version.ValidationResult
                     {
                         MessageParams = new MessageParams(
-                                new Dictionary<string, object> { { "state", (int)Aggregates::DealState.Missing } },
+                                new Dictionary<string, object> { { "state", (int)DealState.Missing } },
                                 new Reference<EntityTypeOrder>(1)).ToXDocument(),
                         MessageType = (int)MessageTypeCode.OrderMustHaveActiveDeal,
                         PeriodStart = MonthStart(1),
@@ -69,7 +68,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Messages::Version.ValidationResult
                     {
                         MessageParams = new MessageParams(
-                                new Dictionary<string, object> { { "state", (int)Aggregates::DealState.Inactive } },
+                                new Dictionary<string, object> { { "state", (int)DealState.Inactive } },
                                 new Reference<EntityTypeOrder>(2)).ToXDocument(),
                         MessageType = (int)MessageTypeCode.OrderMustHaveActiveDeal,
                         PeriodStart = MonthStart(1),
@@ -77,14 +76,14 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         OrderId = 2,
                     });
 
-        private static Aggregates::Order.MissingRequiredField CreateOrderMissingRequiredField(long orderId,
+        private static Order.MissingRequiredField CreateOrderMissingRequiredField(long orderId,
                                                                                       bool branchOfficeOrganizationUnit = true,
                                                                                       bool currency = true,
                                                                                       bool deal = true,
                                                                                       bool legalPerson = true,
                                                                                       bool legalPersonProfile = true)
         {
-            return new Aggregates::Order.MissingRequiredField
+            return new Order.MissingRequiredField
                 {
                     OrderId = orderId,
                     BranchOfficeOrganizationUnit = branchOfficeOrganizationUnit,

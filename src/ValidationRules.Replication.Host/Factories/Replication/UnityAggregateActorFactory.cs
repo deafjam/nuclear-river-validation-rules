@@ -7,26 +7,28 @@ using Microsoft.Practices.Unity;
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.Actors;
 
-using AccountAggregates = NuClear.ValidationRules.Storage.Model.AccountRules.Aggregates;
+using AccountAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.AccountRules;
 using AccountActors = NuClear.ValidationRules.Replication.AccountRules.Aggregates;
 
-using PriceAggregates = NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates;
+using PriceAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 using PriceActors = NuClear.ValidationRules.Replication.PriceRules.Aggregates;
 
-using ConsistencyAggregates = NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
+using ConsistencyAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
 using ConsistencyActors = NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates;
 
-using FirmAggregates = NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates;
+using FirmAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
 using FirmActors = NuClear.ValidationRules.Replication.FirmRules.Aggregates;
 
-using AdvertisementAggregates = NuClear.ValidationRules.Storage.Model.AdvertisementRules.Aggregates;
+using AdvertisementAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules;
 using AdvertisementActors = NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates;
-using ThemeAggregates = NuClear.ValidationRules.Storage.Model.ThemeRules.Aggregates;
+
+using ThemeAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ThemeRules;
 using ThemeActors = NuClear.ValidationRules.Replication.ThemeRules.Aggregates;
-using SystemAggregates = NuClear.ValidationRules.Storage.Model.SystemRules.Aggregates;
+
+using SystemAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.SystemRules;
 using SystemActors = NuClear.ValidationRules.Replication.SystemRules.Aggregates;
 
-using ProjectAggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
+using ProjectAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using ProjectActors = NuClear.ValidationRules.Replication.ProjectRules.Aggregates;
 
 namespace NuClear.ValidationRules.Replication.Host.Factories.Replication

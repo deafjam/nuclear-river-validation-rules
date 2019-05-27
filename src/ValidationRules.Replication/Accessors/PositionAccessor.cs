@@ -60,8 +60,8 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var positionIds = dataObjects.Select(x => x.Id).ToList();
 
             var orderIdsFromOpa =
-                from pricePosition in _query.For<OrderPositionAdvertisement>().Where(x => positionIds.Contains(x.PositionId))
-                from orderPosition in _query.For<OrderPosition>().Where(x => x.Id == pricePosition.OrderPositionId)
+                from opa in _query.For<OrderPositionAdvertisement>().Where(x => positionIds.Contains(x.PositionId))
+                from orderPosition in _query.For<OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                 select orderPosition.OrderId;
 
             var orderIdsFromPricePosition =

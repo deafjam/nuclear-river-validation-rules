@@ -7,7 +7,7 @@ using NuClear.Replication.Core.Equality;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
-using NuClear.ValidationRules.Storage.Model.AdvertisementRules.Aggregates;
+using NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
 
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
@@ -256,7 +256,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
                             AdvertisementIsOptional = p.ContentSales == Facts::Position.ContentSalesContentIsNotRequired
                         };
 
-                return result;
+                return result.Distinct();
             }
 
             public FindSpecification<Order.AdvertisementFailedReview> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

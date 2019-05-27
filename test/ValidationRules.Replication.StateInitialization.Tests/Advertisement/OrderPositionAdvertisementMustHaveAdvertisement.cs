@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.AdvertisementRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -27,8 +26,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                       new Facts::OrderPositionAdvertisement { OrderPositionId = 4, PositionId = 5, AdvertisementId = null }
                      )
                 .Aggregate(
-                           new Aggregates::Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb },
-                           new Aggregates::Order.MissingAdvertisementReference { OrderId = 1, OrderPositionId = 4, CompositePositionId = 5, PositionId = 5, AdvertisementIsOptional = false}
+                           new Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb },
+                           new Order.MissingAdvertisementReference { OrderId = 1, OrderPositionId = 4, CompositePositionId = 5, PositionId = 5, AdvertisementIsOptional = false}
                           )
                 .Message(
                          new Messages::Version.ValidationResult
@@ -64,7 +63,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                       new Facts::OrderPositionAdvertisement { OrderPositionId = 4, PositionId = 5, AdvertisementId = null }
                      )
                 .Aggregate(
-                           new Aggregates::Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb }
+                           new Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb }
                           )
                 .Message();
 
@@ -84,7 +83,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                       new Facts::OrderPositionAdvertisement { OrderPositionId = 4, PositionId = 5, AdvertisementId = 13 }
                      )
                 .Aggregate(
-                           new Aggregates::Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb }
+                           new Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb }
                           )
                 .Message(
                         );

@@ -7,9 +7,8 @@ using NuClear.Replication.Core.Equality;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-using NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
-
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 
 namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates

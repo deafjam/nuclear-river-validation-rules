@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -24,8 +23,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Category { Id = 12, IsActiveNotDeleted = true },
                     new Facts::Project())
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12 })
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {
@@ -57,7 +56,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Category { Id = 12, IsActiveNotDeleted = false },
                     new Facts::Project())
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) })
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) })
                 .Message();
 
         // ReSharper disable once UnusedMember.Local
@@ -74,9 +73,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Project(),
                     new Facts::CategoryOrganizationUnit { CategoryId = 12 })
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12 },
-                    new Aggregates::Project.Category { CategoryId = 12 })
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12 },
+                    new Project.Category { CategoryId = 12 })
                 .Message();
     }
 }

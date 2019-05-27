@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NuClear.ValidationRules.Storage.Model.ThemeRules.Aggregates
+namespace NuClear.ValidationRules.Storage.Model.Aggregates.ThemeRules
 {
     public sealed class Theme
     {

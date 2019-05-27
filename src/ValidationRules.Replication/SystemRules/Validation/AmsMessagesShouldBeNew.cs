@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 
 using NuClear.Storage.API.Readings;
+using NuClear.ValidationRules.Storage.Model.Aggregates.SystemRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-using NuClear.ValidationRules.Storage.Model.SystemRules.Aggregates;
 
 namespace NuClear.ValidationRules.Replication.SystemRules.Validation
 {

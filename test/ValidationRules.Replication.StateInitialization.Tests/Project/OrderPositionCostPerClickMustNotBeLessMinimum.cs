@@ -2,9 +2,8 @@
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -29,11 +28,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::CostPerClickCategoryRestriction { Begin = MonthStart(1), CategoryId = 12, MinCostPerClick = 1 },
                     new Facts::CostPerClickCategoryRestriction { Begin = MonthStart(2), CategoryId = 12, MinCostPerClick = 2 })
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CostPerClickAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12, Bid = 1 },
-                    new Aggregates::Project(),
-                    new Aggregates::Project.CostPerClickRestriction { CategoryId = 12, Begin = MonthStart(1), End = MonthStart(2), Minimum = 1 },
-                    new Aggregates::Project.CostPerClickRestriction { CategoryId = 12, Begin = MonthStart(2), End = DateTime.MaxValue, Minimum = 2 })
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CostPerClickAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12, Bid = 1 },
+                    new Project(),
+                    new Project.CostPerClickRestriction { CategoryId = 12, Begin = MonthStart(1), End = MonthStart(2), Minimum = 1 },
+                    new Project.CostPerClickRestriction { CategoryId = 12, Begin = MonthStart(2), End = DateTime.MaxValue, Minimum = 2 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

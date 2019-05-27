@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates
+namespace NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules
 {
     public enum InvalidFirmAddressState
     {
@@ -98,7 +98,6 @@ namespace NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates
         public class BargainSignedLaterThanOrder
         {
             public long OrderId { get; set; }
-            public long BargainId { get; set; }
         }
 
         public class MissingBargainScan

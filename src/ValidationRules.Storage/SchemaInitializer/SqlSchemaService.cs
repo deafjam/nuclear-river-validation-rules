@@ -73,9 +73,14 @@ namespace NuClear.ValidationRules.Storage.SchemaInitializer
                 foreach (var index in indices)
                 {
                     var command = db.CreateCommand();
-                    var tableName = table.Name ?? _dataObjectType.Name;
 
-                    command.CommandText = $"CREATE INDEX [IX_{tableName}_{string.Join("_", index.Fields.Select(x => x.Name))}] ON [{table.Schema ?? "dbo"}].[{tableName}] "
+                    var schemaName = table.Schema ?? "dbo";
+                    var tableName = table.Name ?? _dataObjectType.Name;
+                    var name = index.Name ?? string.Join("_", index.Fields.Select(x => x.Name));
+                    var unique = index.Unique ? "UNIQUE" : null;
+                    var clustered = index.Clustered ? "CLUSTERED" : null;
+
+                    command.CommandText = $"CREATE {unique} {clustered} INDEX [IX_{tableName}_{name}] ON [{schemaName}].[{tableName}] "
                                           + $"({string.Join(", ", index.Fields.Select(x => "[" + x.Name + "]"))})"
                                           + (index.Include.Any() ? $" INCLUDE ({string.Join(", ", index.Include.Select(x => "[" + x.Name + "]"))})" : string.Empty);
                     command.ExecuteNonQuery();

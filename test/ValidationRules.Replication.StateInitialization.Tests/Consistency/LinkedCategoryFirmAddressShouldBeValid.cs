@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -27,8 +26,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 1, CategoryId = 3, FirmAddressId = 3 },
                     new Facts::FirmAddress { Id = 3, IsActive = true })
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.CategoryNotBelongsToAddress { OrderId = 1, CategoryId = 3, FirmAddressId = 3, OrderPositionId = 1 })
+                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.CategoryNotBelongsToAddress { OrderId = 1, CategoryId = 3, FirmAddressId = 3, OrderPositionId = 1 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

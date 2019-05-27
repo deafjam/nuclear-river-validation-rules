@@ -1,9 +1,8 @@
 ﻿using System;
 
 using NuClear.DataTest.Metamodel.Dsl;
+using NuClear.ValidationRules.Storage.Model.Aggregates.SystemRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.SystemRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -21,7 +20,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::SystemStatus { Id = 1, SystemIsDown = true }
                 )
                 .Aggregate(
-                    new Aggregates::SystemStatus { Id = 1, SystemIsDown = true }
+                    new SystemStatus { Id = 1, SystemIsDown = true }
                 )
                 .Message(
                     new Messages::Version.ValidationResult

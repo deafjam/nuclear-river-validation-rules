@@ -3,8 +3,8 @@ using System.Linq;
 
 using NuClear.Storage.API.Readings;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-using NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
 
 namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
 {

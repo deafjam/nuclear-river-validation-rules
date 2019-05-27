@@ -2,9 +2,8 @@
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.AccountRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.AccountRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -192,43 +191,43 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                       new Facts::Project())
 
                 .Aggregate(
-                           new Aggregates::Account { Id = 1 },
-                           new Aggregates::Account { Id = 2 },
-                           new Aggregates::Account { Id = 3 },
-                           new Aggregates::Account { Id = 4 },
-                           new Aggregates::Account { Id = 5 },
-                           new Aggregates::Account { Id = 6 },
-                           new Aggregates::Account { Id = 7 },
-                           new Aggregates::Account { Id = 8 },
-                           new Aggregates::Account { Id = 9 },
-                           new Aggregates::Account { Id = 10 },
-                           new Aggregates::Account { Id = 11 },
+                           new Account { Id = 1 },
+                           new Account { Id = 2 },
+                           new Account { Id = 3 },
+                           new Account { Id = 4 },
+                           new Account { Id = 5 },
+                           new Account { Id = 6 },
+                           new Account { Id = 7 },
+                           new Account { Id = 8 },
+                           new Account { Id = 9 },
+                           new Account { Id = 10 },
+                           new Account { Id = 11 },
 
-                           new Aggregates::Order { Id = 1, AccountId = 1, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayApr },
-                           new Aggregates::Order { Id = 2, AccountId = 2, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMay, IsFreeOfCharge = true },
-                           new Aggregates::Order { Id = 3, AccountId = 3, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar },
-                           new Aggregates::Order { Id = 4, AccountId = 4, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar },
-                           new Aggregates::Order { Id = 5, AccountId = 5, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar },
-                           new Aggregates::Order { Id = 6, AccountId = 6, BeginDistributionDate = FirstDayJan, EndDistributionDate = FirstDayMay },
-                           new Aggregates::Order { Id = 7, AccountId = 7, BeginDistributionDate = FirstDayJan, EndDistributionDate = FirstDayMar },
-                           new Aggregates::Order { Id = 8, AccountId = 8, BeginDistributionDate = FirstDayJan, EndDistributionDate = FirstDayMar },
-                           new Aggregates::Order { Id = 9, AccountId = 9, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar },
-                           new Aggregates::Order { Id = 10, AccountId = 10, BeginDistributionDate = FirstDayJan, EndDistributionDate = FirstDayApr },
-                           new Aggregates::Order { Id = 11, AccountId = 11, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar, IsFreeOfCharge = true },
+                           new Order { Id = 1, AccountId = 1, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayApr },
+                           new Order { Id = 2, AccountId = 2, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMay, IsFreeOfCharge = true },
+                           new Order { Id = 3, AccountId = 3, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar },
+                           new Order { Id = 4, AccountId = 4, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar },
+                           new Order { Id = 5, AccountId = 5, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar },
+                           new Order { Id = 6, AccountId = 6, BeginDistributionDate = FirstDayJan, EndDistributionDate = FirstDayMay },
+                           new Order { Id = 7, AccountId = 7, BeginDistributionDate = FirstDayJan, EndDistributionDate = FirstDayMar },
+                           new Order { Id = 8, AccountId = 8, BeginDistributionDate = FirstDayJan, EndDistributionDate = FirstDayMar },
+                           new Order { Id = 9, AccountId = 9, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar },
+                           new Order { Id = 10, AccountId = 10, BeginDistributionDate = FirstDayJan, EndDistributionDate = FirstDayApr },
+                           new Order { Id = 11, AccountId = 11, BeginDistributionDate = FirstDayFeb, EndDistributionDate = FirstDayMar, IsFreeOfCharge = true },
 
-                           new Aggregates::Account.AccountPeriod { AccountId = 1, Balance = 1, ReleaseAmount = 10, Start = FirstDayMar, End = FirstDayApr },
-                           new Aggregates::Account.AccountPeriod { AccountId = 4, Balance = -500, ReleaseAmount = 105000, Start = FirstDayFeb, End = FirstDayMar },
-                           new Aggregates::Account.AccountPeriod { AccountId = 5, Balance = 0, ReleaseAmount = 105000, Start = FirstDayFeb, End = FirstDayMar },
-                           new Aggregates::Account.AccountPeriod { AccountId = 6, Balance = -1, ReleaseAmount = 2, Start = FirstDayFeb, End = FirstDayMar },
-                           new Aggregates::Account.AccountPeriod { AccountId = 6, Balance = -3, ReleaseAmount = 3, Start = FirstDayMar, End = FirstDayApr },
-                           new Aggregates::Account.AccountPeriod { AccountId = 6, Balance = -6, ReleaseAmount = 4, Start = FirstDayApr, End = FirstDayMay },
-                           new Aggregates::Account.AccountPeriod { AccountId = 7, Balance = 0, ReleaseAmount = 1, Start = FirstDayJan, End = FirstDayFeb },
-                           new Aggregates::Account.AccountPeriod { AccountId = 7, Balance = -1, ReleaseAmount = 2, Start = FirstDayFeb, End = FirstDayMar },
-                           new Aggregates::Account.AccountPeriod { AccountId = 10, Balance = 0, ReleaseAmount = 1, Start = FirstDayJan, End = FirstDayFeb },
-                           new Aggregates::Account.AccountPeriod { AccountId = 10, Balance = -1, ReleaseAmount = 2, Start = FirstDayFeb, End = FirstDayMar },
-                           new Aggregates::Account.AccountPeriod { AccountId = 10, Balance = -3, ReleaseAmount = 3, Start = FirstDayMar, End = FirstDayApr },
+                           new Account.AccountPeriod { AccountId = 1, Balance = 1, ReleaseAmount = 10, Start = FirstDayMar, End = FirstDayApr },
+                           new Account.AccountPeriod { AccountId = 4, Balance = -500, ReleaseAmount = 105000, Start = FirstDayFeb, End = FirstDayMar },
+                           new Account.AccountPeriod { AccountId = 5, Balance = 0, ReleaseAmount = 105000, Start = FirstDayFeb, End = FirstDayMar },
+                           new Account.AccountPeriod { AccountId = 6, Balance = -1, ReleaseAmount = 2, Start = FirstDayFeb, End = FirstDayMar },
+                           new Account.AccountPeriod { AccountId = 6, Balance = -3, ReleaseAmount = 3, Start = FirstDayMar, End = FirstDayApr },
+                           new Account.AccountPeriod { AccountId = 6, Balance = -6, ReleaseAmount = 4, Start = FirstDayApr, End = FirstDayMay },
+                           new Account.AccountPeriod { AccountId = 7, Balance = 0, ReleaseAmount = 1, Start = FirstDayJan, End = FirstDayFeb },
+                           new Account.AccountPeriod { AccountId = 7, Balance = -1, ReleaseAmount = 2, Start = FirstDayFeb, End = FirstDayMar },
+                           new Account.AccountPeriod { AccountId = 10, Balance = 0, ReleaseAmount = 1, Start = FirstDayJan, End = FirstDayFeb },
+                           new Account.AccountPeriod { AccountId = 10, Balance = -1, ReleaseAmount = 2, Start = FirstDayFeb, End = FirstDayMar },
+                           new Account.AccountPeriod { AccountId = 10, Balance = -3, ReleaseAmount = 3, Start = FirstDayMar, End = FirstDayApr },
 
-                           new Aggregates::Order.DebtPermission { OrderId = 4, Start = FirstDayFeb, End = FirstDayMar }
+                           new Order.DebtPermission { OrderId = 4, Start = FirstDayFeb, End = FirstDayMar }
                 )
                 .Message(
                          new Messages::Version.ValidationResult

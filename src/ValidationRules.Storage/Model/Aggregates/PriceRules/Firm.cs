@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates
+namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
 {
     public sealed class Firm
     {

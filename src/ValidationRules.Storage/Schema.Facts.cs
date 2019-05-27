@@ -21,179 +21,208 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<Account>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<AccountDetail>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
                    .HasIndex(x => new { x.OrderId, x.PeriodStartDate });
+
             builder.Entity<Advertisement>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<Bargain>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<BargainScanFile>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<Bill>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id);
+                   .HasPrimaryKey(x => x.Id)
+                   .HasIndex(x => x.OrderId, x => x.PayablePlan);
+
             builder.Entity<BranchOffice>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<BranchOfficeOrganizationUnit>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<Category>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<CategoryOrganizationUnit>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id);
+                   .HasPrimaryKey(x => x.Id)
+                   .HasIndex(x => x.OrganizationUnitId, x => x.CategoryId);
+
             builder.Entity<CostPerClickCategoryRestriction>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.ProjectId)
-                   .HasPrimaryKey(x => x.CategoryId)
-                   .HasPrimaryKey(x => x.Begin);
+                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, x.Begin });
+
             builder.Entity<Deal>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<EntityName>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id)
-                   .HasPrimaryKey(x => x.EntityType);
+                   .HasPrimaryKey(x => new { x.Id, x.EntityType });
+
             builder.Entity<Firm>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.Id }, x => new { x.IsClosedForAscertainment, x.IsActive, x.IsDeleted });
+                   .HasIndex(x => new {x.IsActive, x.IsDeleted, x.IsClosedForAscertainment}, x => x.OrganizationUnitId);
+
             builder.Entity<FirmAddress>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.FirmId, x.IsActive, x.IsDeleted, x.IsClosedForAscertainment }, x => new { x.Id });
+                   .HasIndex(x => new { x.FirmId, x.IsActive, x.IsDeleted, x.IsClosedForAscertainment }, x => x.Id)
+                   .HasIndex(x => x.IsLocatedOnTheMap);
+
             builder.Entity<FirmAddressCategory>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id)
-                   .HasPrimaryKey(x => x.CategoryId)
-                   .HasIndex(x => new { x.CategoryId }, x => new { x.FirmAddressId })
+                   .HasPrimaryKey(x => new {x.Id, x.CategoryId })
+                   .HasIndex(x => x.CategoryId, x => x.FirmAddressId)
                    .HasIndex(x => new { x.FirmAddressId, x.CategoryId });
+
             builder.Entity<LegalPerson>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<LegalPersonProfile>()
-                   .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.LegalPersonId }, x => new { x.Id });
+                .HasSchemaName(FactsSchema)
+                .HasPrimaryKey(x => x.Id)
+                .HasIndex(x => x.LegalPersonId)
+                .HasIndex(x => x.WarrantyEndDate, x => x.LegalPersonId)
+                .HasIndex(x => x.BargainEndDate, x => x.LegalPersonId);
+
             builder.Entity<NomenclatureCategory>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<Order>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.DestOrganizationUnitId }, x => new { x.Id, x.FirmId, x.BeginDistribution, x.EndDistributionFact, x.EndDistributionPlan, x.WorkflowStep })
-                   .HasIndex(x => new { x.LegalPersonId, x.SignupDate }, x => new { x.Id })
-                   .HasIndex(x => new { x.BargainId }, x => new { x.Id })
-                   .HasIndex(x => new { x.BargainId, x.SignupDate }, x => new { x.Id })
-                   .HasIndex(x => new { x.BeginDistribution, x.DestOrganizationUnitId }, x => new { x.FirmId })
-                   .HasIndex(x => new { x.EndDistributionFact })
-                   .HasIndex(x => new { x.EndDistributionPlan })
-                   .HasIndex(x => new { x.FirmId }, x => new { x.DestOrganizationUnitId, x.BeginDistribution });
+                   .HasIndex(x => x.DestOrganizationUnitId, x => new { x.Id, x.FirmId, x.BeginDistribution, x.EndDistributionFact, x.EndDistributionPlan, x.WorkflowStep, x.IsSelfAds })
+                   .HasIndex(x => new { x.LegalPersonId, x.SignupDate }, x => x.Id)
+                   .HasIndex(x => x.BargainId, x => x.Id)
+                   .HasIndex(x => new { x.BargainId, x.SignupDate }, x => x.Id)
+                   .HasIndex(x => new { x.BeginDistribution, x.DestOrganizationUnitId }, x => x.FirmId)
+                   .HasIndex(x => x.EndDistributionFact)
+                   .HasIndex(x => x.EndDistributionPlan)
+                   .HasIndex(x => x.FirmId, x => new { x.DestOrganizationUnitId, x.BeginDistribution });
+
             builder.Entity<OrderItem>()
                    .HasSchemaName(FactsSchema)
-                   .HasIndex(x => new { x.OrderId }, x => new { x.OrderPositionId, x.PackagePositionId, x.ItemPositionId })
-                   .HasIndex(x => new { x.OrderPositionId });
+                   // PK не получается создать, т.к. PricePositionId, FirmAddressId, CategoryId nullable
+                   .HasIndex(x => new { x.OrderId, x.OrderPositionId, x.PackagePositionId, x.ItemPositionId, x.PricePositionId, x.FirmAddressId, x.CategoryId}, clustered: true, unique: true, name: "PK_Analog");
+
             builder.Entity<OrderPosition>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.OrderId }, x => new { x.Id, x.PricePositionId })
-                   .HasIndex(x => new { x.PricePositionId }, x => new { x.Id, x.OrderId });
+                   .HasIndex(x => x.OrderId, x => new { x.PricePositionId })
+                   .HasIndex(x => x.PricePositionId, x => new { x.OrderId });
+
             builder.Entity<OrderPositionAdvertisement>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.AdvertisementId }, x => new { x.OrderPositionId, x.PositionId })
-                   .HasIndex(x => new { x.OrderPositionId }, x => new { x.FirmAddressId, x.PositionId })
-                   .HasIndex(x => new { x.PositionId })
+                   .HasIndex(x => x.AdvertisementId, x => new { x.OrderPositionId, x.PositionId })
+                   .HasIndex(x => x.OrderPositionId, x => new { x.FirmAddressId, x.PositionId })
+                   .HasIndex(x => new {x.PositionId, x.FirmAddressId}, x => x.OrderPositionId)
                    .HasIndex(x => new { x.FirmAddressId, x.CategoryId }, x => new { x.OrderPositionId, x.PositionId })
-                   .HasIndex(x => new { x.CategoryId }, x => new { x.OrderPositionId });
+                   .HasIndex(x => x.CategoryId, x => new { x.OrderPositionId, x.PositionId, x.FirmAddressId })
+                   .HasIndex(x => x.ThemeId, x => x.OrderPositionId);
+
             builder.Entity<OrderPositionCostPerClick>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.OrderPositionId)
-                   .HasPrimaryKey(x => x.CategoryId);
+                   .HasPrimaryKey(x => new { x.OrderPositionId, x.CategoryId });
+
             builder.Entity<OrderScanFile>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.OrderId }, x => new { x.Id });
+                   .HasIndex(x => x.OrderId);
+
             builder.Entity<Position>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<PositionChild>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.MasterPositionId)
-                   .HasPrimaryKey(x => x.ChildPositionId);
+                   .HasPrimaryKey(x => new {x.MasterPositionId, x.ChildPositionId });
+
             builder.Entity<Price>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id);
+                   .HasPrimaryKey(x => x.Id)
+                   .HasIndex(x => new { x.BeginDate, x.ProjectId });
+
             builder.Entity<PricePosition>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.PriceId })
-                   .HasIndex(x => new { x.PositionId });
+                   .HasIndex(x => x.PriceId)
+                   .HasIndex(x => x.PositionId);
+
             builder.Entity<Project>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<ReleaseInfo>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id);
+                   .HasPrimaryKey(x => x.Id)
+                   .HasIndex(x => x.PeriodEndDate);
+
             builder.Entity<ReleaseWithdrawal>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.OrderPositionId)
-                   .HasPrimaryKey(x => x.Start);
+                   .HasPrimaryKey(x => new { x.OrderPositionId, x.Start });
+
             builder.Entity<SalesModelCategoryRestriction>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.ProjectId)
-                   .HasPrimaryKey(x => x.CategoryId)
-                   .HasPrimaryKey(x => x.Begin);
+                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, x.Begin });
+
             builder.Entity<SystemStatus>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<Theme>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<ThemeCategory>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<ThemeOrganizationUnit>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id);
+
             builder.Entity<UnlimitedOrder>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.OrderId)
-                   .HasPrimaryKey(x => x.PeriodStart);
+                   .HasPrimaryKey(x => new { x.OrderId, x.PeriodStart });
 
             builder.Entity<Ruleset>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
                    .HasIndex(x => new { x.BeginDate, x.EndDate, x.IsDeleted });
+
             builder.Entity<Ruleset.AssociatedRule>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.RulesetId)
-                   .HasPrimaryKey(x => x.PrincipalNomenclatureId)
-                   .HasPrimaryKey(x => x.AssociatedNomenclatureId)
-                   .HasIndex(x => new {x.RulesetId, x.AssociatedNomenclatureId}, x => new {x.PrincipalNomenclatureId, x.ConsideringBindingObject });
+                   .HasPrimaryKey(x => new { x.RulesetId, x.AssociatedNomenclatureId, x.PrincipalNomenclatureId });
+
             builder.Entity<Ruleset.DeniedRule>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.RulesetId)
-                   .HasPrimaryKey(x => x.NomenclatureId)
-                   .HasPrimaryKey(x => x.DeniedNomenclatureId)
-                   .HasIndex(x => new { x.RulesetId, x.NomenclatureId }, x => new { x.DeniedNomenclatureId, x.BindingObjectStrategy });
+                   .HasPrimaryKey(x => new { x.RulesetId, x.NomenclatureId, x.DeniedNomenclatureId });
+
             builder.Entity<Ruleset.QuantitativeRule>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.RulesetId)
-                   .HasPrimaryKey(x => x.NomenclatureCategoryCode)
-                   .HasIndex(x => new { x.RulesetId, x.NomenclatureCategoryCode }, x => new { x.Min, x.Max });
+                   .HasPrimaryKey(x => new { x.RulesetId, x.NomenclatureCategoryCode });
+
             builder.Entity<Ruleset.RulesetProject>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.RulesetId)
-                   .HasPrimaryKey(x => x.ProjectId)
-                   .HasIndex(x => new { x.ProjectId, x.RulesetId });
+                   .HasPrimaryKey(x => new { x.ProjectId, x.RulesetId });
 
             return builder;
         }

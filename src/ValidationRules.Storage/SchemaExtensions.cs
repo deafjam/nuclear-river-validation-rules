@@ -28,12 +28,20 @@ namespace NuClear.ValidationRules.Storage
             return schema;
         }
 
-        public static EntityMappingBuilder<T> HasIndex<T>(this EntityMappingBuilder<T> builder, Expression<Func<T, object>> fields)
+        public static EntityMappingBuilder<T> HasIndex<T>(this EntityMappingBuilder<T> builder, Expression<Func<T, object>> fields, string name = null, bool clustered = false, bool unique = false)
         {
             var fieldsVisitor = new Visitor();
             fieldsVisitor.Visit(fields);
 
-            builder.HasAttribute(new IndexAttribute { Fields = fieldsVisitor.Members, Include = Array.Empty<MemberInfo>() });
+            builder.HasAttribute(new IndexAttribute
+            {
+                Fields = fieldsVisitor.Members,
+                Include = Array.Empty<MemberInfo>(),
+
+                Name = name,
+                Clustered = clustered,
+                Unique = unique
+            });
 
             return builder;
         }
@@ -55,6 +63,10 @@ namespace NuClear.ValidationRules.Storage
         {
             public IReadOnlyCollection<MemberInfo> Fields { get; set; }
             public IReadOnlyCollection<MemberInfo> Include { get; set; }
+
+            public string Name { get; set; }
+            public bool Clustered { get; set; }
+            public bool Unique { get; set; }
         }
 
         private sealed class Visitor : ExpressionVisitor

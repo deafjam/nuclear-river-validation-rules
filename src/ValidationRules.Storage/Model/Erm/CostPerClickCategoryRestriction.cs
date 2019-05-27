@@ -2,7 +2,7 @@
 
 namespace NuClear.ValidationRules.Storage.Model.Erm
 {
-    public class CostPerClickCategoryRestriction
+    public sealed class CostPerClickCategoryRestriction
     {
         public long ProjectId { get; set; }
         public long CategoryId { get; set; }

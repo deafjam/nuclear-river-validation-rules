@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -40,15 +39,15 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::CostPerClickCategoryRestriction { Begin = MonthStart(1), CategoryId = 13, MinCostPerClick = 2 },
                     new Facts::CostPerClickCategoryRestriction { Begin = MonthStart(2), CategoryId = 14, MinCostPerClick = 2 })
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CostPerClickAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 13, Bid = 2 },
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CostPerClickAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 13, Bid = 2 },
 
-                    new Aggregates::Order { Id = 2, Begin = MonthStart(2), End = MonthStart(3) },
-                    new Aggregates::Order.CostPerClickAdvertisement { OrderId = 2, OrderPositionId = 2, PositionId = 4, CategoryId = 13, Bid = 2 },
+                    new Order { Id = 2, Begin = MonthStart(2), End = MonthStart(3) },
+                    new Order.CostPerClickAdvertisement { OrderId = 2, OrderPositionId = 2, PositionId = 4, CategoryId = 13, Bid = 2 },
 
-                    new Aggregates::Project(),
-                    new Aggregates::Project.CostPerClickRestriction { CategoryId = 13, Begin = MonthStart(1), End = MonthStart(2), Minimum = 2 },
-                    new Aggregates::Project.CostPerClickRestriction { CategoryId = 14, Begin = MonthStart(2), End = DateTime.MaxValue, Minimum = 2 })
+                    new Project(),
+                    new Project.CostPerClickRestriction { CategoryId = 13, Begin = MonthStart(1), End = MonthStart(2), Minimum = 2 },
+                    new Project.CostPerClickRestriction { CategoryId = 14, Begin = MonthStart(2), End = DateTime.MaxValue, Minimum = 2 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
 
@@ -17,13 +16,13 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(OrderPositionMayMustCorrespontToActualPrice))
                 .Aggregate(
 
-                    new Aggregates::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2), IsCommitted = true },
-                    new Aggregates::Order.ActualPrice { OrderId = 1, PriceId = 1 },
-                    new Aggregates::Order.OrderPricePosition { OrderId = 1, OrderPositionId = 1, PriceId = ~1, IsActive = true },
+                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2), IsCommitted = true },
+                    new Order.ActualPrice { OrderId = 1, PriceId = 1 },
+                    new Order.OrderPricePosition { OrderId = 1, OrderPositionId = 1, PriceId = ~1, IsActive = true },
 
-                    new Aggregates::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2), IsCommitted = false },
-                    new Aggregates::Order.ActualPrice { OrderId = 2, PriceId = 2 },
-                    new Aggregates::Order.OrderPricePosition { OrderId = 2, OrderPositionId = 2, PriceId = ~2, IsActive = true }
+                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2), IsCommitted = false },
+                    new Order.ActualPrice { OrderId = 2, PriceId = 2 },
+                    new Order.OrderPricePosition { OrderId = 2, OrderPositionId = 2, PriceId = ~2, IsActive = true }
                     )
                 .Message(
                     new Messages::Version.ValidationResult

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates
+namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
 {
     public sealed class Order
     {

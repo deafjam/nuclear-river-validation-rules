@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ThemeRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ThemeRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -26,10 +25,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = true }
                 )
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb, IsSelfAds = false },
-                    new Aggregates::Order.OrderTheme { OrderId = 1, ThemeId = 5 },
+                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb, IsSelfAds = false },
+                    new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
 
-                    new Aggregates::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = true }
+                    new Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = true }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -58,10 +57,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = false }
                 )
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb, IsSelfAds = false },
-                    new Aggregates::Order.OrderTheme { OrderId = 1, ThemeId = 5 },
+                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb, IsSelfAds = false },
+                    new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
 
-                    new Aggregates::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = false }
+                    new Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb, IsDefault = false }
                 )
                 .Message(
                 );

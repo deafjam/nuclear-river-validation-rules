@@ -55,8 +55,6 @@ namespace NuClear.ValidationRules.Storage
             
             builder.Entity<UnlimitedOrder>().HasSchemaName(OrderValidationSchema).HasTableName("UnlimitedOrders");
             
-            builder.Entity<UseCaseTrackingEvent>().HasSchemaName("Shared").HasTableName("UseCaseTrackingEvents");
-            
             builder.Entity<NomenclatureCategory>().HasSchemaName(BillingSchema).HasTableName("NomenclatureCategories");
 
             return builder;

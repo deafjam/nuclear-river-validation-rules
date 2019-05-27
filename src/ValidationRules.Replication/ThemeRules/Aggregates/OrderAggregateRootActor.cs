@@ -7,9 +7,8 @@ using NuClear.Replication.Core.Equality;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ThemeRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-using NuClear.ValidationRules.Storage.Model.ThemeRules.Aggregates;
-
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 
 namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
@@ -85,16 +84,16 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
 
             public IQueryable<Order.OrderTheme> GetSource()
             {
-                var orderThemes = (from order in _query.For<Facts::Order>()
-                                   from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
-                                   from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.ThemeId != null).Where(x => x.OrderPositionId == op.Id)
-                                   select new Order.OrderTheme
-                                       {
-                                           OrderId = order.Id,
-                                           ThemeId = opa.ThemeId.Value
-                                       }).Distinct();
+                var orderThemes = from order in _query.For<Facts::Order>()
+                                  from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
+                                  from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.ThemeId != null).Where(x => x.OrderPositionId == op.Id)
+                                  select new Order.OrderTheme
+                                  {
+                                      OrderId = order.Id,
+                                      ThemeId = opa.ThemeId.Value
+                                  };
 
-                return orderThemes;
+                return orderThemes.Distinct();
             }
 
             public FindSpecification<Order.OrderTheme> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

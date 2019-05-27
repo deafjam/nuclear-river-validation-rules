@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NuClear.ValidationRules.Storage.Model.FirmRules.Aggregates
+namespace NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules
 {
     public sealed class Firm
     {

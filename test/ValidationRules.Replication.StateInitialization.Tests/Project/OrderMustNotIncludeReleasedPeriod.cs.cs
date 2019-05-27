@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -21,8 +20,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::ReleaseInfo { PeriodEndDate = MonthStart(2) },
                     new Facts::Project())
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), IsDraft = true },
-                    new Aggregates::Project.NextRelease { Date = MonthStart(2) })
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), IsDraft = true },
+                    new Project.NextRelease { Date = MonthStart(2) })
                 .Message(
                     new Messages::Version.ValidationResult
                         {
@@ -44,9 +43,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::ReleaseInfo { PeriodEndDate = MonthStart(2) },
                     new Facts::Project())
                 .Aggregate(
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(2), End = MonthStart(3), IsDraft = true },
-                    new Aggregates::Order { Id = 2, Begin = MonthStart(1), End = MonthStart(3), IsDraft = false },
-                    new Aggregates::Project.NextRelease { Date = MonthStart(2) })
+                    new Order { Id = 1, Begin = MonthStart(2), End = MonthStart(3), IsDraft = true },
+                    new Order { Id = 2, Begin = MonthStart(1), End = MonthStart(3), IsDraft = false },
+                    new Project.NextRelease { Date = MonthStart(2) })
                 .Message();
     }
 }

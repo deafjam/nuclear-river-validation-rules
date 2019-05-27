@@ -1,9 +1,8 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
-using NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
 
-using Aggregates = NuClear.ValidationRules.Storage.Model.ConsistencyRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -46,10 +45,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPositionAdvertisement { Id = 5, OrderPositionId = 1, CategoryId = 5, PositionId = 2 },
                     new Facts::Category { Id = 5, IsActiveNotDeleted = false })
                 .Aggregate(
-                    new Aggregates::Order.InvalidCategory { OrderId = 1, CategoryId = 2, OrderPositionId = 1, PositionId = 1, State = InvalidCategoryState.Inactive, MayNotBelongToFirm = false },
-                    new Aggregates::Order.InvalidCategory { OrderId = 1, CategoryId = 3, OrderPositionId = 1, PositionId = 1, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = false },
-                    new Aggregates::Order.InvalidCategory { OrderId = 1, CategoryId = 4, OrderPositionId = 1, PositionId = 1, State = InvalidCategoryState.Inactive, MayNotBelongToFirm = false },
-                    new Aggregates::Order.InvalidCategory { OrderId = 1, CategoryId = 5, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.Inactive, MayNotBelongToFirm = true });
+                    new Order.InvalidCategory { OrderId = 1, CategoryId = 2, OrderPositionId = 1, PositionId = 1, State = InvalidCategoryState.Inactive, MayNotBelongToFirm = false },
+                    new Order.InvalidCategory { OrderId = 1, CategoryId = 3, OrderPositionId = 1, PositionId = 1, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = false },
+                    new Order.InvalidCategory { OrderId = 1, CategoryId = 4, OrderPositionId = 1, PositionId = 1, State = InvalidCategoryState.Inactive, MayNotBelongToFirm = false },
+                    new Order.InvalidCategory { OrderId = 1, CategoryId = 5, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.Inactive, MayNotBelongToFirm = true });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement LinkedCategoryAsteriskMayBelongToFirm
@@ -57,8 +56,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedCategoryAsteriskMayBelongToFirm))
                 .Aggregate(
-                    new Aggregates::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = true })
+                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = true })
                 .Message(
                     new Messages::Version.ValidationResult
                         {
@@ -81,8 +80,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedCategoryShouldBelongToFirm))
                 .Aggregate(
-                    new Aggregates::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = false })
+                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = false })
                 .Message(
                     new Messages::Version.ValidationResult
                         {
@@ -105,8 +104,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedCategoryShouldBeActive))
                 .Aggregate(
-                    new Aggregates::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Aggregates::Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.Inactive })
+                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.Inactive })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

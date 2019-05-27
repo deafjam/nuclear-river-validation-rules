@@ -1,8 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.PriceRules.Aggregates;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
 
@@ -17,27 +16,27 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmAssociatedPositionShouldNotStayAlone))
                 .Aggregate(
                     // Когда основная позиция - ровно одна и находится в другом заказе, должно быть сообщение
-                    new Aggregates::Firm { Id = 1 },
-                    new Aggregates::Firm.FirmPosition { FirmId = 1, OrderId = 1, OrderPositionId = 1, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
-                    new Aggregates::Firm.FirmPosition { FirmId = 1, OrderId = 2, OrderPositionId = 2, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm { Id = 1 },
+                    new Firm.FirmPosition { FirmId = 1, OrderId = 1, OrderPositionId = 1, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
+                    new Firm.FirmPosition { FirmId = 1, OrderId = 2, OrderPositionId = 2, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
 
-                    new Aggregates::Firm.FirmAssociatedPosition { FirmId = 1, OrderPositionId = 1, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 },
+                    new Firm.FirmAssociatedPosition { FirmId = 1, OrderPositionId = 1, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 },
 
                     // Когда основных несколько в разных заказах - сообщения нет
-                    new Aggregates::Firm { Id = 2 },
-                    new Aggregates::Firm.FirmPosition { FirmId = 2, OrderId = 3, OrderPositionId = 3, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
-                    new Aggregates::Firm.FirmPosition { FirmId = 2, OrderId = 4, OrderPositionId = 4, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
-                    new Aggregates::Firm.FirmPosition { FirmId = 2, OrderId = 5, OrderPositionId = 5, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm { Id = 2 },
+                    new Firm.FirmPosition { FirmId = 2, OrderId = 3, OrderPositionId = 3, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
+                    new Firm.FirmPosition { FirmId = 2, OrderId = 4, OrderPositionId = 4, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm.FirmPosition { FirmId = 2, OrderId = 5, OrderPositionId = 5, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
 
-                    new Aggregates::Firm.FirmAssociatedPosition { FirmId = 2, OrderPositionId = 3, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 },
+                    new Firm.FirmAssociatedPosition { FirmId = 2, OrderPositionId = 3, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 },
 
                     // Когда основных несколько в одном заказе заказе - сообщение есть
-                    new Aggregates::Firm { Id = 3 },
-                    new Aggregates::Firm.FirmPosition { FirmId = 3, OrderId = 6, OrderPositionId = 6, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
-                    new Aggregates::Firm.FirmPosition { FirmId = 3, OrderId = 7, OrderPositionId = 7, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
-                    new Aggregates::Firm.FirmPosition { FirmId = 3, OrderId = 7, OrderPositionId = 8, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm { Id = 3 },
+                    new Firm.FirmPosition { FirmId = 3, OrderId = 6, OrderPositionId = 6, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
+                    new Firm.FirmPosition { FirmId = 3, OrderId = 7, OrderPositionId = 7, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm.FirmPosition { FirmId = 3, OrderId = 7, OrderPositionId = 8, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
 
-                    new Aggregates::Firm.FirmAssociatedPosition { FirmId = 3, OrderPositionId = 6, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 })
+                    new Firm.FirmAssociatedPosition { FirmId = 3, OrderPositionId = 6, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

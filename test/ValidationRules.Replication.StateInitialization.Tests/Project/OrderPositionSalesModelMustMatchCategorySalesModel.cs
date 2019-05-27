@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 using NuClear.DataTest.Metamodel.Dsl;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
+using NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
-
-using Aggregates = NuClear.ValidationRules.Storage.Model.ProjectRules.Aggregates;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
@@ -54,25 +53,25 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::SalesModelCategoryRestriction { CategoryId = 12, Begin = MonthStart(4), SalesModel = 2 })
                 .Aggregate(
                     // Заказ 1 с неправильным размещением в рубрике - есть ошибка
-                    new Aggregates::Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 1, CategoryId = 12, SalesModel = 2, IsSalesModelRestrictionApplicable = true },
+                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 1, CategoryId = 12, SalesModel = 2, IsSalesModelRestrictionApplicable = true },
 
                     // Заказ 2 с корректным размещением в рубрике - нет ошибки
-                    new Aggregates::Order { Id = 2, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 2, OrderPositionId = 2, PositionId = 2, CategoryId = 12, SalesModel = 1, IsSalesModelRestrictionApplicable = true },
+                    new Order { Id = 2, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CategoryAdvertisement { OrderId = 2, OrderPositionId = 2, PositionId = 2, CategoryId = 12, SalesModel = 1, IsSalesModelRestrictionApplicable = true },
 
                     // Заказ 3 с неправильным размещением в рубрике, но позиция игнорирует модель продаж - нет ошибки
-                    new Aggregates::Order { Id = 3, Begin = MonthStart(1), End = MonthStart(3) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 3, OrderPositionId = 3, PositionId = 3, CategoryId = 12, SalesModel = 2, IsSalesModelRestrictionApplicable = false },
+                    new Order { Id = 3, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order.CategoryAdvertisement { OrderId = 3, OrderPositionId = 3, PositionId = 3, CategoryId = 12, SalesModel = 2, IsSalesModelRestrictionApplicable = false },
 
                     // Заказ 4 начинает размещение корректно, но в процессе меняется модель продаж - есть ошибка
-                    new Aggregates::Order { Id = 4, Begin = MonthStart(1), End = MonthStart(8) },
-                    new Aggregates::Order.CategoryAdvertisement { OrderId = 4, OrderPositionId = 4, PositionId = 4, CategoryId = 12, SalesModel = 1, IsSalesModelRestrictionApplicable = true },
+                    new Order { Id = 4, Begin = MonthStart(1), End = MonthStart(8) },
+                    new Order.CategoryAdvertisement { OrderId = 4, OrderPositionId = 4, PositionId = 4, CategoryId = 12, SalesModel = 1, IsSalesModelRestrictionApplicable = true },
 
-                    new Aggregates::Project(),
-                    new Aggregates::Project.Category { CategoryId = 12 },
-                    new Aggregates::Project.SalesModelRestriction { CategoryId = 12, Begin = MonthStart(1), End = MonthStart(4), SalesModel = 1 },
-                    new Aggregates::Project.SalesModelRestriction { CategoryId = 12, Begin = MonthStart(4), End = DateTime.MaxValue, SalesModel = 2 })
+                    new Project(),
+                    new Project.Category { CategoryId = 12 },
+                    new Project.SalesModelRestriction { CategoryId = 12, Begin = MonthStart(1), End = MonthStart(4), SalesModel = 1 },
+                    new Project.SalesModelRestriction { CategoryId = 12, Begin = MonthStart(4), End = DateTime.MaxValue, SalesModel = 2 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {
