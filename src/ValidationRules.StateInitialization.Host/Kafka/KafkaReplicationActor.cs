@@ -100,9 +100,9 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
             var actors = CreateActors(dataObjectTypes,
                                       dataConnection,
                                       new BulkCopyOptions
-                                          {
-                                              BulkCopyTimeout = bulkReplaceCommandTimeoutSec
-                                          });
+                                      {
+                                          BulkCopyTimeout = bulkReplaceCommandTimeoutSec
+                                      });
 
             using (var receiver = _receiverFactory.Create(messageFlowForKafkaTopic))
             {
@@ -123,10 +123,10 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
 
                 using (var transation = new TransactionScope(TransactionScopeOption.RequiresNew,
                                                              new TransactionOptions
-                                                                 {
-                                                                     IsolationLevel = IsolationLevel.Serializable,
-                                                                     Timeout = TimeSpan.Zero
-                                                                 }))
+                                                             {
+                                                                 IsolationLevel = IsolationLevel.Serializable,
+                                                                 Timeout = TimeSpan.Zero
+                                                             }))
                 {
                     long currentMessageOffset = 0;
                     int receivedMessagesQuantity = 0;

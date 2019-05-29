@@ -206,7 +206,7 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<Ruleset>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.BeginDate, x.EndDate, x.IsDeleted });
+                   .HasIndex(x => x.IsDeleted, x => new { x.BeginDate, x.EndDate });
 
             builder.Entity<Ruleset.AssociatedRule>()
                    .HasSchemaName(FactsSchema)

@@ -5,7 +5,6 @@ using NuClear.Replication.Core.Equality;
 using NuClear.ValidationRules.Replication;
 using NuClear.ValidationRules.Storage;
 using NuClear.ValidationRules.Storage.FieldComparer;
-using NuClear.ValidationRules.Storage.Model.Facts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +20,25 @@ namespace NuClear.ValidationRules.SingleCheck.Store
         public static IReadOnlyCollection<Type> DataObjectTypes { get; }
 
         private static readonly MappingSchema[] Schemas = { Schema.Facts, Schema.Aggregates, Schema.Messages };
+
+        private static readonly Type[] ExcludeAccessorEntityTypes =
+        {
+            // нет смысла считать этот агрегат Rulesets в single-check режиме
+            // в нём нет данных из ERM, соответственно изменения в данных ERM на него не могут никак повлиять
+            typeof(Storage.Model.Aggregates.PriceRules.Ruleset),
+            typeof(Storage.Model.Aggregates.PriceRules.Ruleset.AdvertisementAmountRestriction),
+
+            // нет смысла считать EntityName в single-check режиме
+            // он всё равно не будет использоваться
+            typeof(Storage.Model.Facts.EntityName),
+        };
+
+        // нет смысла создавать эти таблицы в схеме WebApp, т.к. выборка делается inmemory
+        private static readonly Type[] ExcludeDataObjectTypes =
+        {
+            typeof(Storage.Model.Messages.Version),
+            typeof(Storage.Model.Messages.Version.ValidationResult)
+        };
 
         public static IEqualityComparerFactory EqualityComparerFactory { get; } = new EqualityComparerFactory(
             new LinqToDbPropertyProvider(Schemas),
@@ -39,31 +57,18 @@ namespace NuClear.ValidationRules.SingleCheck.Store
                 .SelectMany(x => x.Value)
                 .Select(x => x.GetInterfaces().Single(IsAccessorInterface))
                 .Select(GetAccessorDataObject)
-
-                // Ruleset мы добавляем тут explicitly, потому что хоть мы его и импортируем через kafka
-                // но в тоже время для single-check режима хотим выбирать напрямую из базы ERM
-                // это спорное поведение, на эту тему создан тикет
-                // TODO: ERM-12478
-                .Concat(new[]
-                {
-                    typeof(Ruleset),
-                    typeof(Ruleset.AssociatedRule),
-                    typeof(Ruleset.DeniedRule),
-                    typeof(Ruleset.QuantitativeRule),
-                    typeof(Ruleset.RulesetProject)
-                })
+                .Except(ExcludeDataObjectTypes)
                 .ToHashSet();
         }
 
         public static MappingSchema GetWebAppMappingSchema(string version)
         {
-            var baseSchema = new MappingSchema(Schemas);
-            var mappingSchema = new MappingSchema("WebApp", baseSchema);
+            var mappingSchema = new MappingSchema("WebApp", Schemas);
             var builder = mappingSchema.GetFluentMappingBuilder();
 
             foreach (var dataObjectType in DataObjectTypes)
             {
-                var baseTable = baseSchema.GetAttribute<TableAttribute>(dataObjectType);
+                var baseTable = mappingSchema.GetAttribute<TableAttribute>(dataObjectType);
                 if (baseTable != null)
                 {
                     var attribute = new TableAttribute { Name = $"{baseTable.Schema}_{baseTable.Name ?? dataObjectType.Name}_{version}", Schema = "WebApp", IsColumnAttributeRequired = false };
@@ -76,7 +81,8 @@ namespace NuClear.ValidationRules.SingleCheck.Store
 
         private static IReadOnlyDictionary<MappingSchema, List<Type>> ScanForAccessors(IReadOnlyCollection<MappingSchema> schemas)
         {
-            var accessorTypes = typeof(IValidationResultAccessor).Assembly.GetTypes().Where(IsAccessorImplementation);
+            var markerAssembly = typeof(IValidationResultAccessor).Assembly;
+            var accessorTypes = markerAssembly.GetTypes().Where(IsAccessorImplementation);
 
             var result = schemas.ToDictionary(x => x, x => new List<Type>());
 
@@ -84,6 +90,11 @@ namespace NuClear.ValidationRules.SingleCheck.Store
             {
                 var interfaceType = accessorType.GetInterfaces().Single(IsAccessorInterface);
                 var dataObjectType = GetAccessorDataObject(interfaceType);
+
+                if (ExcludeAccessorEntityTypes.Contains(dataObjectType))
+                {
+                    continue;
+                }
 
                 foreach (var schema in schemas)
                 {

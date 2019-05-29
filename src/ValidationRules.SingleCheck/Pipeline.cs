@@ -71,22 +71,18 @@ namespace NuClear.ValidationRules.SingleCheck
                     ReadErmSlice(orderId, Wrap(erm.CreateStore()), out orderSummary);
                 }
 
-                using (Probe.Create("Rulesets -> Facts"))
-                {
-                    ReadRulesetsSlice(orderSummary, Wrap(store.CreateStore()));
-                }
 
-                using (Probe.Create("Erm slice -> Facts"))
+                using (Probe.Create("Erm slice -> WebApp Facts"))
                 {
                     _strategy.ProcessFacts(factReplicators, aggregateReplicators, messageReplicators, optimization);
                 }
 
-                using (Probe.Create("Facts -> Aggregates"))
+                using (Probe.Create("WebApp Facts -> WebApp Aggregates"))
                 {
                     _strategy.ProcessAggregates(aggregateReplicators, messageReplicators, optimization);
                 }
 
-                using (Probe.Create("Aggregates -> Messages"))
+                using (Probe.Create("WebApp Aggregates -> WebApp Messages"))
                 {
                     _strategy.ProcessMessages(messageReplicators, optimization);
                 }
@@ -108,15 +104,6 @@ namespace NuClear.ValidationRules.SingleCheck
             using (var connection = new DataConnection("Erm").AddMappingSchema(Schema.Erm))
             {
                 ErmDataLoader.Load(orderId, connection, store, out orderSummary);
-            }
-        }
-
-        private static void ReadRulesetsSlice(ErmDataLoader.ResolvedOrderSummary orderSummary, IStore store)
-        {
-            using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
-            using (var connection = new DataConnection("ValidationRules").AddMappingSchema(Schema.Facts))
-            {
-                RulesetsDataLoader.Load(orderSummary, connection, store);
             }
         }
 
