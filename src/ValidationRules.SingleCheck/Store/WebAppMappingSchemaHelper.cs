@@ -1,7 +1,10 @@
 ﻿using LinqToDB.Mapping;
+using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
+using NuClear.Replication.Core.Equality;
 using NuClear.ValidationRules.Replication;
 using NuClear.ValidationRules.Storage;
+using NuClear.ValidationRules.Storage.FieldComparer;
 using NuClear.ValidationRules.Storage.Model.Facts;
 using System;
 using System.Collections.Generic;
@@ -18,6 +21,11 @@ namespace NuClear.ValidationRules.SingleCheck.Store
         public static IReadOnlyCollection<Type> DataObjectTypes { get; }
 
         private static readonly MappingSchema[] Schemas = { Schema.Facts, Schema.Aggregates, Schema.Messages };
+
+        public static IEqualityComparerFactory EqualityComparerFactory { get; } = new EqualityComparerFactory(
+            new LinqToDbPropertyProvider(Schemas),
+            new XDocumentComparer(),
+            new DateTimeComparer());
 
         static WebAppMappingSchemaHelper()
         {

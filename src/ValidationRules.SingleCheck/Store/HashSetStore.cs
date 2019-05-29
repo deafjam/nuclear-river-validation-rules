@@ -58,8 +58,7 @@ namespace NuClear.ValidationRules.SingleCheck.Store
 
         private HashSet<T> GetTable<T>()
         {
-            IEnumerable table;
-            if (_store.TryGetValue(typeof(T), out table))
+            if (_store.TryGetValue(typeof(T), out var table))
             {
                 return (HashSet<T>)table;
             }

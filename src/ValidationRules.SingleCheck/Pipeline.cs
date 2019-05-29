@@ -7,6 +7,7 @@ using System.Transactions;
 using LinqToDB.Data;
 using LinqToDB.Mapping;
 using NuClear.Replication.Core.DataObjects;
+using NuClear.Replication.Core.Equality;
 using NuClear.Storage.API.Readings;
 using NuClear.Telemetry.Probing;
 using NuClear.ValidationRules.SingleCheck.DataLoaders;
@@ -24,14 +25,16 @@ namespace NuClear.ValidationRules.SingleCheck
         private readonly IReadOnlyCollection<Type> _factAccessorTypes;
         private readonly IReadOnlyCollection<Type> _aggregateAccessorTypes;
         private readonly IReadOnlyCollection<Type> _messageAccessorTypes;
+        private readonly IEqualityComparerFactory _equalityComparerFactory;
         private readonly MappingSchema _webAppMappingSchema; // todo: убрать, некрасиво
         private readonly IPipelineStrategy _strategy;
 
-        public Pipeline(IReadOnlyCollection<Type> factAccessorTypes, IReadOnlyCollection<Type> aggregateAccessorTypes, IReadOnlyCollection<Type> messageAccessorTypes, MappingSchema webAppMappingSchema)
+        public Pipeline(IReadOnlyCollection<Type> factAccessorTypes, IReadOnlyCollection<Type> aggregateAccessorTypes, IReadOnlyCollection<Type> messageAccessorTypes, IEqualityComparerFactory equalityComparerFactory, MappingSchema webAppMappingSchema)
         {
             _factAccessorTypes = factAccessorTypes;
             _aggregateAccessorTypes = aggregateAccessorTypes;
             _messageAccessorTypes = messageAccessorTypes;
+            _equalityComparerFactory = equalityComparerFactory;
             _webAppMappingSchema = webAppMappingSchema;
             _strategy = new OverOptimizedPipelineStrategy(); // new OptimizedPipelineStrategy();
         }
@@ -43,9 +46,9 @@ namespace NuClear.ValidationRules.SingleCheck
             IStore Wrap(IStore store) => new OptimizerStore(optimization, store);
 
             using (Probe.Create("Execute"))
-            using (var erm = new HashSetStoreFactory())
-            using (var store = new PersistentTableStoreFactory(_webAppMappingSchema))
-            using (var messages = new HashSetStoreFactory())
+            using (var erm = new HashSetStoreFactory(_equalityComparerFactory))
+            using (var store = new PersistentTableStoreFactory(_equalityComparerFactory, _webAppMappingSchema))
+            using (var messages = new HashSetStoreFactory(_equalityComparerFactory))
             {
                 IReadOnlyCollection<Replicator> factReplicators;
                 IReadOnlyCollection<Replicator> aggregateReplicators;

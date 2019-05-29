@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ValidationRules.StateInitialization.Host": {
+      "commandName": "Project",
+      "commandLineArgs": "-facts -aggregates -messages"
+    }
+  }
+}

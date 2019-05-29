@@ -10,6 +10,7 @@ namespace NuClear.ValidationRules.SingleCheck
                 WebAppMappingSchemaHelper.FactsAccessorTypes,
                 WebAppMappingSchemaHelper.AggregatesAccessorTypes,
                 WebAppMappingSchemaHelper.MessagesAccessorTypes,
+                WebAppMappingSchemaHelper.EqualityComparerFactory,
                 WebAppMappingSchemaHelper.GetWebAppMappingSchema(version));
         }
     }
