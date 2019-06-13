@@ -90,7 +90,7 @@ namespace NuClear.ValidationRules.Storage
                    .HasPrimaryKey(x => x.Id)
                    .HasIndex(x => new { x.FirmId, x.Begin, x.End }, x => new { x.Id, x.Scope });
 
-            builder.Entity<FirmAggregates::Order.FirmOrganiationUnitMismatch>()
+            builder.Entity<FirmAggregates::Order.FirmOrganizationUnitMismatch>()
                    .HasSchemaName(FirmAggregatesSchema)
                    .HasPrimaryKey(x => x.OrderId);
 
@@ -181,7 +181,7 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<PriceAggregates::Ruleset.AdvertisementAmountRestriction>()
                    .HasSchemaName(PriceAggregatesSchema)
                    .HasPrimaryKey(x => new { x.RulesetId, x.ProjectId, x.CategoryCode })
-                   .HasIndex(x => new { x.ProjectId, x.CategoryCode}, x => new { x.Begin, x.End, x.CategoryName, x.Min, x.Max });
+                   .HasIndex(x => new { x.ProjectId, x.CategoryCode}, x => new { x.Begin, x.End, x.Min, x.Max });
 
             return builder;
         }

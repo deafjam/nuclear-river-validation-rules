@@ -13,7 +13,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
     /// "Фирма {0} удалена"
     /// "Фирма {0} скрыта навсегда"
     /// "Фирма {0} скрыта до выяснения"
-    /// 
+    /// "Фирма {0} не имеет адресов"
     /// Source: FirmsOrderValidationRule
     /// </summary>
     public sealed class LinkedFirmShouldBeValid : ValidationResultAccessorBase
@@ -26,13 +26,13 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
         {
             var ruleResults =
                 from order in query.For<Order>()
-                from firm in query.For<Order.InvalidFirm>().Where(x => x.OrderId == order.Id)
+                from invalidFirm in query.For<Order.InvalidFirm>().Where(x => x.OrderId == order.Id)
                 select new Version.ValidationResult
                     {
                         MessageParams =
                             new MessageParams(
-                                    new Dictionary<string, object> { { "invalidFirmState", (int)firm.State } },
-                                    new Reference<EntityTypeFirm>(firm.FirmId),
+                                    new Dictionary<string, object> { { "invalidFirmState", (int)invalidFirm.State } },
+                                    new Reference<EntityTypeFirm>(invalidFirm.FirmId),
                                     new Reference<EntityTypeOrder>(order.Id))
                                 .ToXDocument(),
 

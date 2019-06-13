@@ -49,7 +49,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<LegalPersonProfile> dataObjects)
         {
-            var legalPersonProfileIds = dataObjects.Select(x => x.Id).ToList();
+            var legalPersonProfileIds = dataObjects.Select(x => x.Id);
             var legalPersonIds = dataObjects.Select(x => x.LegalPersonId).ToHashSet();
 
             var orderIds =

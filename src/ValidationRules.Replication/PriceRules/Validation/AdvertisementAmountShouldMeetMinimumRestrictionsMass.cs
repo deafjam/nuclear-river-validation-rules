@@ -27,7 +27,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
             var restrictionGrid =
                 from period in query.For<Period>()
                 from restriction in query.For<Ruleset.AdvertisementAmountRestriction>().Where(x => x.Begin < period.End && period.Start < x.End)
-                select new { period.Start, period.End, restriction.ProjectId, restriction.CategoryCode, restriction.Min, restriction.Max, restriction.CategoryName };
+                select new { period.Start, period.End, restriction.ProjectId, restriction.CategoryCode, restriction.Min, restriction.Max };
 
             var saleGrid =
                 from orderPeriod in query.For<Order.OrderPeriod>()
@@ -40,7 +40,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                                                 x.ProjectId == restriction.ProjectId &&
                                                 x.Begin <= restriction.Start && restriction.End <= x.End &&
                                                 x.Scope == 0)
-                select new { restriction.ProjectId, restriction.Start, restriction.End, restriction.Min, restriction.Max, restriction.CategoryName, Count = count };
+                select new { restriction.ProjectId, restriction.Start, restriction.End, restriction.CategoryCode, restriction.Min, restriction.Max, Count = count };
 
             var messages =
                 from violation in violations
@@ -54,11 +54,11 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                                             { "min", violation.Min },
                                             { "max", violation.Max },
                                             { "count", violation.Count },
-                                            { "name", violation.CategoryName },
                                             { "begin", violation.Start },
                                             { "end", violation.End },
                                         },
-                                    new Reference<EntityTypeProject>(violation.ProjectId))
+                                    new Reference<EntityTypeProject>(violation.ProjectId),
+                                    new Reference<EntityTypeNomenclatureCategory>(violation.CategoryCode))
                                 .ToXDocument(),
 
                         PeriodStart = violation.Start,

@@ -134,24 +134,31 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
                    from position in _query.For<Facts::Position>().Where(x => x.Id == opa.PositionId)
-                   from address in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId)
-                   let checkPoi = Facts::Position.CategoryCodesPoiAddressCheck.Contains(position.CategoryCode)
                    let isPartnerAddress = Facts::Position.CategoryCodesAllowFirmMismatch.Contains(position.CategoryCode) && position.BindingObjectType == Facts::Position.BindingObjectTypeAddressMultiple
-                   let state = address.FirmId != order.FirmId && !isPartnerAddress ? InvalidFirmAddressState.NotBelongToFirm
-                                : address.IsDeleted ? InvalidFirmAddressState.Deleted
-                                : !address.IsActive ? InvalidFirmAddressState.NotActive
-                                : address.IsClosedForAscertainment ? InvalidFirmAddressState.ClosedForAscertainment
-                                : checkPoi && address.BuildingPurposeCode.HasValue && Facts::FirmAddress.InvalidBuildingPurposeCodesForPoi.Contains(address.BuildingPurposeCode.Value) ? InvalidFirmAddressState.InvalidBuildingPurpose
-                                : checkPoi && !address.EntranceCode.HasValue ? InvalidFirmAddressState.MissingEntrance
+                   let checkPoi = Facts::Position.CategoryCodesPoiAddressCheck.Contains(position.CategoryCode)
+
+                   from faInactive in _query.For<Facts::FirmAddressInactive>().Where(x => x.Id == opa.FirmAddressId.Value).DefaultIfEmpty()
+                   let state = faInactive == default ? InvalidFirmAddressState.NotSet
+                       : faInactive.IsDeleted ? InvalidFirmAddressState.Deleted
+                       : !faInactive.IsActive ? InvalidFirmAddressState.NotActive
+                       : faInactive.IsClosedForAscertainment ? InvalidFirmAddressState.ClosedForAscertainment
+                       : InvalidFirmAddressState.NotSet
+
+                   from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value).DefaultIfEmpty()
+                   let state2 = fa == default ? InvalidFirmAddressState.NotSet
+                                : fa.FirmId != order.FirmId && !isPartnerAddress ? InvalidFirmAddressState.NotBelongToFirm
+                                : checkPoi && fa.BuildingPurposeCode.HasValue && Facts::FirmAddress.InvalidBuildingPurposeCodesForPoi.Contains(fa.BuildingPurposeCode.Value) ? InvalidFirmAddressState.InvalidBuildingPurpose
+                                : checkPoi && fa.EntranceCode == null ? InvalidFirmAddressState.MissingEntrance
                                 : InvalidFirmAddressState.NotSet
-                   where state != InvalidFirmAddressState.NotSet // todo: интересно было бы глянуть на сгенерированный sql
+
+                   where state != InvalidFirmAddressState.NotSet || state2 != InvalidFirmAddressState.NotSet
                    select new Order.InvalidFirmAddress
                        {
                            OrderId = order.Id,
-                           FirmAddressId = address.Id,
+                           FirmAddressId = opa.FirmAddressId.Value,
                            OrderPositionId = orderPosition.Id,
                            PositionId = opa.PositionId,
-                           State = state,
+                           State = state != InvalidFirmAddressState.NotSet ? state: state2,
                            IsPartnerAddress = isPartnerAddress
                        };
 
@@ -181,13 +188,13 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 => from order in _query.For<Facts::Order>()
                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue).Where(x => x.OrderPositionId == orderPosition.Id)
-                   from address in _query.For<Facts::FirmAddress>().Where(x => x.IsActive && !x.IsClosedForAscertainment && !x.IsDeleted).Where(x => x.Id == opa.FirmAddressId)
-                   from cfa in _query.For<Facts::FirmAddressCategory>().Where(x => x.FirmAddressId == address.Id && x.CategoryId == opa.CategoryId.Value).DefaultIfEmpty()
+                   from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value)
+                   from cfa in _query.For<Facts::FirmAddressCategory>().Where(x => x.FirmAddressId == opa.FirmAddressId.Value && x.CategoryId == opa.CategoryId.Value).DefaultIfEmpty()
                    where cfa == null
                    select new Order.CategoryNotBelongsToAddress
                    {
                        OrderId = order.Id,
-                       FirmAddressId = address.Id,
+                       FirmAddressId = opa.FirmAddressId.Value,
                        CategoryId = opa.CategoryId.Value,
                        OrderPositionId = orderPosition.Id,
                        PositionId = opa.PositionId,
@@ -223,21 +230,19 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                     from order in _query.For<Facts::Order>()
                     from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue).Where(x => x.OrderPositionId == orderPosition.Id)
-                    from category in _query.For<Facts::Category>().Where(x => x.Id == opa.CategoryId)
+                    from category in _query.For<Facts::Category>().Where(x => x.Id == opa.CategoryId.Value)
                     from position in _query.For<Facts::Position>().Where(x => !x.IsDeleted).Where(x => x.Id == opa.PositionId)
-                    let categoryBelongToFirm = _query.For<Facts::FirmAddress>()
-                                                     .Where(x => x.IsActive && !x.IsDeleted && !x.IsClosedForAscertainment)
-                                                     .Where(x => x.FirmId == order.FirmId)
-                                                     .SelectMany(fa => _query.For<Facts::FirmAddressCategory>().Where(cfa => cfa.FirmAddressId == fa.Id))
-                                                     .Any(x => x.CategoryId == opa.CategoryId)
+                    let categoryBelongToFirm = (from fa in _query.For<Facts::FirmAddress>().Where(x => x.FirmId == order.FirmId)
+                                                from cfa in _query.For<Facts::FirmAddressCategory>().Where(x => x.FirmAddressId == fa.Id && x.CategoryId == opa.CategoryId.Value)
+                                                select fa.Id).Any()
                     let state = !category.IsActiveNotDeleted ? InvalidCategoryState.Inactive
                         : !categoryBelongToFirm ? InvalidCategoryState.NotBelongToFirm
-                            : InvalidCategoryState.NotSet
+                        : InvalidCategoryState.NotSet
                     where state != InvalidCategoryState.NotSet
                     select new Order.InvalidCategory
                         {
                             OrderId = order.Id,
-                            CategoryId = category.Id,
+                            CategoryId = opa.CategoryId.Value,
                             OrderPositionId = orderPosition.Id,
                             PositionId = opa.PositionId,
                             MayNotBelongToFirm = position.BindingObjectType == Facts::Position.BindingObjectTypeCategoryMultipleAsterisk,
@@ -665,25 +670,31 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public IQueryable<Order.MissingValidPartnerFirmAddresses> GetSource()
             {
-                var partnerAddresses = from opa in _query.For<Facts::OrderPositionAdvertisement>()
-                                       join p in _query.For<Facts::Position>() on opa.PositionId equals p.Id
-                                       join fa in _query.For<Facts::FirmAddress>() on opa.FirmAddressId equals fa.Id
-                                       where p.CategoryCode == Facts::Position.CategoryCodePartnerAdvertisingAddress
-                                       select new { opa.OrderPositionId, FirmAddress = fa };
+                var query =
+                    from o in _query.For<Facts::Order>()
+                    from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == o.Id)
 
-                return from o in _query.For<Facts::Order>()
-                       join op in _query.For<Facts::OrderPosition>() on o.Id equals op.OrderId
-                       join pp in _query.For<Facts::PricePosition>() on op.PricePositionId equals pp.Id
-                       where partnerAddresses.Any(pa => pa.OrderPositionId == op.Id) &&
-                             !partnerAddresses.Where(pa => pa.OrderPositionId == op.Id)
-                                              .Select(pa => pa.FirmAddress)
-                                              .Any(fa => fa.IsActive && !fa.IsDeleted && !fa.IsClosedForAscertainment)
-                       select new Order.MissingValidPartnerFirmAddresses
-                           {
-                               OrderId = o.Id,
-                               OrderPositionId = op.Id,
-                               PositionId = pp.PositionId
-                           };
+                    let hasPartnerPosition =
+                        (from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
+                        from p in _query.For<Facts::Position>().Where(x => x.CategoryCode == Facts::Position.CategoryCodePartnerAdvertisingAddress).Where(x => x.Id == opa.PositionId)
+                        select opa.Id).Any()
+
+                    let hasValidAddress =
+                        (from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
+                        from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId)
+                        select opa.Id).Any()
+
+                    where hasPartnerPosition && !hasValidAddress
+
+                    from pp in _query.For<Facts::PricePosition>().Where(x => x.Id == op.PricePositionId)
+                    select new Order.MissingValidPartnerFirmAddresses
+                    {
+                        OrderId = o.Id,
+                        OrderPositionId = op.Id,
+                        PositionId = pp.PositionId
+                    };
+
+                return query;
             }
 
             public FindSpecification<Order.MissingValidPartnerFirmAddresses> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

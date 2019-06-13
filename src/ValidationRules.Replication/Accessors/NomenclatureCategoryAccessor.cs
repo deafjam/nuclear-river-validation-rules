@@ -8,9 +8,8 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
-
-using Erm = NuClear.ValidationRules.Storage.Model.Erm;
 
 namespace NuClear.ValidationRules.Replication.Accessors
 {
@@ -24,12 +23,8 @@ namespace NuClear.ValidationRules.Replication.Accessors
         }
 
         public IQueryable<NomenclatureCategory> GetSource()
-            => from nomenclatureCategory in _query.For<Erm::NomenclatureCategory>()
-               select new NomenclatureCategory
-                   {
-                       Id = nomenclatureCategory.Id,
-                       Name = nomenclatureCategory.Name,
-                   };
+            => _query.For(Specs.Find.Erm.NomenclatureCategory)
+                .Select(x => new NomenclatureCategory {Id = x.Id});
 
         public FindSpecification<NomenclatureCategory> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {

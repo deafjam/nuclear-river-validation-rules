@@ -20,11 +20,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPosition { Id = 1, OrderId = 1 },
 
                     new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 2, FirmAddressId = 2 },
-                    new Facts::FirmAddress { Id = 2, IsActive = true },
-                    new Facts::FirmAddressCategory { Id = 2, FirmAddressId = 2, CategoryId = 2 },
+                    new Facts::FirmAddress { Id = 2 },
+                    new Facts::FirmAddressCategory { FirmAddressId = 2, CategoryId = 2 },
 
                     new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 1, CategoryId = 3, FirmAddressId = 3 },
-                    new Facts::FirmAddress { Id = 3, IsActive = true })
+                    new Facts::FirmAddress { Id = 3 })
                 .Aggregate(
                     new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
                     new Order.CategoryNotBelongsToAddress { OrderId = 1, CategoryId = 3, FirmAddressId = 3, OrderPositionId = 1 })

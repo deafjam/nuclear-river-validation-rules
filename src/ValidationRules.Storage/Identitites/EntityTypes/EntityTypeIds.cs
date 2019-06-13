@@ -11,7 +11,6 @@
         public const int BranchOffice = 156;
         public const int BranchOfficeOrganizationUnit = 139;
         public const int Category = 160;
-        public const int CategoryFirmAddress = 166;
         public const int CategoryOrganizationUnit = 161;
         public const int Deal = 199;
         public const int Firm = 146;

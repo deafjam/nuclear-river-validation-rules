@@ -16,20 +16,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(FirmAndOrderShouldBelongTheSameOrganizationUnit))
                 .Fact(
-                    new Facts::Firm { Id = 1, OrganizationUnitId = 1, IsActive = true },
-                    new Facts::Order { Id = 2, FirmId = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb, WorkflowStep = 5 },
-
-                    // для неактивных фирм ошибка не выводится
-                    new Facts::Firm { Id = 2, OrganizationUnitId = 1, IsActive = false},
-                    new Facts::Order { Id = 3, FirmId = 2, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb, WorkflowStep = 5 })
-
+                    new Facts::Firm { Id = 1, OrganizationUnitId = 1},
+                    new Facts::Order { Id = 2, FirmId = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb, WorkflowStep = 5 })
                 .Aggregate(
                     new Firm { Id = 1, },
                     new Order { Id = 2, FirmId = 1, Begin = FirstDayJan, End = FirstDayFeb },
-                    new Order.FirmOrganiationUnitMismatch { OrderId = 2 },
-
-                    new Firm { Id = 2, },
-                    new Order { Id = 3, FirmId = 2, Begin = FirstDayJan, End = FirstDayFeb })
+                    new Order.FirmOrganizationUnitMismatch { OrderId = 2 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using NuClear.Replication.Core;
+﻿using NuClear.Replication.Core;
 using NuClear.Replication.Core.Actors;
 using NuClear.Replication.Core.Commands;
 using NuClear.Replication.Core.DataObjects;
@@ -13,9 +9,11 @@ using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Dto;
 using NuClear.ValidationRules.Replication.Specifications;
-using NuClear.ValidationRules.Storage;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
 using NuClear.ValidationRules.Storage.Model.Facts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NuClear.ValidationRules.Replication
 {
@@ -91,6 +89,7 @@ namespace NuClear.ValidationRules.Replication
                 new PositionNameAccessor(query),
                 new ProjectNameAccessor(query),
                 new ThemeNameAccessor(query),
+                new NomenclatureCategoryNameAccessor(query),
             };
         }
 
@@ -106,10 +105,7 @@ namespace NuClear.ValidationRules.Replication
         {
             private readonly IQuery _query;
 
-            public CategoryNameAccessor(IQuery query)
-            {
-                _query = query;
-            }
+            public CategoryNameAccessor(IQuery query) => _query = query;
 
             public IQueryable<EntityName> GetSource() => _query
                 .For(Specs.Find.Erm.Category)
@@ -130,19 +126,16 @@ namespace NuClear.ValidationRules.Replication
         {
             private readonly IQuery _query;
 
-            public FirmNameAccessor(IQuery query)
-            {
-                _query = query;
-            }
+            public FirmNameAccessor(IQuery query) => _query = query;
 
             public IQueryable<EntityName> GetSource() => _query
-                .For(Specs.Find.Erm.Firm)
+                .For(Specs.Find.Erm.Firm.All)
                 .Select(x => new EntityName
                 {
                     Id = x.Id,
                     EntityType = EntityTypeIds.Firm,
                     Name = x.Name
-                });
+                }); 
 
             public FindSpecification<EntityName> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
                 => SyncEntityNameActor.GetFindSpecification(commands,
@@ -154,13 +147,10 @@ namespace NuClear.ValidationRules.Replication
         {
             private readonly IQuery _query;
 
-            public FirmAddressNameAccessor(IQuery query)
-            {
-                _query = query;
-            }
+            public FirmAddressNameAccessor(IQuery query) => _query = query;
 
             public IQueryable<EntityName> GetSource() => _query
-                .For(Specs.Find.Erm.FirmAddress)
+                .For(Specs.Find.Erm.FirmAddress.All)
                 .Select(x => new EntityName
                 {
                     Id = x.Id,
@@ -178,10 +168,7 @@ namespace NuClear.ValidationRules.Replication
         {
             private readonly IQuery _query;
 
-            public LegalPersonProfileNameAccessor(IQuery query)
-            {
-                _query = query;
-            }
+            public LegalPersonProfileNameAccessor(IQuery query) => _query = query;
 
             public IQueryable<EntityName> GetSource() => _query
                 .For(Specs.Find.Erm.LegalPersonProfile)
@@ -203,10 +190,7 @@ namespace NuClear.ValidationRules.Replication
         {
             private readonly IQuery _query;
 
-            public OrderNameAccessor(IQuery query)
-            {
-                _query = query;
-            }
+            public OrderNameAccessor(IQuery query) => _query = query;
 
             public IQueryable<EntityName> GetSource() => _query
                 .For(Specs.Find.Erm.Order)
@@ -227,10 +211,7 @@ namespace NuClear.ValidationRules.Replication
         {
             private readonly IQuery _query;
 
-            public PositionNameAccessor(IQuery query)
-            {
-                _query = query;
-            }
+            public PositionNameAccessor(IQuery query) => _query = query;
 
             public IQueryable<EntityName> GetSource() => _query
                 .For(Specs.Find.Erm.Position)
@@ -251,10 +232,7 @@ namespace NuClear.ValidationRules.Replication
         {
             private readonly IQuery _query;
 
-            public ProjectNameAccessor(IQuery query)
-            {
-                _query = query;
-            }
+            public ProjectNameAccessor(IQuery query) => _query = query;
 
             public IQueryable<EntityName> GetSource() => _query
                 .For(Specs.Find.Erm.Project)
@@ -275,10 +253,7 @@ namespace NuClear.ValidationRules.Replication
         {
             private readonly IQuery _query;
 
-            public ThemeNameAccessor(IQuery query)
-            {
-                _query = query;
-            }
+            public ThemeNameAccessor(IQuery query) => _query = query;
 
             public IQueryable<EntityName> GetSource() => _query
                 .For(Specs.Find.Erm.Theme)
@@ -294,6 +269,28 @@ namespace NuClear.ValidationRules.Replication
                 => SyncEntityNameActor.GetFindSpecification(commands,
                     typeof(Theme),
                     EntityTypeIds.Theme);
+        }
+
+        public sealed class NomenclatureCategoryNameAccessor : IStorageBasedDataObjectAccessor<EntityName>
+        {
+            private readonly IQuery _query;
+
+            public NomenclatureCategoryNameAccessor(IQuery query) => _query = query;
+
+            public IQueryable<EntityName> GetSource() => _query
+                .For(Specs.Find.Erm.NomenclatureCategory)
+                .Select(x => new EntityName
+                {
+                    Id = x.Id,
+                    EntityType = EntityTypeIds.NomenclatureCategory,
+                    Name = x.Name
+                });
+
+
+            public FindSpecification<EntityName> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
+                => SyncEntityNameActor.GetFindSpecification(commands,
+                    typeof(NomenclatureCategory),
+                    EntityTypeIds.NomenclatureCategory);
         }
 
         public sealed class AdvertisementNameAccessor : IMemoryBasedDataObjectAccessor<EntityName>
@@ -326,7 +323,7 @@ namespace NuClear.ValidationRules.Replication
         {
             var ids = commands.Cast<SyncDataObjectCommand>()
                               .Where(c => c.DataObjectType == type)
-                              .ToHashSet()
+                              .ToHashSet() // distinct
                               .Select(c => new { Id = c.DataObjectId, EntityType = typeId }).ToList();
 
             return SpecificationFactory<EntityName>.Contains(x => new { x.Id, x.EntityType }, ids);

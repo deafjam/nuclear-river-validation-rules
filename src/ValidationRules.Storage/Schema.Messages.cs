@@ -24,19 +24,22 @@ namespace NuClear.ValidationRules.Storage
                    .HasPrimaryKey(x => x.Id);
 
             builder.Entity<Version.ErmState>()
-                   .HasSchemaName(MessagesSchema);
+                   .HasSchemaName(MessagesSchema)
+                   .HasPrimaryKey(x => x.Token);
 
             builder.Entity<Version.ErmStateBulkDelete>()
                    .HasTableName(nameof(Version.ErmState))
                    .HasSchemaName(MessagesSchema);
 
             builder.Entity<Version.AmsState>()
-                   .HasSchemaName(MessagesSchema);
+                   .HasSchemaName(MessagesSchema)
+                   .HasPrimaryKey(x => x.Offset);
 
             builder.Entity<Version.AmsStateBulkDelete>()
                    .HasTableName(nameof(Version.AmsState))
                    .HasSchemaName(MessagesSchema);
 
+            // TODO: выделить PK, оптимизировать индексы
             builder.Entity<Version.ValidationResult>()
                    .HasSchemaName(MessagesSchema)
                    .HasIndex(x => x.Resolved)

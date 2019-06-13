@@ -1,6 +1,7 @@
 ﻿using System;
 
 using NuClear.DataTest.Metamodel.Dsl;
+using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -59,8 +60,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                  new Erm::NomenclatureCategory { Id = 1, Name = "one" },
                  new Erm::NomenclatureCategory { Id = 2, Name = "two" })
             .Fact(
-                new NomenclatureCategory { Id = 1, Name = "one" },
-                new NomenclatureCategory { Id = 2, Name = "two" });
+                new NomenclatureCategory { Id = 1 },
+                new NomenclatureCategory { Id = 2 },
+                new EntityName { EntityType = EntityTypeIds.NomenclatureCategory, Id = 1, Name = "one" },
+                new EntityName { EntityType = EntityTypeIds.NomenclatureCategory, Id = 2, Name = "two" });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement SalesModelCategoryRestrictions
@@ -89,12 +92,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Erm::Firm { Id = 2, IsActive = false, IsDeleted = true, ClosedForAscertainment = false, Name = "two" },
                     new Erm::Firm { Id = 3, IsActive = false, IsDeleted = false, ClosedForAscertainment = true, Name = "three" })
                 .Fact(
-                    new Firm { Id = 1, IsActive = true, IsDeleted = false, IsClosedForAscertainment = false },
-                    new Firm { Id = 2, IsActive = false, IsDeleted = true, IsClosedForAscertainment = false },
-                    new Firm { Id = 3, IsActive = false, IsDeleted = false, IsClosedForAscertainment = true },
-                    new EntityName { EntityType = 146, Id = 1, Name = "one" },
-                    new EntityName { EntityType = 146, Id = 2, Name = "two" },
-                    new EntityName { EntityType = 146, Id = 3, Name = "three" });
+                    new Firm { Id = 1 },
+                    new FirmInactive { Id = 2, IsActive = false, IsDeleted = true, IsClosedForAscertainment = false },
+                    new FirmInactive { Id = 3, IsActive = false, IsDeleted = false, IsClosedForAscertainment = true },
+                    new EntityName { EntityType = EntityTypeIds.Firm, Id = 1, Name = "one" },
+                    new EntityName { EntityType = EntityTypeIds.Firm, Id = 2, Name = "two" },
+                    new EntityName { EntityType = EntityTypeIds.Firm, Id = 3, Name = "three" });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement FirmAddressFacts
@@ -105,9 +108,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Erm::FirmAddress { Id = 2, IsActive = false, IsDeleted = true, ClosedForAscertainment = false },
                     new Erm::FirmAddress { Id = 3, IsActive = false, IsDeleted = false, ClosedForAscertainment = true })
                 .Fact(
-                    new FirmAddress { Id = 1, IsActive = true, IsDeleted = false, IsClosedForAscertainment = false, IsLocatedOnTheMap = true },
-                    new FirmAddress { Id = 2, IsActive = false, IsDeleted = true, IsClosedForAscertainment = false },
-                    new FirmAddress { Id = 3, IsActive = false, IsDeleted = false, IsClosedForAscertainment = true });
+                    new FirmAddress { Id = 1, IsLocatedOnTheMap = true },
+                    new FirmAddressInactive { Id = 2, IsActive = false, IsDeleted = true, IsClosedForAscertainment = false },
+                    new FirmAddressInactive { Id = 3, IsActive = false, IsDeleted = false, IsClosedForAscertainment = true });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement BillFacts
@@ -132,9 +135,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
         => ArrangeMetadataElement.Config
             .Name(nameof(CategoryFirmAddressFacts))
             .Erm(
-                new Erm::CategoryFirmAddress { Id = 1, IsActive = true, IsDeleted = false })
+                new Erm::CategoryFirmAddress { FirmAddressId = 1, CategoryId = 1, IsActive = true, IsDeleted = false })
             .Fact(
-                new FirmAddressCategory { Id = 1 });
+                new FirmAddressCategory { FirmAddressId = 1, CategoryId = 1 });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderFileFacts

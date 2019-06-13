@@ -1,10 +1,7 @@
 ﻿
-using System.Linq;
-
 using NuClear.Storage.API.Specifications;
-
+using System.Linq;
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
-using Facts = NuClear.ValidationRules.Storage.Model.Facts;
 
 namespace NuClear.ValidationRules.Replication.Specifications
 {
@@ -14,14 +11,31 @@ namespace NuClear.ValidationRules.Replication.Specifications
         {
             public static class Erm
             {
+                public static class Firm
+                {
+                    public static FindSpecification<Erm::Firm> Active { get; }
+                        = new FindSpecification<Erm::Firm>(x => x.IsActive && !x.IsDeleted && !x.ClosedForAscertainment);
+
+                    public static FindSpecification<Erm::Firm> Inactive { get; }
+                        = new FindSpecification<Erm::Firm>(x => !(x.IsActive && !x.IsDeleted && !x.ClosedForAscertainment));
+
+                    public static FindSpecification<Erm::Firm> All { get; }
+                        = new FindSpecification<Erm::Firm>(x => true);
+                }
+
                 public static FindSpecification<Erm::Category> Category { get; }
                     = new FindSpecification<Erm::Category>(x => true);
 
-                public static FindSpecification<Erm::Firm> Firm { get; }
-                    = new FindSpecification<Erm::Firm>(x => true);
+                public static class FirmAddress
+                {
+                    public static FindSpecification<Erm::FirmAddress> Active { get; }
+                        = new FindSpecification<Erm::FirmAddress>(x => x.IsActive && !x.IsDeleted && !x.ClosedForAscertainment);
 
-                public static FindSpecification<Erm::FirmAddress> FirmAddress { get; }
-                    = new FindSpecification<Erm::FirmAddress>(x => true);
+                    public static FindSpecification<Erm::FirmAddress> Inactive { get; }
+                        = new FindSpecification<Erm::FirmAddress>(x => !(x.IsActive && !x.IsDeleted && !x.ClosedForAscertainment));
+                    public static FindSpecification<Erm::FirmAddress> All { get; }
+                        = new FindSpecification<Erm::FirmAddress>(x => true);
+                }
 
                 public static FindSpecification<Erm::LegalPersonProfile> LegalPersonProfile { get; }
                     = new FindSpecification<Erm::LegalPersonProfile>(x => x.IsActive && !x.IsDeleted);
@@ -40,6 +54,9 @@ namespace NuClear.ValidationRules.Replication.Specifications
 
                 public static FindSpecification<Erm::Theme> Theme { get; }
                     = new FindSpecification<Erm::Theme>(x => x.IsActive && !x.IsDeleted);
+
+                public static FindSpecification<Erm::NomenclatureCategory> NomenclatureCategory { get; }
+                    = new FindSpecification<Erm::NomenclatureCategory>(x => true);
             }
         }
     }

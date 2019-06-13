@@ -51,7 +51,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Account> dataObjects)
         {
-            var accountIds = dataObjects.Select(x => x.Id).ToList();
+            var accountIds = dataObjects.Select(x => x.Id);
 
             var orderIds =
                 from account in _query.For<Account>().Where(x => accountIds.Contains(x.Id))

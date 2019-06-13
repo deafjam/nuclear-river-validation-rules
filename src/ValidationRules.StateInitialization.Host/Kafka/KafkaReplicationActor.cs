@@ -121,34 +121,29 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
                 var resolvedCommandFactories = _commandFactories.Where(f => f.AppropriateFlows.Contains(messageFlowForKafkaTopic))
                                                                 .ToList();
 
-                using (var transation = new TransactionScope(TransactionScopeOption.RequiresNew,
-                                                             new TransactionOptions
-                                                             {
-                                                                 IsolationLevel = IsolationLevel.Serializable,
-                                                                 Timeout = TimeSpan.Zero
-                                                             }))
+                long currentMessageOffset = 0;
+                int receivedMessagesQuantity = 0;
+                while (currentMessageOffset < lastTargetMessageOffset)
                 {
-                    long currentMessageOffset = 0;
-                    int receivedMessagesQuantity = 0;
-                    while (currentMessageOffset < lastTargetMessageOffset)
+                    var batch = receiver.ReceiveBatch(_batchSizeSettings.BatchSize);
+                    // крутим цикл пока не получим сообщения от kafka,
+                    // т.к. у клиента kafka есть некоторое время прогрева, то после запуска некоторое время могут возвращаться пустые batch,
+                    // несмотря на фактическое наличие сообщений в topic\partition
+                    if (batch.Count == 0)
                     {
-                        var batch = receiver.ReceiveBatch(_batchSizeSettings.BatchSize);
-                        // крутим цикл пока не получим сообщения от kafka,
-                        // т.к. у клиента kafka есть некоторое время прогрева, то после запуска некоторое время могут возвращаться пустые batch,
-                        // несмотря на фактическое наличие сообщений в topic\partition
-                        if (batch.Count == 0)
-                        {
-                            continue;
-                        }
+                        continue;
+                    }
 
-                        receivedMessagesQuantity += batch.Count;
-                        currentMessageOffset = batch.Last().Offset.Value;
+                    receivedMessagesQuantity += batch.Count;
+                    currentMessageOffset = batch.Last().Offset.Value;
 
-                        _tracer.Info($"Flow: {targetMessageFlowDescription}. Received messages: {batch.Count}. Last message offset for received batch: {currentMessageOffset}. Target and current offsets distance: {lastTargetMessageOffset - currentMessageOffset}");
+                    _tracer.Info($"Flow: {targetMessageFlowDescription}. Received messages: {batch.Count}. Last message offset for received batch: {currentMessageOffset}. Target and current offsets distance: {lastTargetMessageOffset - currentMessageOffset}");
 
-                        var bulkCommands = resolvedCommandFactories.SelectMany(factory => factory.CreateCommands(batch))
-                                                                   .ToList();
+                    var bulkCommands = resolvedCommandFactories.SelectMany(factory => factory.CreateCommands(batch))
+                                                               .ToList();
 
+                    using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.Serializable, Timeout = TimeSpan.Zero }))
+                    {
                         if (bulkCommands.Count > 0)
                         {
                             foreach (var actor in actors)
@@ -157,12 +152,13 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
                             }
                         }
 
-                        receiver.CompleteBatch(batch);
+                        scope.Complete();
                     }
 
-                    _tracer.Info($"Receiving messages from kafka for flow: {targetMessageFlowDescription} finished. Received messages quantity: {receivedMessagesQuantity}");
-                    transation.Complete();
+                    receiver.CompleteBatch(batch);
                 }
+
+                _tracer.Info($"Receiving messages from kafka for flow: {targetMessageFlowDescription} finished. Received messages quantity: {receivedMessagesQuantity}");
             }
         }
 

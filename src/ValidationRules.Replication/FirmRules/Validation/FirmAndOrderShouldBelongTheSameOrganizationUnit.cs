@@ -22,14 +22,13 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
             var messages =
-                from fail in query.For<Order.FirmOrganiationUnitMismatch>()
+                from fail in query.For<Order.FirmOrganizationUnitMismatch>()
                 from order in query.For<Order>().Where(x => x.Id == fail.OrderId)
-                from firm in query.For<Firm>().Where(x => x.Id == order.FirmId)
                 select new Version.ValidationResult
                     {
                         MessageParams =
                             new MessageParams(
-                                    new Reference<EntityTypeFirm>(firm.Id),
+                                    new Reference<EntityTypeFirm>(order.FirmId),
                                     new Reference<EntityTypeOrder>(order.Id))
                                 .ToXDocument(),
 

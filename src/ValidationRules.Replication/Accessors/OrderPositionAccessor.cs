@@ -57,11 +57,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 from account in _query.For<Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
                 select account.Id;
 
-            var firmIds =
-                from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
-                select order.FirmId;
-
-            return new EventCollectionHelper<OrderPosition> { { typeof(Order), orderIds }, { typeof(Account), accountIds }, { typeof(Firm), firmIds } };
+            return new EventCollectionHelper<OrderPosition> { { typeof(Order), orderIds }, { typeof(Account), accountIds } };
         }
     }
 }

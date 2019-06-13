@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.Querying.Host.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -475,7 +475,7 @@ namespace NuClear.ValidationRules.Querying.Host.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Фирма {0} скрыта до выяснения..
+        ///   Looks up a localized string similar to Фирма {0} скрыта до выяснения.
         /// </summary>
         internal static string LinkedFirmShouldBeValid_ClosedForAscertainment {
             get {
@@ -498,6 +498,15 @@ namespace NuClear.ValidationRules.Querying.Host.Properties {
         internal static string LinkedFirmShouldBeValid_Deleted {
             get {
                 return ResourceManager.GetString("LinkedFirmShouldBeValid_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Фирма {0} не имеет адресов.
+        /// </summary>
+        internal static string LinkedFirmShouldBeValid_HasNoAddresses {
+            get {
+                return ResourceManager.GetString("LinkedFirmShouldBeValid_HasNoAddresses", resourceCulture);
             }
         }
         

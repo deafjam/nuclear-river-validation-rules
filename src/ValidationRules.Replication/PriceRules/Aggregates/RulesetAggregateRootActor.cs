@@ -76,7 +76,6 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                     from ruleset in _query.For(Specs.Find.Facts.Ruleset)
                     join project in _query.For<Facts::Ruleset.RulesetProject>() on ruleset.Id equals project.RulesetId
                     join rule in _query.For<Facts::Ruleset.QuantitativeRule>() on ruleset.Id equals rule.RulesetId
-                    join nomenclatureCategory in _query.For<Facts::NomenclatureCategory>() on rule.NomenclatureCategoryCode equals nomenclatureCategory.Id
                     select new Ruleset.AdvertisementAmountRestriction
                     {
                         RulesetId = rule.RulesetId,
@@ -85,7 +84,6 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         Begin = ruleset.BeginDate,
                         End = ruleset.EndDate,
 
-                        CategoryName = nomenclatureCategory.Name,
                         CategoryCode = rule.NomenclatureCategoryCode,
 
                         Max = rule.Max,

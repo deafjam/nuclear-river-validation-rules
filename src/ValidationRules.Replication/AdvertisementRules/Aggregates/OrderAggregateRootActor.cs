@@ -201,11 +201,11 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
                     from order in _query.For<Facts::Order>()
                     from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
-                    from advertisement in _query.For<Facts::Advertisement>().Where(x => x.Id == opa.AdvertisementId && x.FirmId != order.FirmId)
+                    from advertisement in _query.For<Facts::Advertisement>().Where(x => x.Id == opa.AdvertisementId.Value && x.FirmId != order.FirmId)
                     select new Order.AdvertisementNotBelongToFirm
                         {
                             OrderId = order.Id,
-                            AdvertisementId = advertisement.Id,
+                            AdvertisementId = opa.AdvertisementId.Value,
                             OrderPositionId = op.Id,
                             PositionId = opa.PositionId,
                             ExpectedFirmId = order.FirmId,
@@ -246,11 +246,11 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
                     from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
                     from p in _query.For<Facts::Position>().Where(x => x.Id == opa.PositionId)
-                    from a in _query.For<Facts::Advertisement>().Where(x => x.StateCode != Facts::Advertisement.Ok).Where(x => x.Id == opa.AdvertisementId)
+                    from a in _query.For<Facts::Advertisement>().Where(x => x.StateCode != Facts::Advertisement.Ok).Where(x => x.Id == opa.AdvertisementId.Value)
                     select new Order.AdvertisementFailedReview
                         {
                             OrderId = order.Id,
-                            AdvertisementId = a.Id,
+                            AdvertisementId = opa.AdvertisementId.Value,
                             ReviewState = a.StateCode,
 
                             AdvertisementIsOptional = p.ContentSales == Facts::Position.ContentSalesContentIsNotRequired

@@ -82,7 +82,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
                     select new Project.ProjectDefaultTheme
                     {
                         ProjectId = project.Id,
-                        ThemeId = theme.Id,
+                        ThemeId = themeOrgUnit.ThemeId,
                         Start = theme.BeginDistribution,
                         End = theme.EndDistribution,
                     };

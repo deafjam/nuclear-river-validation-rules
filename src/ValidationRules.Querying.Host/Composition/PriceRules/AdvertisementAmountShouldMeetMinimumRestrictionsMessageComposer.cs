@@ -12,6 +12,8 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
         public MessageComposerResult Compose(NamedReference[] references, IReadOnlyDictionary<string, string> extra)
         {
             var orderReference = references.Get<EntityTypeOrder>();
+            var nomenclatureCategoryReference = references.Get<EntityTypeNomenclatureCategory>();
+
             var dto = extra.ReadAdvertisementCountMessage();
             var period = dto.Begin.AddMonths(1) == dto.End
                 ? dto.Begin.ToString("MMMM")
@@ -20,7 +22,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
             return new MessageComposerResult(
                 orderReference,
                 Resources.AdvertisementAmountShouldMeetMinimumRestrictions,
-                dto.Name,
+                nomenclatureCategoryReference.Name,
                 dto.Min,
                 dto.Max,
                 period,

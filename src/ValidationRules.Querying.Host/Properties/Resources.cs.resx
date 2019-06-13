@@ -240,6 +240,9 @@
   <data name="LinkedFirmShouldBeValid_ClosedForAscertainment" xml:space="preserve">
     <value>Firma {0} je skrytá do vyjasnění.</value>
   </data>
+  <data name="LinkedFirmShouldBeValid_HasNoAddresses" xml:space="preserve">
+    <value>Firma {0} nemá žádné adresy</value>
+  </data>
   <data name="LinkedFirmAddressShouldBeValid_Deleted" xml:space="preserve">
     <value>V položce {0} je adresa firmy {1} skrytá navždy</value>
   </data>

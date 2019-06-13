@@ -26,9 +26,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPositionAdvertisement { Id = 6, OrderPositionId = 3, FirmAddressId = 4, PositionId = 5 },
 
 
-                    new Facts::FirmAddress { Id = 2, IsLocatedOnTheMap = false, IsActive = true },
-                    new Facts::FirmAddress { Id = 3, IsLocatedOnTheMap = false, IsActive = false },
-                    new Facts::FirmAddress { Id = 4, IsLocatedOnTheMap = true, IsActive = true },
+                    new Facts::FirmAddress { Id = 2, IsLocatedOnTheMap = false },
+                    new Facts::FirmAddress { Id = 3, IsLocatedOnTheMap = true },
 
                     new Facts::Position { Id = 4 },
                     new Facts::Position { Id = 5, CategoryCode = 11 }, // Позиции "Рекламная ссылка", "Выгодные покупки с 2ГИС", "Комментарий к адресу" могут продаваться к адресам, не размещённым на карте
@@ -36,8 +35,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Project())
                 .Aggregate(
                     new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(2) },
-                    new Order.AddressAdvertisementNonOnTheMap { OrderId = 1, AddressId = 2, OrderPositionId = 3, PositionId = 4 },
-                    new Order.AddressAdvertisementNonOnTheMap { OrderId = 1, AddressId = 3, OrderPositionId = 3, PositionId = 4 })
+                    new Order.AddressAdvertisementNonOnTheMap { OrderId = 1, AddressId = 2, OrderPositionId = 3, PositionId = 4 })
                 .Message(
                     new Messages::Version.ValidationResult
                         {
@@ -53,21 +51,6 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             PeriodStart = MonthStart(1),
                             PeriodEnd = MonthStart(2),
                             OrderId = 1,
-                        },
-                    new Messages::Version.ValidationResult
-                    {
-                        MessageParams =
-                                new MessageParams(
-                                        new Reference<EntityTypeFirmAddress>(3),
-                                        new Reference<EntityTypeOrder>(1),
-                                        new Reference<EntityTypeOrderPositionAdvertisement>(0,
-                                            new Reference<EntityTypeOrderPosition>(3),
-                                            new Reference<EntityTypePosition>(4)))
-                                    .ToXDocument(),
-                        MessageType = (int)MessageTypeCode.FirmAddressMustBeLocatedOnTheMap,
-                        PeriodStart = MonthStart(1),
-                        PeriodEnd = MonthStart(2),
-                        OrderId = 1,
-                    });
+                        });
     }
 }

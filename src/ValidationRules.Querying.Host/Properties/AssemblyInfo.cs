@@ -24,4 +24,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyInformationalVersion("1.0.0.0")]
 
 // same as ERM
-[assembly: NeutralResourcesLanguage("ru", UltimateResourceFallbackLocation.MainAssembly)]
+[assembly: NeutralResourcesLanguage("ru")]

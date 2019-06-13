@@ -7,7 +7,8 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules
         NotSet = 0,
         Deleted,
         ClosedForever,
-        ClosedForAscertainment
+        ClosedForAscertainment,
+        HasNoAddresses
     }
 
     public sealed class Order
@@ -18,7 +19,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules
         public DateTime End { get; set; }
         public long Scope { get; set; }
 
-        public sealed class FirmOrganiationUnitMismatch
+        public sealed class FirmOrganizationUnitMismatch
         {
             public long OrderId { get; set; }
         }
@@ -40,7 +41,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules
             public long OrderId { get; set; }
         }
 
-        public class InvalidFirm
+        public sealed class InvalidFirm
         {
             public long OrderId { get; set; }
             public long FirmId { get; set; }

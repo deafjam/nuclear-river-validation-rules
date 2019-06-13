@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.Replication.Core.Equality;
@@ -22,7 +21,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             IQuery query,
             IEqualityComparerFactory equalityComparerFactory,
             IBulkRepository<Order> bulkRepository,
-            IBulkRepository<Order.FirmOrganiationUnitMismatch> invalidFirmRepository,
+            IBulkRepository<Order.FirmOrganizationUnitMismatch> invalidFirmRepository,
             IBulkRepository<Order.InvalidFirm> orderInvalidFirmRepository,
             IBulkRepository<Order.PartnerPosition> partnerPositionRepository,
             IBulkRepository<Order.PremiumPartnerPosition> premiumPartnerPositionRepository,
@@ -31,7 +30,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
         {
             HasRootEntity(new OrderAccessor(query),
                           bulkRepository,
-                          HasValueObject(new OrderFirmOrganiationUnitMismatchAccessor(query), invalidFirmRepository),
+                          HasValueObject(new OrderFirmOrganizationUnitMismatchAccessor(query), invalidFirmRepository),
                           HasValueObject(new OrderInvalidFirmAccessor(query), orderInvalidFirmRepository),
                           HasValueObject(new PartnerPositionAccessor(query), partnerPositionRepository),
                           HasValueObject(new PremiumPartnerPositionAccessor(query), premiumPartnerPositionRepository),
@@ -81,11 +80,11 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             }
         }
 
-        public sealed class OrderFirmOrganiationUnitMismatchAccessor : DataChangesHandler<Order.FirmOrganiationUnitMismatch>, IStorageBasedDataObjectAccessor<Order.FirmOrganiationUnitMismatch>
+        public sealed class OrderFirmOrganizationUnitMismatchAccessor : DataChangesHandler<Order.FirmOrganizationUnitMismatch>, IStorageBasedDataObjectAccessor<Order.FirmOrganizationUnitMismatch>
         {
             private readonly IQuery _query;
 
-            public OrderFirmOrganiationUnitMismatchAccessor(IQuery query) :base(CreateInvalidator())
+            public OrderFirmOrganizationUnitMismatchAccessor(IQuery query) :base(CreateInvalidator())
             {
                 _query = query;
             }
@@ -96,16 +95,16 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                         MessageTypeCode.FirmAndOrderShouldBelongTheSameOrganizationUnit,
                     };
 
-            public IQueryable<Order.FirmOrganiationUnitMismatch> GetSource()
+            public IQueryable<Order.FirmOrganizationUnitMismatch> GetSource()
                 => from order in _query.For<Facts::Order>()
-                   from firm in _query.For<Facts::Firm>().Where(x => x.IsActive && !x.IsDeleted && !x.IsClosedForAscertainment).Where(x => x.Id == order.FirmId)
+                   from firm in _query.For<Facts::Firm>().Where(x => x.Id == order.FirmId)
                    where order.DestOrganizationUnitId != firm.OrganizationUnitId
-                   select new Order.FirmOrganiationUnitMismatch { OrderId = order.Id };
+                   select new Order.FirmOrganizationUnitMismatch { OrderId = order.Id };
 
-            public FindSpecification<Order.FirmOrganiationUnitMismatch> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
+            public FindSpecification<Order.FirmOrganizationUnitMismatch> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
                 var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
-                return new FindSpecification<Order.FirmOrganiationUnitMismatch>(x => aggregateIds.Contains(x.OrderId));
+                return new FindSpecification<Order.FirmOrganizationUnitMismatch>(x => aggregateIds.Contains(x.OrderId));
             }
         }
 
@@ -255,16 +254,25 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
 
             public IQueryable<Order.InvalidFirm> GetSource()
                 => from order in _query.For<Facts::Order>()
-                   from firm in _query.For<Facts::Firm>().Where(x => !x.IsActive || x.IsDeleted || x.IsClosedForAscertainment).Where(x => x.Id == order.FirmId)
-                   let state = firm.IsDeleted ? InvalidFirmState.Deleted
-                                   : !firm.IsActive ? InvalidFirmState.ClosedForever
-                                   : firm.IsClosedForAscertainment ? InvalidFirmState.ClosedForAscertainment
-                                   : InvalidFirmState.NotSet
+
+                   from fInactive in _query.For<Facts::FirmInactive>().Where(x => x.Id == order.FirmId).DefaultIfEmpty()
+                   let state = fInactive == default ? InvalidFirmState.NotSet
+                       : fInactive.IsDeleted ? InvalidFirmState.Deleted
+                       : !fInactive.IsActive ? InvalidFirmState.ClosedForever
+                       : fInactive.IsClosedForAscertainment ? InvalidFirmState.ClosedForAscertainment
+                       : InvalidFirmState.NotSet
+
+
+                   from fa in _query.For<Facts::FirmAddress>().Where(x => x.FirmId == order.FirmId).DefaultIfEmpty()
+                   let state2 = fa == default ? InvalidFirmState.HasNoAddresses
+                                : InvalidFirmState.NotSet
+
+                   where state != InvalidFirmState.NotSet || state2 != InvalidFirmState.NotSet
                    select new Order.InvalidFirm
                    {
                        OrderId = order.Id,
-                       FirmId = firm.Id,
-                       State = state,
+                       FirmId = order.FirmId,
+                       State = state != InvalidFirmState.NotSet ? state : state2,
                    };
 
             public FindSpecification<Order.InvalidFirm> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

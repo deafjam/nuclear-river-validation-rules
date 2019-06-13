@@ -66,7 +66,7 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 
                     if (amsVersion == null)
                     {
-                        amsVersion = (await connectionLocal.GetTable<Version.AmsState>().OrderBy(x => x.VersionId).FirstOrDefaultAsync(x => x.Offset >= amsOffset))?.VersionId;
+                        amsVersion = (await connectionLocal.GetTable<Version.AmsState>().FirstOrDefaultAsync(x => x.Offset >= amsOffset))?.VersionId;
                     }
 
                     if (ermVersion != null && amsVersion != null)

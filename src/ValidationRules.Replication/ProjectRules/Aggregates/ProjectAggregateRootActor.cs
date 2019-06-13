@@ -84,7 +84,11 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             public IQueryable<Project.Category> GetSource()
                 => from project in _query.For<Facts::Project>()
                    from link in _query.For<Facts::CategoryOrganizationUnit>().Where(x => x.OrganizationUnitId == project.OrganizationUnitId)
-                   select new Project.Category { ProjectId = project.Id, CategoryId = link.CategoryId };
+                   select new Project.Category
+                   {
+                       ProjectId = project.Id,
+                       CategoryId = link.CategoryId
+                   };
 
             public FindSpecification<Project.Category> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

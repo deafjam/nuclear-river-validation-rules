@@ -75,20 +75,25 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<Firm>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new {x.IsActive, x.IsDeleted, x.IsClosedForAscertainment}, x => x.OrganizationUnitId);
+                   .HasPrimaryKey(x => x.Id);
+
+            builder.Entity<FirmInactive>()
+                .HasSchemaName(FactsSchema)
+                .HasPrimaryKey(x => x.Id);
 
             builder.Entity<FirmAddress>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.FirmId, x.IsActive, x.IsDeleted, x.IsClosedForAscertainment }, x => x.Id)
+                   .HasIndex(x => x.FirmId)
                    .HasIndex(x => x.IsLocatedOnTheMap);
+
+            builder.Entity<FirmAddressInactive>()
+                .HasSchemaName(FactsSchema)
+                .HasPrimaryKey(x => x.Id);
 
             builder.Entity<FirmAddressCategory>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => new {x.Id, x.CategoryId })
-                   .HasIndex(x => x.CategoryId, x => x.FirmAddressId)
-                   .HasIndex(x => new { x.FirmAddressId, x.CategoryId });
+                   .HasPrimaryKey(x => new { x.FirmAddressId, x.CategoryId });
 
             builder.Entity<LegalPerson>()
                    .HasSchemaName(FactsSchema)

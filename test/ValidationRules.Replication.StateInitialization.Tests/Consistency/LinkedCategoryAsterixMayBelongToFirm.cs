@@ -21,16 +21,16 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPosition { Id = 1, OrderId = 1 },
                     new Facts::Position { Id = 1 },
                     new Facts::Position { Id = 2, BindingObjectType = Facts::Position.BindingObjectTypeCategoryMultipleAsterisk },
-                    new Facts::FirmAddress { Id = 1, FirmId = 1, IsActive = true },
+                    new Facts::FirmAddress { Id = 1, FirmId = 1 },
 
                     // Активная рубрика принадлежит фирме
                     new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 1, PositionId = 1 },
-                    new Facts::FirmAddressCategory { Id = 1, FirmAddressId = 1, CategoryId = 1 },
+                    new Facts::FirmAddressCategory { FirmAddressId = 1, CategoryId = 1 },
                     new Facts::Category { Id = 1, IsActiveNotDeleted = true },
 
                     // Неактивная рубрика принадлежит фирме
                     new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 1, CategoryId = 2, PositionId = 1 },
-                    new Facts::FirmAddressCategory { Id = 2, FirmAddressId = 2, CategoryId = 2 },
+                    new Facts::FirmAddressCategory { FirmAddressId = 2, CategoryId = 2 },
                     new Facts::Category { Id = 2, IsActiveNotDeleted = false },
 
                     // Активная рубрика не принадлежит фирме

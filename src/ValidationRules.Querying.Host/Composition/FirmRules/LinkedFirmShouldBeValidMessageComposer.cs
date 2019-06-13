@@ -42,6 +42,8 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.FirmRules
                     return Resources.LinkedFirmShouldBeValid_ClosedForever;
                 case InvalidFirmState.ClosedForAscertainment:
                     return Resources.LinkedFirmShouldBeValid_ClosedForAscertainment;
+                case InvalidFirmState.HasNoAddresses:
+                    return Resources.LinkedFirmShouldBeValid_HasNoAddresses;
                 default:
                     throw new Exception(nameof(firmState));
             }

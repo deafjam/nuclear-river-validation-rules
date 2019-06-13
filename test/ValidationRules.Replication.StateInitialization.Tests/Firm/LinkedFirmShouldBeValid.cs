@@ -17,17 +17,22 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedFirmShouldBeValid))
                 .Fact(
-                    new Facts::Firm { Id = 1, IsClosedForAscertainment = false, IsActive = true, IsDeleted = false, },
+                    new Facts::Firm { Id = 1 },
                     new Facts::Order { Id = 2, FirmId = 1, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 },
+                    new Facts::FirmAddress { Id = 1, FirmId = 1 },
 
-                    new Facts::Firm { Id = 3, IsClosedForAscertainment = true, IsActive = true, IsDeleted = false, },
+                    new Facts::FirmInactive { Id = 3, IsClosedForAscertainment = true, IsActive = true },
                     new Facts::Order { Id = 4, FirmId = 3, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 },
 
-                    new Facts::Firm { Id = 5, IsClosedForAscertainment = true, IsActive = false, IsDeleted = false, },
+                    new Facts::FirmInactive { Id = 5, IsClosedForAscertainment = true },
                     new Facts::Order { Id = 6, FirmId = 5, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 },
 
-                    new Facts::Firm { Id = 7, IsClosedForAscertainment = true, IsActive = false, IsDeleted = true, },
-                    new Facts::Order { Id = 8, FirmId = 7, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 })
+                    new Facts::FirmInactive { Id = 7, IsClosedForAscertainment = true, IsDeleted = true },
+                    new Facts::Order { Id = 8, FirmId = 7, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 },
+
+                    new Facts::Firm { Id = 2 },
+                    new Facts::Order { Id = 9, FirmId = 2, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 }
+                    )
                 .Aggregate(
                     new Order { Id = 2, FirmId = 1, Begin = MonthStart(1), End = MonthStart(2) },
 
@@ -38,7 +43,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Order.InvalidFirm { OrderId = 6, FirmId = 5, State = InvalidFirmState.ClosedForever },
 
                     new Order { Id = 8, FirmId = 7, Begin = MonthStart(1), End = MonthStart(2) },
-                    new Order.InvalidFirm { OrderId = 8, FirmId = 7, State = InvalidFirmState.Deleted })
+                    new Order.InvalidFirm { OrderId = 8, FirmId = 7, State = InvalidFirmState.Deleted },
+
+                    new Order { Id = 9, FirmId = 2, Begin = MonthStart(1), End = MonthStart(2) },
+                    new Order.InvalidFirm { OrderId = 9, FirmId = 2, State = InvalidFirmState.HasNoAddresses }
+                    )
                 .Message(
                     new Version.ValidationResult
                         {
@@ -83,6 +92,21 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         PeriodStart = MonthStart(1),
                         PeriodEnd = MonthStart(2),
                         OrderId = 8,
+                    },
+
+                    new Version.ValidationResult
+                    {
+                        MessageParams =
+                            new MessageParams(
+                                    new Dictionary<string, object> { { "invalidFirmState", (int)InvalidFirmState.HasNoAddresses } },
+                                    new Reference<EntityTypeFirm>(2),
+                                    new Reference<EntityTypeOrder>(9))
+                                .ToXDocument(),
+
+                        MessageType = (int)MessageTypeCode.LinkedFirmShouldBeValid,
+                        PeriodStart = MonthStart(1),
+                        PeriodEnd = MonthStart(2),
+                        OrderId = 9,
                     });
     }
 }

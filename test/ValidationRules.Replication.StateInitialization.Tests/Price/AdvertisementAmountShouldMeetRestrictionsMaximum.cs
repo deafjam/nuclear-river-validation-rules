@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(AdvertisementAmountShouldMeetRestrictionsMaximum))
                 .Aggregate(
                     new Ruleset.AdvertisementAmountRestriction { Begin = MonthStart(1), End = DateTime.MaxValue,
-                        CategoryCode = 1, CategoryName = "Category", Max = 2 },
+                        CategoryCode = 1, Max = 2 },
 
                     new Order { Id = 1 },
                     new Order.AmountControlledPosition { OrderId = 1, CategoryCode = 1 },
@@ -48,8 +48,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 3 }, { "name", "Category" }, { "begin", MonthStart(1) }, { "end", MonthStart(2) } },
-                                    new Reference<EntityTypeOrder>(3)).ToXDocument(),
+                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 3 }, { "begin", MonthStart(1) }, { "end", MonthStart(2) } },
+                                    new Reference<EntityTypeOrder>(3),
+                                    new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
                             PeriodStart = MonthStart(1),
                             PeriodEnd = MonthStart(2),
@@ -59,8 +60,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 4 }, { "name", "Category" }, { "begin", MonthStart(1) }, { "end", MonthStart(2) } },
-                                    new Reference<EntityTypeOrder>(4)).ToXDocument(),
+                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 4 }, { "begin", MonthStart(1) }, { "end", MonthStart(2) } },
+                                    new Reference<EntityTypeOrder>(4),
+                                    new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
                             PeriodStart = MonthStart(1),
                             PeriodEnd = MonthStart(2),
@@ -70,8 +72,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 3 }, { "name", "Category" }, { "begin", MonthStart(2) }, { "end", MonthStart(3) } },
-                                    new Reference<EntityTypeOrder>(5)).ToXDocument(),
+                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 3 }, { "begin", MonthStart(2) }, { "end", MonthStart(3) } },
+                                    new Reference<EntityTypeOrder>(5),
+                                    new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
                             PeriodStart = MonthStart(2),
                             PeriodEnd = MonthStart(3),

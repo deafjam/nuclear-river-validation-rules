@@ -86,7 +86,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
                     select new Theme.InvalidCategory
                     {
                         ThemeId = themeCategory.ThemeId,
-                        CategoryId = category.Id,
+                        CategoryId = themeCategory.CategoryId,
                     };
 
                 return invalidCategories;

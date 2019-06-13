@@ -37,7 +37,7 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<PositionChild>().HasSchemaName(BillingSchema).HasTableName("PositionChildren");
             builder.Entity<Category>().HasSchemaName(BusinessDirectorySchema).HasTableName("Categories").HasPrimaryKey(x => x.Id);
             builder.Entity<CategoryOrganizationUnit>().HasSchemaName(BusinessDirectorySchema).HasTableName("CategoryOrganizationUnits").HasPrimaryKey(x => x.Id);
-            builder.Entity<CategoryFirmAddress>().HasSchemaName(BusinessDirectorySchema).HasTableName("CategoryFirmAddresses").HasPrimaryKey(x => x.Id);
+            builder.Entity<CategoryFirmAddress>().HasSchemaName(BusinessDirectorySchema).HasTableName("CategoryFirmAddresses");
             builder.Entity<CostPerClickCategoryRestriction>().HasSchemaName(BusinessDirectorySchema).HasTableName("CostPerClickCategoryRestrictions");
             builder.Entity<SalesModelCategoryRestriction>().HasSchemaName(BusinessDirectorySchema).HasTableName("SalesModelCategoryRestrictions");
             builder.Entity<Theme>().HasSchemaName(BillingSchema).HasTableName("Themes").HasPrimaryKey(x => x.Id);

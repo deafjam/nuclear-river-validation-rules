@@ -23,13 +23,16 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
 
         public MessageComposerResult(NamedReference mainReference, string template, params object[] args)
         {
-            var index = 0;
-            var references = args.OfType<NamedReference>().ToArray();
-            var templateParams = args.Select(x => PrepareTemplateParameter(x, ref index)).ToArray();
+            var templateArgs = args.Aggregate((List: new List<object>(), Index: 0), (tuple, x) =>
+            {
+                (x, tuple.Index) = PrepareTemplateParameter(x, tuple.Index);
+                tuple.List.Add(x);
+                return tuple;
+            }).List.ToArray();
 
             MainReference = mainReference;
-            Template = string.Format(template, templateParams);
-            References = references;
+            Template = string.Format(template, templateArgs);
+            References = args.OfType<NamedReference>().ToList();
         }
 
         public MessageComposerResult(NamedReference mainReference, string template)
@@ -39,18 +42,18 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
 
         public NamedReference MainReference { get; set; }
         public string Template { get; set; }
-        public NamedReference[] References { get; set; }
+        public IReadOnlyCollection<NamedReference> References { get; set; }
 
-        private static object PrepareTemplateParameter(object p, ref int index)
+        private static (object, int) PrepareTemplateParameter(object p, int index)
         {
             switch (p)
             {
                 case string str:
-                    return str.Replace("{", "{{").Replace("}", "}}");
-                case NamedReference reference:
-                    return $"{{{index++}}}";
+                    return (str.Replace("{", "{{").Replace("}", "}}"), index);
+                case NamedReference _:
+                    return ($"{{{index}}}", index + 1);
                 default:
-                    return p;
+                    return (p, index);
             }
         }
     }

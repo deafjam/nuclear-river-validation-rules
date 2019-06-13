@@ -238,7 +238,10 @@
     <value>Для заказа указана неактивная работа</value>
   </data>
   <data name="LinkedFirmShouldBeValid_ClosedForAscertainment" xml:space="preserve">
-    <value>Фирма {0} скрыта до выяснения.</value>
+    <value>Фирма {0} скрыта до выяснения</value>
+  </data>
+  <data name="LinkedFirmShouldBeValid_HasNoAddresses" xml:space="preserve">
+    <value>Фирма {0} не имеет адресов</value>
   </data>
   <data name="LinkedFirmAddressShouldBeValid_Deleted" xml:space="preserve">
     <value>В позиции {0} адрес фирмы {1} скрыт навсегда</value>

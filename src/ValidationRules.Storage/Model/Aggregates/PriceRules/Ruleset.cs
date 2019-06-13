@@ -15,7 +15,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
             public DateTime End { get; set; }
 
             public long CategoryCode { get; set; }
-            public string CategoryName { get; set; }
             public int Min { get; set; }
             public int Max { get; set; }
         }

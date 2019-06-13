@@ -49,7 +49,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Bargain> dataObjects)
         {
-            var bargainIds = dataObjects.Select(x => x.Id).ToList();
+            var bargainIds = dataObjects.Select(x => x.Id);
 
             var orderIds =
                 from order in _query.For<Order>().Where(x => x.BargainId.HasValue && bargainIds.Contains(x.BargainId.Value))

@@ -32,7 +32,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Validation
                         MessageParams =
                             new MessageParams(
                                     new Reference<EntityTypeOrder>(order.Id),
-                                    new Reference<EntityTypeTheme>(theme.Id))
+                                    new Reference<EntityTypeTheme>(orderTheme.ThemeId))
                                 .ToXDocument(),
 
                         PeriodStart = order.BeginDistributionDate,

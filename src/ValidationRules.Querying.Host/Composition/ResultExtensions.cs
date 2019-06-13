@@ -25,7 +25,6 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                 Min = int.Parse(message["min"], CultureInfo.InvariantCulture),
                 Max = int.Parse(message["max"], CultureInfo.InvariantCulture),
                 Count = int.Parse(message["count"], CultureInfo.InvariantCulture),
-                Name = message["name"],
                 Begin = DateTime.Parse(message["begin"], CultureInfo.InvariantCulture),
                 End = DateTime.Parse(message["end"], CultureInfo.InvariantCulture),
             };
@@ -118,7 +117,6 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             public int Min { get; set; }
             public int Max { get; set; }
             public int Count { get; set; }
-            public string Name { get; set; }
             public DateTime Begin { get; set; }
             public DateTime End { get; set; }
         }
