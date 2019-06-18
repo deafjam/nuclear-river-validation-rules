@@ -64,7 +64,7 @@ function Get-DBHostMetadata($Context){
 			$dbHost = 'uk-sql20\erm'
 		}
 		'Load' {
-			$dbHost = 'uk-test-sql01\MSSQL2016'
+			$dbHost = 'uk-test-sql01\MSSQL2017'
 		}
 		'Appveyor' {
 			$dbHost = '(local)\SQL2016'
