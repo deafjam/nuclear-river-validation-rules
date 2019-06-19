@@ -76,21 +76,16 @@ function Get-DBHostMetadata($Context){
 
 function Get-AmsFactsTopicMetadata($Context){
 	switch($Context.EnvType){
-		'Test' {
-			return @{
-				'AmsFactsTopic' = 'ams_okapi_prod.am.validity'
-			}
-		 }
+		{$_ -in ('Test', 'Production', 'Load')} {
+			 return @{
+				 'AmsFactsTopic' = 'ams_okapi_prod.am.validity'
+			 }
+		}
 		'Business' {
 			return @{ 'AmsFactsTopic' = "ams_okapi_business$($Context['Index']).am.validity" }
 		}
 		'Edu' {
 			return @{ 'AmsFactsTopic' = "ams_okapi_edu$($Context['Index']).am.validity" }
-		}
-		 'Production' {
-			 return @{
-				 'AmsFactsTopic' = 'ams_okapi_prod.am.validity'
-			 }
 		}
 		default {
 			return @{}
@@ -116,10 +111,7 @@ function Get-RulesetsFactsTopicsMetadata($Context){
 			}
 			return @{ 'RulesetsFactsTopic' = 'casino_staging_flowRulesets_compacted' }
 		}
-		'Edu' {
-			return @{ 'RulesetsFactsTopic' = 'casino_staging_flowRulesets_compacted' }
-		}
-		 'Production' {
+		{$_ -in ('Edu', 'Production', 'Load')} {
 			 return @{
 				 'RulesetsFactsTopic' = 'casino_staging_flowRulesets_compacted'
 			 }
