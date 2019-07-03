@@ -7,8 +7,8 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.AccountRules
         public long Id { get; set; }
         public long? AccountId { get; set; }
         public bool IsFreeOfCharge { get; set; }
-        public DateTime BeginDistributionDate { get; set; }
-        public DateTime EndDistributionDate { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
 
         public sealed class DebtPermission
         {

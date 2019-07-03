@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.StateInitialization.Core.Commands;
@@ -27,7 +26,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 {
     public sealed class DataObjectTypesProviderFactory : IDataObjectTypesProviderFactory
     {
-        public static IReadOnlyCollection<Type> AllSourcesFactTypes => ErmFactTypes.Union(AmsFactTypes).Union(RulesetFactTypes).ToList();
+        public static IReadOnlyCollection<Type> AllSourcesFactTypes => ErmFactTypes.Concat(AmsFactTypes).Concat(RulesetFactTypes).ToHashSet();
 
         public static readonly Type[] ErmFactTypes =
             {
@@ -124,9 +123,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(ConsistencyAggregates::Order.HasNoAnyLegalPersonProfile),
                 typeof(ConsistencyAggregates::Order.HasNoAnyPosition),
                 typeof(ConsistencyAggregates::Order.InactiveReference),
-                typeof(ConsistencyAggregates::Order.InvalidBeginDistributionDate),
                 typeof(ConsistencyAggregates::Order.InvalidBillsTotal),
-                typeof(ConsistencyAggregates::Order.InvalidEndDistributionDate),
                 typeof(ConsistencyAggregates::Order.LegalPersonProfileBargainExpired),
                 typeof(ConsistencyAggregates::Order.LegalPersonProfileWarrantyExpired),
                 typeof(ConsistencyAggregates::Order.MissingBargainScan),

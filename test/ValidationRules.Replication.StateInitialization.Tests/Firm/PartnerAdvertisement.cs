@@ -18,11 +18,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(PartnerAdvertisementShouldNotBeSoldToAdvertiser))
                 .Aggregate(
                     // Заказ с змк в адрес РД
-                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
                     new Order.PartnerPosition { OrderId = 1, DestinationFirmId = 2, DestinationFirmAddressId = 2 },
 
                     // Заказ РД
-                    new Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 0 }
+                    new Order { Id = 2, Start = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 0 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -47,11 +47,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmAddressShouldNotHaveMultiplePartnerAdvertisement))
                 .Aggregate(
                     // Одобренный заказ с змк в адрес третьей фирмы (не видит второго)
-                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
                     new Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
 
                     // Заказ на оформлении с змк в адрес третьей фирмы (видит первого)
-                    new Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
+                    new Order { Id = 2, Start = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
                     new Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 }
                 )
                 .Message(
@@ -59,7 +59,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     {
                         MessageParams =
                             new MessageParams(
-                                    new Dictionary<string, object> { { "begin", MonthStart(2) }, { "end", MonthStart(3) } },
+                                    new Dictionary<string, object> { { "start", MonthStart(2) }, { "end", MonthStart(3) } },
                                     new Reference<EntityTypeOrder>(2),
                                     new Reference<EntityTypeFirm>(3),
                                     new Reference<EntityTypeFirmAddress>(3))
@@ -77,12 +77,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmAddressMustNotHaveMultiplePremiumPartnerAdvertisement))
                 .Aggregate(
                     // Одобренный заказ с премиум-змк в адрес третьей фирмы (не видит второго)
-                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
                     new Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
                     new Order.PremiumPartnerPosition { OrderId = 1 },
 
                     // Заказ на оформлении с премиум-змк в адрес третьей фирмы (видит первого)
-                    new Order { Id = 2, Begin = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
+                    new Order { Id = 2, Start = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
                     new Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
                     new Order.PremiumPartnerPosition { OrderId = 2 }
                 )
@@ -91,7 +91,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     {
                         MessageParams =
                             new MessageParams(
-                                    new Dictionary<string, object> { { "begin", MonthStart(2) }, { "end", MonthStart(3) } },
+                                    new Dictionary<string, object> { { "start", MonthStart(2) }, { "end", MonthStart(3) } },
                                     new Reference<EntityTypeOrder>(2),
                                     new Reference<EntityTypeFirm>(3),
                                     new Reference<EntityTypeFirmAddress>(3))

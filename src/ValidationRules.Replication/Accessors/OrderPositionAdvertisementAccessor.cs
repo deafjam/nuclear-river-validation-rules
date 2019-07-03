@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using NuClear.Replication.Core;
+﻿using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Events;
+using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
 
 namespace NuClear.ValidationRules.Replication.Accessors
@@ -22,18 +21,22 @@ namespace NuClear.ValidationRules.Replication.Accessors
         public OrderPositionAdvertisementAccessor(IQuery query) => _query = query;
 
         public IQueryable<OrderPositionAdvertisement> GetSource()
-            => from opa in _query.For<Erm::OrderPositionAdvertisement>()
-               select new OrderPositionAdvertisement
-                   {
-                       Id = opa.Id,
-                       OrderPositionId = opa.OrderPositionId,
-                       PositionId = opa.PositionId,
+            =>
+                // join тут можно использовать, т.к. OrderPosition\OrderPositionAdvertisement это ValueObjects для Order 
+                from order in _query.For(Specs.Find.Erm.Order)
+                from orderPosition in _query.For(Specs.Find.Erm.OrderPosition).Where(x => x.OrderId == order.Id)
+                from opa in _query.For<Erm::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
+                select new OrderPositionAdvertisement
+                {
+                    Id = opa.Id,
+                    OrderPositionId = opa.OrderPositionId,
+                    PositionId = opa.PositionId,
 
-                       FirmAddressId = opa.FirmAddressId,
-                       CategoryId = opa.CategoryId,
-                       AdvertisementId = opa.AdvertisementId,
-                       ThemeId = opa.ThemeId,
-                   };
+                    FirmAddressId = opa.FirmAddressId,
+                    CategoryId = opa.CategoryId,
+                    AdvertisementId = opa.AdvertisementId,
+                    ThemeId = opa.ThemeId,
+                };
 
         public FindSpecification<OrderPositionAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {

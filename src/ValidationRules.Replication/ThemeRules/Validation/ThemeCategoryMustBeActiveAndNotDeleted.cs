@@ -29,8 +29,8 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Validation
                     {
                         orderTheme.ThemeId,
                         invalidCategory.CategoryId,
-                        order.BeginDistributionDate,
-                        order.EndDistributionDateFact,
+                        order.Start,
+                        order.End,
                         order.ProjectId
                     };
 
@@ -42,8 +42,8 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Validation
                     {
                         grps.Key.ThemeId,
                         grps.Key.CategoryId,
-                        BeginDistributionDate = grps.Min(x => x.BeginDistributionDate),
-                        EndDistributionDateFact = grps.Max(x => x.EndDistributionDateFact),
+                        Start = grps.Min(x => x.Start),
+                        End = grps.Max(x => x.End),
                         grps.Key.ProjectId,
                     };
 
@@ -57,8 +57,8 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Validation
                                     new Reference<EntityTypeCategory>(invalidMaxPeriod.CategoryId))
                                 .ToXDocument(),
 
-                        PeriodStart = invalidMaxPeriod.BeginDistributionDate,
-                        PeriodEnd = invalidMaxPeriod.EndDistributionDateFact,
+                        PeriodStart = invalidMaxPeriod.Start,
+                        PeriodEnd = invalidMaxPeriod.End,
                         ProjectId = invalidMaxPeriod.ProjectId,
                     };
 

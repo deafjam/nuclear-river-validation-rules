@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(AdvertisementMustPassReview))
                 .Fact(
-                    new Facts::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
                     new Facts::Position { Id = 100, ContentSales = 3 },
 
                     new Facts::OrderPosition { Id = 3, OrderId = 1 },
@@ -35,7 +35,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Advertisement { Id = 11, StateCode = 3 }
                 )
                 .Aggregate(
-                    new Order { Id = 1, BeginDistributionDate = MonthStart(1), EndDistributionDatePlan = MonthStart(2) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.AdvertisementFailedReview { OrderId = 1, AdvertisementId = 8, ReviewState = 1, AdvertisementIsOptional = false },
                     new Order.AdvertisementFailedReview { OrderId = 1, AdvertisementId = 11, ReviewState = 3, AdvertisementIsOptional = false  }
                 )

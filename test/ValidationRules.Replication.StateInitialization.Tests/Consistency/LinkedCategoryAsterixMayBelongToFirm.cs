@@ -56,7 +56,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedCategoryAsteriskMayBelongToFirm))
                 .Aggregate(
-                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 3, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = true })
                 .Message(
                     new Messages::Version.ValidationResult
@@ -80,7 +80,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedCategoryShouldBelongToFirm))
                 .Aggregate(
-                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 3, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.NotBelongToFirm, MayNotBelongToFirm = false })
                 .Message(
                     new Messages::Version.ValidationResult
@@ -104,7 +104,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedCategoryShouldBeActive))
                 .Aggregate(
-                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 3, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InvalidCategory { OrderId = 3, CategoryId = 3, OrderPositionId = 1, PositionId = 2, State = InvalidCategoryState.Inactive })
                 .Message(
                     new Messages::Version.ValidationResult

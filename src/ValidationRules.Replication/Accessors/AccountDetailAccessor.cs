@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using NuClear.Replication.Core;
+﻿using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Events;
+using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NuClear.ValidationRules.Replication.Accessors
 {
@@ -19,17 +19,17 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public AccountDetailAccessor(IQuery query) => _query = query;
 
-        public IQueryable<AccountDetail> GetSource()
-            => _query.For<Storage.Model.Erm.AccountDetail>()
-                     .Where(x => !x.IsDeleted)
-                     .Where(x => x.OrderId != null)
-                     .Select(x => new AccountDetail
-                         {
-                             Id = x.Id,
-                             AccountId = x.AccountId,
-                             OrderId = x.OrderId.Value,
-                             PeriodStartDate = x.PeriodStartDate.Value,
-                         });
+        public IQueryable<AccountDetail> GetSource() =>
+            // join тут можно использовать, т.к. AccountDetail это ValueObject для Account
+            from account in _query.For(Specs.Find.Erm.Account)
+            from accountDetail in _query.For<Storage.Model.Erm.AccountDetail>().Where(x => !x.IsDeleted).Where(x => x.OrderId != null).Where(x => x.AccountId == account.Id)
+            select new AccountDetail
+            {
+                Id = accountDetail.Id,
+                AccountId = accountDetail.AccountId,
+                OrderId = accountDetail.OrderId.Value,
+                PeriodStartDate = accountDetail.PeriodStartDate.Value,
+            };
 
         public FindSpecification<AccountDetail> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {

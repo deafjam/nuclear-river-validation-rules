@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemePeriodMustContainOrderPeriodPositive))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb},
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb},
                     new Facts::Project {Id = 3, OrganizationUnitId = 2},
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
@@ -25,7 +25,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Theme { Id = 5, BeginDistribution = FirstDayFeb, EndDistribution = FirstDayFeb }
                 )
                 .Aggregate(
-                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb },
+                    new Order { Id = 1, ProjectId = 3, Start = FirstDayJan, End = FirstDayFeb },
                     new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
 
                     new Theme { Id = 5, BeginDistribution = FirstDayFeb, EndDistribution = FirstDayFeb }
@@ -49,7 +49,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemePeriodMustContainOrderPeriodNegative))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb },
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb },
                     new Facts::Project { Id = 3, OrganizationUnitId = 2 },
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
@@ -58,7 +58,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb }
                 )
                 .Aggregate(
-                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb },
+                    new Order { Id = 1, ProjectId = 3, Start = FirstDayJan, End = FirstDayFeb },
                     new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
 
                     new Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb }

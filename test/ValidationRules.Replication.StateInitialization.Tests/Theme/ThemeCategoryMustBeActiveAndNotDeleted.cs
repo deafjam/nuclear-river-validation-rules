@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemeCategoryMustBeActiveAndNotDeleted_OneOrder))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb},
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb},
                     new Facts::Project {Id = 3, OrganizationUnitId = 2},
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
@@ -28,7 +28,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::ThemeCategory { ThemeId = 5, CategoryId = 6 }
                 )
                 .Aggregate(
-                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb },
+                    new Order { Id = 1, ProjectId = 3, Start = FirstDayJan, End = FirstDayFeb },
                     new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
 
                     new Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb },
@@ -53,8 +53,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemeCategoryMustBeActiveAndNotDeleted_TwoOrders))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayMar },
-                    new Facts::Order { Id = 2, DestOrganizationUnitId = 2, BeginDistribution = FirstDayFeb, EndDistributionFact = FirstDayApr },
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMar },
+                    new Facts::Order { Id = 2, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayApr },
                     new Facts::Project { Id = 3, OrganizationUnitId = 2 },
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
@@ -68,8 +68,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::ThemeCategory { ThemeId = 5, CategoryId = 6 }
                 )
                 .Aggregate(
-                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayMar },
-                    new Order { Id = 2, ProjectId = 3, BeginDistributionDate = FirstDayFeb, EndDistributionDateFact = FirstDayApr },
+                    new Order { Id = 1, ProjectId = 3, Start = FirstDayJan, End = FirstDayMar },
+                    new Order { Id = 2, ProjectId = 3, Start = FirstDayFeb, End = FirstDayApr },
                     new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
                     new Order.OrderTheme { OrderId = 2, ThemeId = 5 },
 
@@ -95,7 +95,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemeCategoryMustBeActiveAndNotDeletedNaegative))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb },
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb },
                     new Facts::Project { Id = 3, OrganizationUnitId = 2 },
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
@@ -107,7 +107,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::ThemeCategory { ThemeId = 5, CategoryId = 6 }
                 )
                 .Aggregate(
-                    new Order { Id = 1, ProjectId = 3, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = FirstDayFeb },
+                    new Order { Id = 1, ProjectId = 3, Start = FirstDayJan, End = FirstDayFeb },
                     new Order.OrderTheme { OrderId = 1, ThemeId = 5 },
 
                     new Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb }

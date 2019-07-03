@@ -22,11 +22,12 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.FirmRules
             => JsonConvert.DeserializeObject<DateTime[]>(str);
 
         private static IEnumerable<DateTime> MonthlySplit(IReadOnlyDictionary<string, string> extra)
-            => MonthlySplit(extra["begin"], extra["end"]);
+            => MonthlySplit(extra["start"], extra["end"]);
 
         private static IEnumerable<DateTime> MonthlySplit(string begin, string end)
             => MonthlySplit(DateTime.Parse(begin), DateTime.Parse(end));
 
+        // TODO: возможно будут проблемы при переходе на agile-даты, продумать
         private static IEnumerable<DateTime> MonthlySplit(DateTime begin, DateTime end)
         {
             for (var x = begin; x < end; x = x.AddMonths(1))

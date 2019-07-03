@@ -17,10 +17,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmAndOrderShouldBelongTheSameOrganizationUnit))
                 .Fact(
                     new Facts::Firm { Id = 1, OrganizationUnitId = 1},
-                    new Facts::Order { Id = 2, FirmId = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionFact = FirstDayFeb, WorkflowStep = 5 })
+                    new Facts::Order { Id = 2, FirmId = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb, WorkflowStep = 5 })
                 .Aggregate(
                     new Firm { Id = 1, },
-                    new Order { Id = 2, FirmId = 1, Begin = FirstDayJan, End = FirstDayFeb },
+                    new Order { Id = 2, FirmId = 1, Start = FirstDayJan, End = FirstDayFeb },
                     new Order.FirmOrganizationUnitMismatch { OrderId = 2 })
                 .Message(
                     new Messages::Version.ValidationResult

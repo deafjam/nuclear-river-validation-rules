@@ -271,8 +271,6 @@ namespace NuClear.ValidationRules.Replication.Messages
                     new LinkedFirmShouldBeValid(_query),
                     new BillsSumShouldMatchOrder(_query),
                     new BillsShouldBeCreated(_query),
-                    new OrderBeginDistrubutionShouldBeFirstDayOfMonth(_query),
-                    new OrderEndDistrubutionShouldBeLastSecondOfMonth(_query),
                     new OrderMustHaveActiveDeal(_query),
                     new OrderMustHaveActiveLegalEntities(_query),
                     new OrderRequiredFieldsShouldBeSpecified(_query),

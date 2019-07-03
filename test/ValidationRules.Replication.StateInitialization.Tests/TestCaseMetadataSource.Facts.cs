@@ -72,7 +72,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
             .Erm(
                 new Erm::SalesModelCategoryRestriction { ProjectId = 1, BeginningDate = MonthStart(1), CategoryId = 1, SalesModel = 2 })
             .Fact(
-                new SalesModelCategoryRestriction { ProjectId = 1, Begin = MonthStart(1), CategoryId = 1, SalesModel = 2 });
+                new SalesModelCategoryRestriction { ProjectId = 1, Start = MonthStart(1), CategoryId = 1, SalesModel = 2 });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement PositionChildFacts
@@ -117,6 +117,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
         => ArrangeMetadataElement.Config
             .Name(nameof(BillFacts))
             .Erm(
+                new Erm::Order { Id = 2, IsActive = true },
                 new Erm::Bill { Id = 1, IsActive = true, IsDeleted = false, BillType = 1, OrderId = 2, PayablePlan = 123 })
             .Fact(
                 new Bill { Id = 1, OrderId = 2, PayablePlan = 123 });
@@ -135,6 +136,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
         => ArrangeMetadataElement.Config
             .Name(nameof(CategoryFirmAddressFacts))
             .Erm(
+                new Erm::FirmAddress { Id = 1, IsActive = true },
                 new Erm::CategoryFirmAddress { FirmAddressId = 1, CategoryId = 1, IsActive = true, IsDeleted = false })
             .Fact(
                 new FirmAddressCategory { FirmAddressId = 1, CategoryId = 1 });
@@ -190,17 +192,18 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
         => ArrangeMetadataElement.Config
             .Name(nameof(OrderFacts))
             .Erm(
-                new Erm::Order { Id = 1, IsActive = true, BeginDistributionDate = FirstDayJan, EndDistributionDateFact = LastSecondJan, EndDistributionDatePlan = LastSecondMar, DestOrganizationUnitId = 2, FirmId = 5, OwnerCode = 6, WorkflowStepId = 8, CurrencyId = 9, OrderType = 2 },
+                new Erm::Order { Id = 1, IsActive = true, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = LastSecondJan, AgileDistributionEndPlanDate = LastSecondMar, DestOrganizationUnitId = 2, FirmId = 5, OwnerCode = 6, WorkflowStepId = 8, CurrencyId = 9, OrderType = 2 },
                 new Erm::Order { Id = 2, IsActive = false, IsDeleted = false },
                 new Erm::Order { Id = 3, IsActive = true, IsDeleted = true })
             .Fact(
-                new Order { Id = 1, BeginDistribution = FirstDayJan, EndDistributionFact = LastSecondJan.AddSeconds(1), EndDistributionPlan = LastSecondMar.AddSeconds(1), DestOrganizationUnitId = 2, FirmId = 5, WorkflowStep = 8, HasCurrency = true, IsFreeOfCharge = true, IsSelfAds = true });
+                new Order { Id = 1, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = LastSecondJan.AddSeconds(1), AgileDistributionEndPlanDate = LastSecondMar.AddSeconds(1), DestOrganizationUnitId = 2, FirmId = 5, WorkflowStep = 8, HasCurrency = true, IsFreeOfCharge = true, IsSelfAds = true });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderPositionFacts
             => ArrangeMetadataElement.Config
                 .Name(nameof(OrderPositionFacts))
                 .Erm(
+                    new Erm::Order { Id = 1, IsActive = true },
                     new Erm::OrderPosition { Id = 1, IsActive = true, OrderId = 1, PricePositionId = 2 },
                     new Erm::OrderPosition { Id = 2, IsActive = false, IsDeleted = false },
                     new Erm::OrderPosition { Id = 3, IsActive = true, IsDeleted = true })
@@ -216,18 +219,20 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Erm::OrderPosition { Id = 1, OrderId = 1, PricePositionId = 2, IsActive = true, IsDeleted = false },
                     new Erm::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, PositionId = 3, CategoryId = 1 },
                     new Erm::OrderPositionAdvertisement { Id = 2, OrderPositionId = 1, PositionId = 4, FirmAddressId = 1 },
-                    new Erm::PricePosition { Id = 2, PositionId = 5})
+                    new Erm::PricePosition { Id = 2, PositionId = 5},
+                    new Erm::PositionChild { MasterPositionId = 5 })
                 .Fact(
-                    new OrderItem { OrderId = 1, OrderPositionId = 1, PricePositionId = 2, PackagePositionId = 5, ItemPositionId = 5, CategoryId = 1 },
-                    new OrderItem { OrderId = 1, OrderPositionId = 1, PricePositionId = 2, PackagePositionId = 5, ItemPositionId = 5, FirmAddressId = 1 },
-                    new OrderItem { OrderId = 1, OrderPositionId = 1, PricePositionId = null, PackagePositionId = 5, ItemPositionId = 3, CategoryId = 1 },
-                    new OrderItem { OrderId = 1, OrderPositionId = 1, PricePositionId = null, PackagePositionId = 5, ItemPositionId = 4, FirmAddressId = 1 });
+                    new OrderItem { OrderId = 1, OrderPositionId = 1, PackagePositionId = 5, ItemPositionId = 5 },
+                    new OrderItem { OrderId = 1, OrderPositionId = 1, PackagePositionId = 5, ItemPositionId = 3, CategoryId = 1 },
+                    new OrderItem { OrderId = 1, OrderPositionId = 1, PackagePositionId = 5, ItemPositionId = 4, FirmAddressId = 1 });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderPositionAdvertisementFacts
             => ArrangeMetadataElement.Config
                 .Name(nameof(OrderPositionAdvertisementFacts))
                 .Erm(
+                    new Erm::Order { Id = 2, IsActive = true },
+                    new Erm::OrderPosition { Id = 3, OrderId = 2, IsActive = true },
                     new Erm::OrderPositionAdvertisement { Id = 1, CategoryId = 1, FirmAddressId = 2, OrderPositionId = 3, PositionId = 4 })
                 .Fact(
                     new OrderPositionAdvertisement { Id = 1, CategoryId = 1, FirmAddressId = 2, OrderPositionId = 3, PositionId = 4 });
@@ -326,7 +331,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Erm(
                     new Erm::CostPerClickCategoryRestriction { ProjectId = 1, CategoryId = 2, BeginningDate = MonthStart(1), MinCostPerClick = 3 })
                 .Fact(
-                    new CostPerClickCategoryRestriction { ProjectId = 1, CategoryId = 2, Begin = MonthStart(1), MinCostPerClick = 3 });
+                    new CostPerClickCategoryRestriction { ProjectId = 1, CategoryId = 2, Start = MonthStart(1), MinCostPerClick = 3 });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderPositionCostPerClickFacts
@@ -363,6 +368,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
             => ArrangeMetadataElement.Config
                                      .Name(nameof(AccountDetailFacts))
                                      .Erm(
+                                          new Erm::Account { Id = 1 },
                                           new Erm::AccountDetail { Id = 1, IsDeleted = false, AccountId = 1, OrderId = 1, PeriodStartDate = MonthStart(1) },
                                           new Erm::AccountDetail { Id = 2, IsDeleted = true  },
                                           new Erm::AccountDetail { Id = 3, IsDeleted = false, AccountId = 1, OrderId = null })

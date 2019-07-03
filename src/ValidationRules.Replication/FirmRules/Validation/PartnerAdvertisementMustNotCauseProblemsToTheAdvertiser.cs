@@ -28,7 +28,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                 from orderId in query.For<Order.FmcgCutoutPosition>().Select(x => x.OrderId)
                 from order in query.For<Order>().Where(x => x.Id == orderId)
                 from partnerPosition in query.For<Order.PartnerPosition>().Where(x => x.DestinationFirmId == order.FirmId)
-                from partnerOrder in query.For<Order>().Where(x => x.Id == partnerPosition.OrderId).Where(x => Scope.CanSee(x.Scope, order.Scope)).Where(x => order.Begin < x.End && x.Begin < order.End)
+                from partnerOrder in query.For<Order>().Where(x => x.Id == partnerPosition.OrderId).Where(x => Scope.CanSee(x.Scope, order.Scope)).Where(x => order.Start < x.End && x.Start < order.End)
                 where partnerOrder.FirmId != partnerPosition.DestinationFirmId // о позициях в карточках своей фирмы не предупреждаем
                 select new Version.ValidationResult
                     {
@@ -40,7 +40,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                                               new Reference<EntityTypeFirmAddress>(partnerPosition.DestinationFirmAddressId))
                                 .ToXDocument(),
 
-                        PeriodStart = partnerOrder.Begin > order.Begin ? partnerOrder.Begin : order.Begin ,
+                        PeriodStart = partnerOrder.Start > order.Start ? partnerOrder.Start : order.Start ,
                         PeriodEnd = partnerOrder.End < order.End ? partnerOrder.End : order.End,
                         OrderId = partnerOrder.Id,
                     };

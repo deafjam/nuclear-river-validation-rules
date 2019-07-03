@@ -49,8 +49,8 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
                    select new Order
                    {
                        Id = order.Id,
-                       BeginDistributionDate = order.BeginDistribution,
-                       EndDistributionDateFact = order.EndDistributionFact,
+                       Start = order.AgileDistributionStartDate,
+                       End = order.AgileDistributionEndFactDate,
                        ProjectId = project.Id,
                        IsSelfAds = order.IsSelfAds,
                    };
@@ -81,12 +81,11 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
             
             public IQueryable<Order.OrderTheme> GetSource()
             {
-                var orderThemes = from order in _query.For<Facts::Order>()
-                                  from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
+                var orderThemes = from op in _query.For<Facts::OrderPosition>()
                                   from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.ThemeId != null).Where(x => x.OrderPositionId == op.Id)
                                   select new Order.OrderTheme
                                   {
-                                      OrderId = order.Id,
+                                      OrderId = op.OrderId,
                                       ThemeId = opa.ThemeId.Value
                                   };
 

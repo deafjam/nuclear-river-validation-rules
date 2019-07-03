@@ -28,7 +28,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 CategoryId = x.CategoryId,
                 ProjectId = x.ProjectId,
                 MinCostPerClick = x.MinCostPerClick,
-                Begin = x.BeginningDate,
+                Start = x.BeginningDate,
             });
 
         public FindSpecification<CostPerClickCategoryRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

@@ -45,8 +45,8 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Validation
                                                                                                   new Reference<EntityTypePosition>(firmAddress.PositionId)))
                                 .ToXDocument(),
 
-                        PeriodStart = order.BeginDistribution,
-                        PeriodEnd = order.EndDistributionPlan,
+                        PeriodStart = order.Start,
+                        PeriodEnd = order.End,
                         OrderId = order.Id,
                     };
 

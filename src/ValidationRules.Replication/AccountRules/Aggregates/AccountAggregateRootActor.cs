@@ -77,7 +77,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
                     from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                     from releaseWithdrawal in _query.For<Facts::ReleaseWithdrawal>()
                                                     .Where(x => x.OrderPositionId == orderPosition.Id)
-                                                    .Where(x => x.Start < order.EndDistributionFact)
+                                                    .Where(x => x.Start < order.AgileDistributionEndFactDate)
                     // фильтруем фактические списания, по ним ошибок быть уже не может
                     where !_query.For<Facts::AccountDetail>().Any(x => x.OrderId == order.Id && x.PeriodStartDate == releaseWithdrawal.Start)
                     select new

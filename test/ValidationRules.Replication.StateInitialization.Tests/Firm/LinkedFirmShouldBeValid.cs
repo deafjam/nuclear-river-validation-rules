@@ -18,34 +18,34 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(LinkedFirmShouldBeValid))
                 .Fact(
                     new Facts::Firm { Id = 1 },
-                    new Facts::Order { Id = 2, FirmId = 1, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 },
+                    new Facts::Order { Id = 2, FirmId = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), WorkflowStep = 5 },
                     new Facts::FirmAddress { Id = 1, FirmId = 1 },
 
                     new Facts::FirmInactive { Id = 3, IsClosedForAscertainment = true, IsActive = true },
-                    new Facts::Order { Id = 4, FirmId = 3, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 },
+                    new Facts::Order { Id = 4, FirmId = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), WorkflowStep = 5 },
 
                     new Facts::FirmInactive { Id = 5, IsClosedForAscertainment = true },
-                    new Facts::Order { Id = 6, FirmId = 5, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 },
+                    new Facts::Order { Id = 6, FirmId = 5, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), WorkflowStep = 5 },
 
                     new Facts::FirmInactive { Id = 7, IsClosedForAscertainment = true, IsDeleted = true },
-                    new Facts::Order { Id = 8, FirmId = 7, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 },
+                    new Facts::Order { Id = 8, FirmId = 7, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), WorkflowStep = 5 },
 
                     new Facts::Firm { Id = 2 },
-                    new Facts::Order { Id = 9, FirmId = 2, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), WorkflowStep = 5 }
+                    new Facts::Order { Id = 9, FirmId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), WorkflowStep = 5 }
                     )
                 .Aggregate(
-                    new Order { Id = 2, FirmId = 1, Begin = MonthStart(1), End = MonthStart(2) },
+                    new Order { Id = 2, FirmId = 1, Start = MonthStart(1), End = MonthStart(2) },
 
-                    new Order { Id = 4, FirmId = 3, Begin = MonthStart(1), End = MonthStart(2) },
+                    new Order { Id = 4, FirmId = 3, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InvalidFirm { OrderId = 4, FirmId = 3, State = InvalidFirmState.ClosedForAscertainment },
 
-                    new Order { Id = 6, FirmId = 5, Begin = MonthStart(1), End = MonthStart(2) },
+                    new Order { Id = 6, FirmId = 5, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InvalidFirm { OrderId = 6, FirmId = 5, State = InvalidFirmState.ClosedForever },
 
-                    new Order { Id = 8, FirmId = 7, Begin = MonthStart(1), End = MonthStart(2) },
+                    new Order { Id = 8, FirmId = 7, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InvalidFirm { OrderId = 8, FirmId = 7, State = InvalidFirmState.Deleted },
 
-                    new Order { Id = 9, FirmId = 2, Begin = MonthStart(1), End = MonthStart(2) },
+                    new Order { Id = 9, FirmId = 2, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InvalidFirm { OrderId = 9, FirmId = 2, State = InvalidFirmState.HasNoAddresses }
                     )
                 .Message(

@@ -42,7 +42,6 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderMustNotIncludeReleasedPeriod,
                         MessageTypeCode.OrderMustUseCategoriesOnlyAvailableInProject,
                         MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum,
                         MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel,
@@ -104,13 +103,13 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             public IQueryable<Project.CostPerClickRestriction> GetSource()
                 => from project in _query.For<Facts::Project>()
                    from restriction in _query.For<Facts::CostPerClickCategoryRestriction>().Where(x => x.ProjectId == project.Id)
-                   let nextRestriction = _query.For<Facts::CostPerClickCategoryRestriction>().Where(x => x.ProjectId == project.Id && x.Begin > restriction.Begin).Min(x => (DateTime?)x.Begin)
+                   let nextRestriction = _query.For<Facts::CostPerClickCategoryRestriction>().Where(x => x.ProjectId == project.Id && x.Start > restriction.Start).Min(x => (DateTime?)x.Start)
                    select new Project.CostPerClickRestriction
                    {
                        ProjectId = project.Id,
                        CategoryId = restriction.CategoryId,
                        Minimum = restriction.MinCostPerClick,
-                       Begin = restriction.Begin,
+                       Start = restriction.Start,
                        End = nextRestriction ?? DateTime.MaxValue
                    };
 
@@ -136,13 +135,13 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             public IQueryable<Project.SalesModelRestriction> GetSource()
                 => from project in _query.For<Facts::Project>()
                    from restriction in _query.For<Facts::SalesModelCategoryRestriction>().Where(x => x.ProjectId == project.Id)
-                   let nextRestriction = _query.For<Facts::SalesModelCategoryRestriction>().Where(x => x.ProjectId == project.Id && x.CategoryId == restriction.CategoryId && x.Begin > restriction.Begin).Min(x => (DateTime?)x.Begin)
+                   let nextRestriction = _query.For<Facts::SalesModelCategoryRestriction>().Where(x => x.ProjectId == project.Id && x.CategoryId == restriction.CategoryId && x.Start > restriction.Start).Min(x => (DateTime?)x.Start)
                    select new Project.SalesModelRestriction
                    {
                        ProjectId = project.Id,
                        CategoryId = restriction.CategoryId,
                        SalesModel = restriction.SalesModel,
-                       Begin = restriction.Begin,
+                       Start = restriction.Start,
                        End = nextRestriction ?? DateTime.MaxValue
                    };
 
@@ -162,7 +161,6 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderMustNotIncludeReleasedPeriod,
                         MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction,
                     };
 

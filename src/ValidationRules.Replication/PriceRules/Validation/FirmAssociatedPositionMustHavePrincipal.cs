@@ -27,9 +27,12 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
 
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
+            var firmPositions = query.For<Firm.FirmPosition>();
+            var firmAssociatedPositions = query.For<Firm.FirmAssociatedPosition>();
+
             var errors =
-                query.For<Firm.FirmPosition>()
-                     .Select(Specs.Join.Aggs.WithPrincipalPositions(query.For<Firm.FirmAssociatedPosition>(), query.For<Firm.FirmPosition>()))
+                firmPositions
+                     .Select(Specs.Join.Aggs.WithPrincipalPositions(firmAssociatedPositions, firmPositions))
                      .Where(dto => dto.RequirePrincipal && !dto.Principals.Any())
                      .Select(dto => dto.Associated);
 

@@ -9,6 +9,7 @@ using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Events;
+using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -21,15 +22,16 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public BillAccessor(IQuery query) => _query = query;
 
-        public IQueryable<Bill> GetSource() => _query
-            .For<Erm::Bill>()
-            .Where(x => x.IsActive && !x.IsDeleted && x.BillType == Erm::Bill.Payment)
-            .Select(x => new Bill
-                {
-                    Id = x.Id,
-                    OrderId = x.OrderId,
-                    PayablePlan = x.PayablePlan,
-                });
+        public IQueryable<Bill> GetSource() =>
+            // join тут можно использовать, т.к. Bill это ValueObject для Order
+            from order in _query.For(Specs.Find.Erm.Order)
+            from bill in _query.For<Erm::Bill>().Where(x => x.IsActive && !x.IsDeleted && x.BillType == Erm::Bill.Payment).Where(x => x.OrderId == order.Id)
+            select new Bill
+            {
+                Id = bill.Id,
+                OrderId = bill.OrderId,
+                PayablePlan = bill.PayablePlan,
+            };
 
         public FindSpecification<Bill> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {

@@ -41,10 +41,10 @@ namespace NuClear.ValidationRules.Querying.Host.CheckModes
                 const int OrderStateOnTermination = 4;
                 if (CheckMode == CheckMode.SingleForApprove && order.WorkflowStepId == OrderStateOnTermination)
                 {
-                    return order.EndDistributionDateFact.AddSeconds(1);
+                    return order.AgileDistributionEndFactDate.AddSeconds(1);
                 }
 
-                return order.BeginDistributionDate;
+                return order.AgileDistributionStartDate;
             }
         }
     }

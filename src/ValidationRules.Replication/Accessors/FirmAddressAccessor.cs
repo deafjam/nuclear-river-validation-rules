@@ -20,8 +20,8 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FirmAddressAccessor(IQuery query) => _query = query;
 
-        public IQueryable<FirmAddress> GetSource() => _query
-            .For(Specs.Find.Erm.FirmAddress.Active)
+        public IQueryable<FirmAddress> GetSource() =>
+            _query.For(Specs.Find.Erm.FirmAddress.Active)
             .Select(x => new FirmAddress
             {
                 Id = x.Id,

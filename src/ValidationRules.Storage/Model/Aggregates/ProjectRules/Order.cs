@@ -6,7 +6,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
     {
         public long Id { get; set; }
         public long ProjectId { get; set; }
-        public DateTime Begin { get; set; }
+        public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public bool IsDraft { get; set; }
 

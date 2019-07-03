@@ -30,9 +30,10 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 Id = order.Id,
                 FirmId = order.FirmId,
 
-                BeginDistribution = order.BeginDistributionDate,
-                EndDistributionPlan = order.EndDistributionDatePlan + OneSecond,
-                EndDistributionFact = order.EndDistributionDateFact + OneSecond,
+                AgileDistributionStartDate = order.AgileDistributionStartDate,
+                AgileDistributionEndPlanDate = order.AgileDistributionEndPlanDate + OneSecond,
+                AgileDistributionEndFactDate = order.AgileDistributionEndFactDate + OneSecond,
+
                 SignupDate = order.SignupDate,
 
                 DestOrganizationUnitId = order.DestOrganizationUnitId,
@@ -76,15 +77,15 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
             var orders =
                 (from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
-                 select new { order.FirmId, order.BeginDistribution, order.EndDistributionFact, order.EndDistributionPlan })
+                 select new { order.FirmId, order.AgileDistributionStartDate, order.AgileDistributionEndFactDate, order.AgileDistributionEndPlanDate })
                 .ToList();
 
             var firmIds = orders.Select(x => x.FirmId);
 
             var periods =
-                orders.Select(x => new PeriodKey(x.BeginDistribution))
-                      .Concat(orders.Select(x => new PeriodKey(x.EndDistributionFact)))
-                      .Concat(orders.Select(x => new PeriodKey(x.EndDistributionPlan)));
+                orders.Select(x => new PeriodKey(x.AgileDistributionStartDate))
+                      .Concat(orders.Select(x => new PeriodKey(x.AgileDistributionEndFactDate)))
+                      .Concat(orders.Select(x => new PeriodKey(x.AgileDistributionEndPlanDate)));
 
             return new IEvent[]
             {

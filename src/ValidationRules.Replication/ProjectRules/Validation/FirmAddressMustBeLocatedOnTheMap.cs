@@ -36,7 +36,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
                                         new Reference<EntityTypePosition>(advertisement.PositionId)))
                                 .ToXDocument(),
 
-                        PeriodStart = order.Begin,
+                        PeriodStart = order.Start,
                         PeriodEnd = order.End,
                         OrderId = order.Id,
                     };

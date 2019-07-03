@@ -2,6 +2,7 @@
 
 namespace NuClear.ValidationRules.Replication.Specifications
 {
+    // Объяснение что это такое см. /docs/ru/validation-rules/scopes.md
     public static class Scope
     {
         [Sql.Expression("case when {0} in (4, 5) then 0 when {0} = 2 then -1 when {0} = 1 then {1} else -2 end")]

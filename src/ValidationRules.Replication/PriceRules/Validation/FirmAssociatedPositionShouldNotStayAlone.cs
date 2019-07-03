@@ -32,10 +32,13 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
 
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
+            var firmPositions = query.For<Firm.FirmPosition>();
+            var firmAssociatedPositions = query.For<Firm.FirmAssociatedPosition>();
+            
             // t.Principals.Any() выглядит избыточным при наличии  t.Principals.Select(x => x.OrderId).Distinct().Count() == 1, но обеспечивает ускорение выполнения запроса.
             var errors =
-                query.For<Firm.FirmPosition>()
-                     .Select(Specs.Join.Aggs.WithPrincipalPositions(query.For<Firm.FirmAssociatedPosition>(), query.For<Firm.FirmPosition>()))
+                firmPositions
+                     .Select(Specs.Join.Aggs.WithPrincipalPositions(firmAssociatedPositions, firmPositions))
                      .Where(dto => dto.Principals.Any() &&
                                    dto.Principals.Where(x => x.IsBindingObjectConditionSatisfied).All(x => x.Position.OrderId != dto.Associated.OrderId) &&
                                    dto.Principals.Where(x => x.IsBindingObjectConditionSatisfied).Select(x => x.Position.OrderId).Distinct().Count() == 1)

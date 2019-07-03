@@ -15,7 +15,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules
     {
         public long Id { get; set; }
         public long FirmId { get; set; }
-        public DateTime Begin { get; set; }
+        public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public long Scope { get; set; }
 

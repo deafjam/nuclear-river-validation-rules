@@ -28,7 +28,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 CategoryId = x.CategoryId,
                 ProjectId = x.ProjectId,
                 SalesModel = x.SalesModel,
-                Begin = x.BeginningDate,
+                Start = x.BeginningDate,
             });
 
         public FindSpecification<SalesModelCategoryRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

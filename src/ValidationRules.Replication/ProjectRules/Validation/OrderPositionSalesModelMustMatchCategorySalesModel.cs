@@ -24,10 +24,10 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
         {
             var ruleResults =
                 from order in query.For<Order>()
-                from restriction in query.For<Project.SalesModelRestriction>().Where(x => x.End > order.Begin && order.End > x.Begin && x.ProjectId == order.ProjectId)
+                from restriction in query.For<Project.SalesModelRestriction>().Where(x => x.End > order.Start && order.End > x.Start && x.ProjectId == order.ProjectId)
                 from adv in query.For<Order.CategoryAdvertisement>().Where(x => x.IsSalesModelRestrictionApplicable).Where(x => x.OrderId == order.Id && x.CategoryId == restriction.CategoryId)
                 where restriction.SalesModel != adv.SalesModel
-                let begin = order.Begin > restriction.Begin ? order.Begin : restriction.Begin
+                let begin = order.Start > restriction.Start ? order.Start : restriction.Start
                 select new Version.ValidationResult
                     {
                         MessageParams =

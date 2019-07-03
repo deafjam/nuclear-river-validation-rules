@@ -6,7 +6,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
     {
         public long Id { get; set; }
 
-        public class Category
+        public sealed class Category
         {
             public long ProjectId { get; set; }
             public long CategoryId { get; set; }
@@ -17,7 +17,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
             public long ProjectId { get; set; }
             public long CategoryId { get; set; }
             public decimal Minimum { get; set; }
-            public DateTime Begin { get; set; }
+            public DateTime Start { get; set; }
             public DateTime End { get; set; }
         }
 
@@ -26,7 +26,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
             public long ProjectId { get; set; }
             public long CategoryId { get; set; }
             public int SalesModel { get; set; }
-            public DateTime Begin { get; set; }
+            public DateTime Start { get; set; }
             public DateTime End { get; set; }
         }
 

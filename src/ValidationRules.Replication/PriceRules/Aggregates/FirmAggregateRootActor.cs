@@ -64,7 +64,6 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithDifferentBindingObject, GetRelatedOrders },
                         { MessageTypeCode.FirmPositionMustNotHaveDeniedPositions, GetRelatedOrders },
                         { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithMatchedBindingObject, GetRelatedOrders },
-                        MessageTypeCode.FirmAssociatedPositionShouldNotStayAlone
                     };
 
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Firm.FirmPosition> dataObjects) =>
@@ -73,38 +72,38 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             public IQueryable<Firm.FirmPosition> GetSource()
             {
                 var dates =
-                    _query.For<Facts::Order>().Select(x => new { FirmId = x.FirmId, Date = x.BeginDistribution })
-                          .Union(_query.For<Facts::Order>().Select(x => new { FirmId = x.FirmId, Date = x.EndDistributionPlan }))
-                          .Union(_query.For<Facts::Order>().Select(x => new { FirmId = x.FirmId, Date = x.EndDistributionFact }))
+                    _query.For<Facts::Order>().Select(x => new { x.FirmId, Date = x.AgileDistributionStartDate })
+                          .Union(_query.For<Facts::Order>().Select(x => new { x.FirmId, Date = x.AgileDistributionEndPlanDate }))
+                          .Union(_query.For<Facts::Order>().Select(x => new { x.FirmId, Date = x.AgileDistributionEndFactDate }))
                           .Distinct();
 
-                var periods =
+                var firmPeriods =
                     from begin in dates
                     let end = dates.Where(x => x.FirmId == begin.FirmId && x.Date > begin.Date).Min(x => (DateTime?)x.Date)
                     where end.HasValue
-                    select new { FirmId = begin.FirmId, Begin = begin.Date, End = end.Value };
+                    select new { begin.FirmId, Begin = begin.Date, End = end.Value };
 
                 var principals =
                     from order in _query.For<Facts::Order>()
-                    from position in _query.For<Facts::OrderItem>().Where(x => order.Id == x.OrderId)
-                    from period in periods.Where(x => x.FirmId == order.FirmId && x.Begin >= order.BeginDistribution && x.End <= order.EndDistributionPlan)
-                    from category in _query.For<Facts::Category>().Where(x => x.Id == position.CategoryId).DefaultIfEmpty()
+                    from orderItem in _query.For<Facts::OrderItem>().Where(x => order.Id == x.OrderId)
+                    from firmPeriod in firmPeriods.Where(x => x.FirmId == order.FirmId && x.Begin >= order.AgileDistributionStartDate && x.End <= order.AgileDistributionEndPlanDate)
+                    from category in _query.For<Facts::Category>().Where(x => x.Id == orderItem.CategoryId).DefaultIfEmpty()
                     select new Firm.FirmPosition
                         {
                             FirmId = order.FirmId,
-                            OrderId = position.OrderId,
-                            OrderPositionId = position.OrderPositionId,
-                            PackagePositionId = position.PackagePositionId,
-                            ItemPositionId = position.ItemPositionId,
+                            OrderId = orderItem.OrderId,
+                            OrderPositionId = orderItem.OrderPositionId,
+                            PackagePositionId = orderItem.PackagePositionId,
+                            ItemPositionId = orderItem.ItemPositionId,
 
-                            HasNoBinding = position.CategoryId == null && position.FirmAddressId == null,
+                            HasNoBinding = orderItem.CategoryId == null && orderItem.FirmAddressId == null,
                             Category1Id = category.L1Id,
                             Category3Id = category.L3Id,
-                            FirmAddressId = position.FirmAddressId,
+                            FirmAddressId = orderItem.FirmAddressId,
 
-                            Scope = order.EndDistributionFact > period.Begin ? Scope.Compute(order.WorkflowStep, order.Id) : order.Id,
-                            Begin = period.Begin,
-                            End = period.End,
+                            Scope = order.AgileDistributionEndFactDate > firmPeriod.Begin ? Scope.Compute(order.WorkflowStep, order.Id) : order.Id,
+                            Begin = firmPeriod.Begin,
+                            End = firmPeriod.End,
                         };
 
                 return principals.Distinct();
@@ -129,13 +128,12 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         { MessageTypeCode.FirmAssociatedPositionMustHavePrincipal, func },
                         { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithDifferentBindingObject, func },
                         { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithMatchedBindingObject, func },
-                        MessageTypeCode.FirmAssociatedPositionShouldNotStayAlone,
                     };
 
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.FirmAssociatedPosition> dataObjects)
             {
                 var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
-                return query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId);
+                return query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).Distinct();
             }
 
             public IQueryable<Firm.FirmAssociatedPosition> GetSource()
@@ -152,8 +150,8 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                     where _query.For(Specs.Find.Facts.Ruleset)
                                 .Any(x => x.Id == rule.RulesetId
                                             && x.Id == rp.RulesetId
-                                            && x.BeginDate <= order.BeginDistribution
-                                            && order.BeginDistribution < x.EndDate)
+                                            && x.BeginDate <= order.AgileDistributionStartDate
+                                            && order.AgileDistributionStartDate < x.EndDate)
                     select new Firm.FirmAssociatedPosition
                         {
                             FirmId = order.FirmId,
@@ -192,7 +190,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.FirmDeniedPosition> dataObjects)
             {
                 var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
-                return query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId);
+                return query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).Distinct();
             }
 
             public IQueryable<Firm.FirmDeniedPosition> GetSource()
@@ -204,8 +202,8 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                     from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == project.Id)
                     from ruleset in _query.For(Specs.Find.Facts.Ruleset)
                                           .Where(x => x.Id == rp.RulesetId
-                                                      && x.BeginDate <= order.BeginDistribution
-                                                      && order.BeginDistribution < x.EndDate)
+                                                      && x.BeginDate <= order.AgileDistributionStartDate
+                                                      && order.AgileDistributionStartDate < x.EndDate)
                     from rule in _query.For<Facts::Ruleset.DeniedRule>().Where(x => x.RulesetId == ruleset.Id && x.NomenclatureId == item.ItemPositionId)
                     select new Firm.FirmDeniedPosition
                         {

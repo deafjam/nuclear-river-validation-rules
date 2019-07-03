@@ -122,43 +122,6 @@ function Get-RulesetsFactsTopicsMetadata($Context){
 	}
 }
 
-function Get-ValidationUrlMetadata($Context){
-
-	$domain = $DomainNames[$Context.Country]
-
-	switch($Context.EnvType){
-		'Production'{
-			switch($Context.Country){
-				'Russia' {
-					$ermValidationUrl = "https://order-validation22.api.test.erm.2gis.ru/Validate.svc/Soap"
-					$riverValidationUrl = "https://validation.api.prod.erm.2gis.ru"
-				}
-				'Kazakhstan'{
-					$ermValidationUrl = "https://order-validation21.api.test.erm.2gis.ru/Validate.svc/Soap"
-					$riverValidationUrl = "https://validation.api.prod.erm.2gis.kz"
-				}
-				default {
-					$ermValidationUrl = $null
-					$riverValidationUrl = $null
-				}
-			}
-		}
-		'Test'{
-			$ermValidationUrl = "https://order-validation$($Context['Index']).api.test.erm.2gis.$domain/Validate.svc/Soap"
-			$riverValidationUrl = "https://validation$($Context['Index']).api.test.erm.2gis.$domain"
-		}
-		default {
-			$ermValidationUrl = $null
-			$riverValidationUrl = $null
-		}
-	}
-
-	return @{
-		'ErmValidationUrl' = $ermValidationUrl
-		'RiverValidationUrl' = $riverValidationUrl
-	}
-}
-
 function Get-XdtMetadata($Context){
 	$xdt = @()
 
@@ -237,7 +200,6 @@ function Get-RegexMetadata($Context){
 
 	$keyValuePairs = @{}
 	$keyValuePairs += Get-DBHostMetadata $Context
-	$keyValuePairs += Get-ValidationUrlMetadata $Context
 	$keyValuePairs += Get-AmsFactsTopicMetadata $Context
 	$keyValuePairs += Get-RulesetsFactsTopicsMetadata $Context
 

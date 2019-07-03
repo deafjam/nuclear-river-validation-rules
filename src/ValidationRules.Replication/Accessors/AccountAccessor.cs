@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NuClear.Replication.Core;
+﻿using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Events;
+using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
-using Erm = NuClear.ValidationRules.Storage.Model.Erm;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NuClear.ValidationRules.Replication.Accessors
 {
@@ -19,8 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
         public AccountAccessor(IQuery query) => _query = query;
 
         public IQueryable<Account> GetSource()
-            => _query.For<Erm::Account>()
-                .Where(x => !x.IsArchived)
+            => _query.For(Specs.Find.Erm.Account)
                 .Select(x => new Account
                 {
                     Id = x.Id,

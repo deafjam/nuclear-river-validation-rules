@@ -12,7 +12,7 @@ namespace NuClear.ValidationRules.Replication.Tests
     public sealed class BindingObjectSpecificationTests
     {
         private static readonly Func<Firm.IBindingObject, Firm.IBindingObject, bool> BindingObjectCompare
-            = Specs.Join.Aggs.MatchedBindingObjects().Compile();
+            = Specs.Join.Aggs.BindingObjectEquals().Compile();
 
         [TestCaseSource(nameof(Examples))]
         public void Ok(Parameter left, Parameter right, bool matches)

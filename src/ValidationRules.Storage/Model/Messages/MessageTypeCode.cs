@@ -20,8 +20,6 @@
         AccountShouldExist = 12,
         AccountBalanceShouldBePositive = 14,
 
-        OrderBeginDistrubutionShouldBeFirstDayOfMonth = 18,
-        OrderEndDistrubutionShouldBeLastSecondOfMonth = 19,
         LegalPersonProfileBargainShouldNotBeExpired = 20,
         LegalPersonProfileWarrantyShouldNotBeExpired = 21,
         OrderShouldNotBeSignedBeforeBargain = 23,

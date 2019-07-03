@@ -37,7 +37,6 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited,
                         MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited,
                         MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions,
                         MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass,
                         MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
                     };
@@ -45,9 +44,9 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             public IQueryable<Period> GetSource()
             {
                 var dates =
-                    _query.For<Facts::Order>().Select(x => new { Date = x.BeginDistribution })
-                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.EndDistributionFact }))
-                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.EndDistributionPlan }))
+                    _query.For<Facts::Order>().Select(x => new { Date = x.AgileDistributionStartDate })
+                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.AgileDistributionEndFactDate }))
+                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.AgileDistributionEndPlanDate }))
                           .Union(_query.For<Facts::Price>().Select(x => new { Date = x.BeginDate }));
 
                 var result =

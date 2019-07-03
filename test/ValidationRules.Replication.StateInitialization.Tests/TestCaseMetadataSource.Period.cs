@@ -14,10 +14,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderPeriod))
                 .Fact(
-                    new Facts::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), EndDistributionPlan = MonthStart(2), WorkflowStep = 1 },
-                    new Facts::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), EndDistributionPlan = MonthStart(2), WorkflowStep = 2 },
-                    new Facts::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), EndDistributionPlan = MonthStart(2), WorkflowStep = 5 },
-                    new Facts::Order { Id = 4, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(2), EndDistributionPlan = MonthStart(3), WorkflowStep = 4 })
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(2), WorkflowStep = 1 },
+                    new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(2), WorkflowStep = 2 },
+                    new Facts::Order { Id = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(2), WorkflowStep = 5 },
+                    new Facts::Order { Id = 4, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(3), WorkflowStep = 4 })
                 .Aggregate(
                     new Order.OrderPeriod { OrderId = 1, Begin = MonthStart(1), End = MonthStart(2), Scope = 1 },
                     new Order.OrderPeriod { OrderId = 2, Begin = MonthStart(1), End = MonthStart(2), Scope = -1 },
@@ -38,8 +38,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Project { Id = 1, OrganizationUnitId = 1 },
                     new Facts::Project { Id = 2, OrganizationUnitId = 2 },
 
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = MonthStart(2), EndDistributionFact = MonthStart(3), EndDistributionPlan = MonthStart(4) },
-                    new Facts::Order { Id = 3, DestOrganizationUnitId = 1, BeginDistribution = MonthStart(5), EndDistributionFact = MonthStart(7), EndDistributionPlan = MonthStart(7) })
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = MonthStart(2), AgileDistributionEndFactDate = MonthStart(3), AgileDistributionEndPlanDate = MonthStart(4) },
+                    new Facts::Order { Id = 3, DestOrganizationUnitId = 1, AgileDistributionStartDate = MonthStart(5), AgileDistributionEndFactDate = MonthStart(7), AgileDistributionEndPlanDate = MonthStart(7) })
                 .Aggregate(
                     new Period { Start = MonthStart(1), End = MonthStart(2) },
                     new Period { Start = MonthStart(2), End = MonthStart(3) },

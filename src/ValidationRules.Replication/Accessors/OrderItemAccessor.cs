@@ -24,21 +24,16 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IQueryable<OrderItem> GetSource()
         {
-            // join тут можно использовать:
-            //  PricePosition не меняет PositionId, поэтому его изменения ни на что не влияют
-            //  OrderPositionAdvertisement практически честный value-object сущности OrderPosition - когда происходят изменения в OrderPositionAdvertisement всегда логируеется изменение OrderPosition
-            //  Order может быть изменён независимо, но он влияет на наличие/отсутствие OrderItem, а не на его содержимое (подобную оптимизацию мы использовали в river-ci)
-
+            // join тут можно использовать, т.к. OrderPosition\OrderPositionAdvertisement это ValueObjects для Order
             var opas =
-                from order in _query.For<Erm::Order>().Where(Specs.Find.Erm.Order)
-                from orderPosition in _query.For<Erm::OrderPosition>().Where(Specs.Find.Erm.OrderPosition).Where(x => x.OrderId == order.Id)
+                from order in _query.For(Specs.Find.Erm.Order)
+                from orderPosition in _query.For(Specs.Find.Erm.OrderPosition).Where(x => x.OrderId == order.Id)
                 from pricePosition in _query.For<Erm::PricePosition>().Where(x => x.Id == orderPosition.PricePositionId)
                 from opa in _query.For<Erm::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
                 select new OrderItem
                     {
                         OrderId = orderPosition.OrderId,
                         OrderPositionId = orderPosition.Id,
-                        PricePositionId = null,
                         PackagePositionId = pricePosition.PositionId,
                         ItemPositionId = opa.PositionId,
 
@@ -47,22 +42,25 @@ namespace NuClear.ValidationRules.Replication.Accessors
                     };
 
             var pkgs =
-                from order in _query.For<Erm::Order>().Where(Specs.Find.Erm.Order)
-                from orderPosition in _query.For<Erm::OrderPosition>().Where(Specs.Find.Erm.OrderPosition).Where(x => x.OrderId == order.Id)
+                from order in _query.For(Specs.Find.Erm.Order)
+                from orderPosition in _query.For(Specs.Find.Erm.OrderPosition).Where(x => x.OrderId == order.Id)
                 from pricePosition in _query.For<Erm::PricePosition>().Where(x => x.Id == orderPosition.PricePositionId)
-                from opa in _query.For<Erm::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
+                from _ in _query.For<Erm::PositionChild>().Where(x => x.MasterPositionId == pricePosition.PositionId)
                 select new OrderItem
                     {
                         OrderId = orderPosition.OrderId,
                         OrderPositionId = orderPosition.Id,
-                        PricePositionId = orderPosition.PricePositionId,
                         PackagePositionId = pricePosition.PositionId,
                         ItemPositionId = pricePosition.PositionId,
 
-                        FirmAddressId = opa.FirmAddressId,
-                        CategoryId = opa.CategoryId,
+                        // у пакетных позиций нет понятия объекта привязки
+                        FirmAddressId = null,
+                        CategoryId = null,
                     };
 
+            // объединяем пакетные и не-пакетные позиции в одну мега-таблицу
+            // в колонках PackagePositionId\ItemPositionId будут как id пакетов так и id простых позиций
+            // в дальнейшем это позволит легко проверить запрещение пакета и не-пакета 
             return opas.Union(pkgs);
         }
 

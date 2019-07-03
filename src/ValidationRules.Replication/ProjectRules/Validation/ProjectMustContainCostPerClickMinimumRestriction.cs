@@ -28,13 +28,13 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
                 from order in query.For<Order>()
                 from bid in query.For<Order.CostPerClickAdvertisement>().Where(x => x.OrderId == order.Id)
                 let nextRelease = query.For<Project.NextRelease>().FirstOrDefault(x => x.ProjectId == order.ProjectId).Date
-                let referenceDate = nextRelease > order.Begin ? nextRelease : order.Begin
+                let referenceDate = nextRelease > order.Start ? nextRelease : order.Start
                 where referenceDate < order.End
                 select new { OrderId = order.Id, order.ProjectId, Begin = referenceDate, order.End, bid.CategoryId };
 
             var ruleResults =
                 from req in requiredRestrictions
-                let restrictionExist = query.For<Project.CostPerClickRestriction>().Any(x => x.ProjectId == req.ProjectId && x.CategoryId == req.CategoryId && x.Begin <= req.Begin && x.End > req.Begin)
+                let restrictionExist = query.For<Project.CostPerClickRestriction>().Any(x => x.ProjectId == req.ProjectId && x.CategoryId == req.CategoryId && x.Start <= req.Begin && x.End > req.Begin)
                 where !restrictionExist
                 select new Version.ValidationResult
                     {

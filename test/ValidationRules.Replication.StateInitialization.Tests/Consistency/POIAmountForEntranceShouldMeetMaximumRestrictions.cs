@@ -20,8 +20,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                .Config
                .Name(nameof(PoiAmountForEntranceShouldMeetMaximumRestrictionsF2A))
                .Fact(
-                     new Facts::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                     new Facts::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
+                     new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
                      new Facts::OrderPosition { Id = 1, OrderId = 1 },
                      new Facts::OrderPosition { Id = 2, OrderId = 2 },
                      new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },

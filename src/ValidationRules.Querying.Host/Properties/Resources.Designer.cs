@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.Querying.Host.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -529,15 +529,6 @@ namespace NuClear.ValidationRules.Querying.Host.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Указана некорректная дата начала размещения..
-        /// </summary>
-        internal static string OrderBeginDistrubutionShouldBeFirstDayOfMonth {
-            get {
-                return ResourceManager.GetString("OrderBeginDistrubutionShouldBeFirstDayOfMonth", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to В позиции {0} необходимо указать рекламные материалы.
         /// </summary>
         internal static string OrderCheckPositionMustHaveAdvertisements {
@@ -552,15 +543,6 @@ namespace NuClear.ValidationRules.Querying.Host.Properties {
         internal static string OrderCheckPositionMustHaveOptionalAdvertisements {
             get {
                 return ResourceManager.GetString("OrderCheckPositionMustHaveOptionalAdvertisements", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Указана некорректная дата окончания размещения..
-        /// </summary>
-        internal static string OrderEndDistrubutionShouldBeLastSecondOfMonth {
-            get {
-                return ResourceManager.GetString("OrderEndDistrubutionShouldBeLastSecondOfMonth", resourceCulture);
             }
         }
         

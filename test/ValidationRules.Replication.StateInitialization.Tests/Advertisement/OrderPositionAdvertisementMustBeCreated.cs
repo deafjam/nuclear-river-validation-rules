@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderPositionAdvertisementMustBeCreatedPositive))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionPlan = FirstDayFeb },
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndPlanDate = FirstDayFeb },
                     new Facts::Project {Id = 3, OrganizationUnitId = 2},
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, PricePositionId = 4 },
@@ -28,7 +28,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     // no Facts::OrderPositionAdvertisement
                 )
                 .Aggregate(
-                    new Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb },
+                    new Order { Id = 1, Start = FirstDayJan, End = FirstDayFeb },
                     new Order.MissingOrderPositionAdvertisement { OrderId = 1, OrderPositionId = 4, CompositePositionId = 5, PositionId = 6 }
                 )
                 .Message(
@@ -54,7 +54,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderPositionAdvertisementMustBeCreatedPricePositionNotActive))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionPlan = FirstDayFeb },
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndPlanDate = FirstDayFeb },
                     new Facts::Project { Id = 3, OrganizationUnitId = 2 },
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, PricePositionId = 4 },
@@ -67,7 +67,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     // no Facts::OrderPositionAdvertisement
                 )
                 .Aggregate(
-                    new Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb }
+                    new Order { Id = 1, Start = FirstDayJan, End = FirstDayFeb }
                 )
                 .Message();
 
@@ -77,7 +77,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderPositionAdvertisementMustBeCreatedNegative))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, BeginDistribution = FirstDayJan, EndDistributionPlan = FirstDayFeb },
+                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndPlanDate = FirstDayFeb },
                     new Facts::Project { Id = 3, OrganizationUnitId = 2 },
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, PricePositionId = 4 },
@@ -89,7 +89,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPositionAdvertisement { OrderPositionId = 4, PositionId = 6, AdvertisementId = 7}
                 )
                 .Aggregate(
-                    new Order { Id = 1, BeginDistributionDate = FirstDayJan, EndDistributionDatePlan = FirstDayFeb }
+                    new Order { Id = 1, Start = FirstDayJan, End = FirstDayFeb }
                 )
                 .Message(
                 );

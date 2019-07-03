@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using NuClear.Replication.Core;
+﻿using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
@@ -11,8 +7,9 @@ using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
-
-using Erm = NuClear.ValidationRules.Storage.Model.Erm;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NuClear.ValidationRules.Replication.Accessors
 {
@@ -22,13 +19,15 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public OrderPositionAccessor(IQuery query) => _query = query;
 
-        public IQueryable<OrderPosition> GetSource()
-            => from x in _query.For<Erm::OrderPosition>().Where(Specs.Find.Erm.OrderPosition)
-               select new OrderPosition
+        public IQueryable<OrderPosition> GetSource() =>
+                // join тут можно использовать, т.к. OrderPosition\OrderPositionAdvertisement это ValueObjects для Order
+                from order in _query.For(Specs.Find.Erm.Order)
+                from orderPosition in _query.For(Specs.Find.Erm.OrderPosition).Where(x => x.OrderId == order.Id)
+                select new OrderPosition
                    {
-                       Id = x.Id,
-                       OrderId = x.OrderId,
-                       PricePositionId = x.PricePositionId,
+                       Id = orderPosition.Id,
+                       OrderId = orderPosition.OrderId,
+                       PricePositionId = orderPosition.PricePositionId,
                    };
 
         public FindSpecification<OrderPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

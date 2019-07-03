@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(FirmAddressMustBeLocatedOnTheMap))
                 .Fact(
-                    new Facts::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
                     new Facts::OrderPosition { Id = 3, OrderId = 1, PricePositionId = 1 },
                     new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 3, FirmAddressId = 2, PositionId = 4 },
                     new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 3, FirmAddressId = 2, PositionId = 5 },
@@ -34,7 +34,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
                     new Facts::Project())
                 .Aggregate(
-                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(2) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.AddressAdvertisementNonOnTheMap { OrderId = 1, AddressId = 2, OrderPositionId = 3, PositionId = 4 })
                 .Message(
                     new Messages::Version.ValidationResult

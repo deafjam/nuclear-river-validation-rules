@@ -25,7 +25,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
                 from order in query.For<Order>()
                 from bid in query.For<Order.CostPerClickAdvertisement>().Where(x => x.OrderId == order.Id)
                 from project in query.For<Project>().Where(x => x.Id == order.ProjectId)
-                from restrictionViolated in query.For<Project.CostPerClickRestriction>().Where(x => x.ProjectId == order.ProjectId && x.CategoryId == bid.CategoryId && x.Minimum > bid.Bid && x.Begin < order.End && order.Begin < x.End)
+                from restrictionViolated in query.For<Project.CostPerClickRestriction>().Where(x => x.ProjectId == order.ProjectId && x.CategoryId == bid.CategoryId && x.Minimum > bid.Bid && x.Start < order.End && order.Start < x.End)
                 select new Version.ValidationResult
                     {
                         MessageParams =
@@ -36,7 +36,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
                                         new Reference<EntityTypePosition>(bid.PositionId)))
                                 .ToXDocument(),
 
-                        PeriodStart = order.Begin > restrictionViolated.Begin ? order.Begin : restrictionViolated.Begin,
+                        PeriodStart = order.Start > restrictionViolated.Start ? order.Start : restrictionViolated.Start,
                         PeriodEnd = order.End < restrictionViolated.End ? order.End : restrictionViolated.End,
                         OrderId = order.Id,
                     };

@@ -11,6 +11,9 @@ namespace NuClear.ValidationRules.Replication.Specifications
         {
             public static class Erm
             {
+                public static FindSpecification<Erm::Account> Account { get; }
+                    = new FindSpecification<Erm::Account>(x => !x.IsArchived);
+                
                 public static class Firm
                 {
                     public static FindSpecification<Erm::Firm> Active { get; }
@@ -40,6 +43,9 @@ namespace NuClear.ValidationRules.Replication.Specifications
                 public static FindSpecification<Erm::LegalPersonProfile> LegalPersonProfile { get; }
                     = new FindSpecification<Erm::LegalPersonProfile>(x => x.IsActive && !x.IsDeleted);
 
+                public static FindSpecification<Erm::NomenclatureCategory> NomenclatureCategory { get; }
+                    = new FindSpecification<Erm::NomenclatureCategory>(x => true);
+
                 public static FindSpecification<Erm::Order> Order { get; }
                     = new FindSpecification<Erm::Order>(x => x.IsActive && !x.IsDeleted && !Erm::Order.FilteredStates.Contains(x.WorkflowStepId));
 
@@ -54,9 +60,6 @@ namespace NuClear.ValidationRules.Replication.Specifications
 
                 public static FindSpecification<Erm::Theme> Theme { get; }
                     = new FindSpecification<Erm::Theme>(x => x.IsActive && !x.IsDeleted);
-
-                public static FindSpecification<Erm::NomenclatureCategory> NomenclatureCategory { get; }
-                    = new FindSpecification<Erm::NomenclatureCategory>(x => true);
             }
         }
     }

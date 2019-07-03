@@ -30,18 +30,18 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
             var firmPeriods =
-                query.For<Firm.CategoryPurchase>().Select(purchase => new { purchase.FirmId, purchase.Begin, purchase.End }).Distinct();
+                query.For<Firm.CategoryPurchase>().Select(purchase => new { purchase.FirmId, purchase.Start, purchase.End }).Distinct();
 
             var oversales =
                 from order in query.For<Order>()
-                from period in firmPeriods.Where(x => x.FirmId == order.FirmId && order.Begin <= x.Begin && x.End <= order.End)
+                from period in firmPeriods.Where(x => x.FirmId == order.FirmId && order.Start <= x.Start && x.End <= order.End)
                 let count = query.For<Firm.CategoryPurchase>()
-                                 .Where(x => x.FirmId == period.FirmId && x.Begin == period.Begin && x.End == period.End && Scope.CanSee(order.Scope, x.Scope))
+                                 .Where(x => x.FirmId == period.FirmId && x.Start == period.Start && x.End == period.End && Scope.CanSee(order.Scope, x.Scope))
                                  .Select(x => x.CategoryId)
                                  .Distinct()
                                  .Count()
                 where count > MaxCategoriesAlowedForFirm
-                select new { OrderId = order.Id, order.FirmId, period.Begin, period.End, Count = count };
+                select new { OrderId = order.Id, order.FirmId, period.Start, period.End, Count = count };
 
             var messages =
                 from oversale in oversales
@@ -53,7 +53,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                                     new Reference<EntityTypeFirm>(oversale.FirmId))
                                 .ToXDocument(),
 
-                        PeriodStart = oversale.Begin,
+                        PeriodStart = oversale.Start,
                         PeriodEnd = oversale.End,
                         OrderId = oversale.OrderId,
                     };

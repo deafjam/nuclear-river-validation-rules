@@ -14,8 +14,8 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
         public sealed class AssociatedRule
         {
             public long RulesetId { get; set; }
-            public long PrincipalNomenclatureId { get; set; }
             public long AssociatedNomenclatureId { get; set; }
+            public long PrincipalNomenclatureId { get; set; }
             public bool ConsideringBindingObject { get; set; }
         }
 

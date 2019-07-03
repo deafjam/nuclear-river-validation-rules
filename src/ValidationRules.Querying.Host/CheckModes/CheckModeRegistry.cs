@@ -81,16 +81,6 @@ namespace NuClear.ValidationRules.Querying.Host.CheckModes
                          prerelease: RuleSeverityLevel.Error,
                          release: RuleSeverityLevel.Error),
 
-                    Rule(MessageTypeCode.OrderBeginDistrubutionShouldBeFirstDayOfMonth,
-                         single: RuleSeverityLevel.Error,
-                         prerelease: RuleSeverityLevel.Error,
-                         release: RuleSeverityLevel.Error),
-
-                    Rule(MessageTypeCode.OrderEndDistrubutionShouldBeLastSecondOfMonth,
-                         single: RuleSeverityLevel.Error,
-                         prerelease: RuleSeverityLevel.Error,
-                         release: RuleSeverityLevel.Error),
-
                     Rule(MessageTypeCode.OrderMustHaveActiveDeal,
                          single: RuleSeverityLevel.Error,
                          manualReport: RuleSeverityLevel.Error,

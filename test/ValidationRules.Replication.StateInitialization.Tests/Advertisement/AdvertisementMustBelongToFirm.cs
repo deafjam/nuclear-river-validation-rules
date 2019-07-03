@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(AdvertisementMustBelongToFirm))
                 .Fact(
-                    new Facts::Order { Id = 1, FirmId = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Facts::Order { Id = 1, FirmId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
 
                     new Facts::OrderPosition { Id = 3, OrderId = 1 },
                     new Facts::OrderPositionAdvertisement { Id = 4, OrderPositionId = 3, AdvertisementId = 5, PositionId = 100 },
@@ -27,7 +27,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Advertisement { Id = 8, FirmId = 9 }
                 )
                 .Aggregate(
-                    new Order { Id = 1, BeginDistributionDate = MonthStart(1), EndDistributionDatePlan = MonthStart(2) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.AdvertisementNotBelongToFirm { OrderId = 1, OrderPositionId = 6, AdvertisementId = 8, PositionId = 101, ExpectedFirmId = 2, ActualFirmId = 9 }
                 )
                 .Message(

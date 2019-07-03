@@ -52,8 +52,11 @@ function Get-BulkToolMetadata ($updateSchemas, $Context){
 	$metadata = @{}
 
 	$arguments = @()
-	if($updateSchemas -contains 'Facts') {
-		$arguments += @('-facts', '-aggregates', '-messages')
+	if($updateSchemas -contains 'ErmFacts') {
+		$arguments += @('-erm-facts', '-aggregates', '-messages')
+	}
+	if($updateSchemas -contains 'KafkaFacts') {
+		$arguments += @('-kafka-facts', '-aggregates', '-messages')
 	}
 	if($updateSchemas -contains 'Aggregates') {
 		$arguments += @('-aggregates', '-messages')

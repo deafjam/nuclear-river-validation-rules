@@ -145,8 +145,6 @@
     <Compile Include="Composition\PriceRules\LinkedObjectsMissedInPrincipalsMessageComposer.cs" />
     <Compile Include="Composition\PriceRules\AdvertisementAmountShouldMeetRestrictionsMassMessageComposer.cs" />
     <Compile Include="Composition\PriceRules\AdvertisementAmountShouldMeetMinimumRestrictionsMessageComposer.cs" />
-    <Compile Include="Composition\ConsistencyRules\OrderBeginDistrubutionShouldBeFirstDayOfMonthMessageComposer.cs" />
-    <Compile Include="Composition\ConsistencyRules\OrderEndDistrubutionShouldBeLastSecondOfMonthMessageComposer.cs" />
     <Compile Include="Composition\AdvertisementRules\OrderPositionAdvertisementMustBeCreatedMessageComposer.cs" />
     <Compile Include="Composition\PriceRules\OrderPositionCorrespontToInactivePositionMessageComposer.cs" />
     <Compile Include="Composition\PriceRules\OrderPositionMayCorrespontToActualPriceMessageComposer.cs" />

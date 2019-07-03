@@ -9,9 +9,10 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
 
         public long DestOrganizationUnitId { get; set; }
 
-        public DateTime BeginDistribution { get; set; }
-        public DateTime EndDistributionPlan { get; set; }
-        public DateTime EndDistributionFact { get; set; }
+        public DateTime AgileDistributionStartDate { get; set; }
+        public DateTime AgileDistributionEndPlanDate { get; set; }
+        public DateTime AgileDistributionEndFactDate { get; set; }
+
         public DateTime SignupDate { get; set; }
 
         public long? LegalPersonId { get; set; }

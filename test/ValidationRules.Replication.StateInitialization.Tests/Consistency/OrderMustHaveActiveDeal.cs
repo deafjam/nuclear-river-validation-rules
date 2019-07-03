@@ -18,22 +18,22 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustHaveActiveDealAggregate))
                 .Fact(
-                    new Facts::Order { Id = 1, DealId = null, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Facts::Order { Id = 2, DealId = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Facts::Order { Id = 3, DealId = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Facts::Order { Id = 1, DealId = null, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), HasCurrency = true },
+                    new Facts::Order { Id = 2, DealId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), HasCurrency = true },
+                    new Facts::Order { Id = 3, DealId = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), HasCurrency = true },
 
                     new Facts::Deal { Id = 3 },
                     new Facts::Project())
                 .Aggregate(
-                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     CreateOrderMissingRequiredField(orderId: 1, deal: true),
                     new Order.InactiveReference { OrderId = 1, Deal = false },
 
-                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 2, Start = MonthStart(1), End = MonthStart(2) },
                     CreateOrderMissingRequiredField(orderId: 2, deal: false),
                     new Order.InactiveReference { OrderId = 2, Deal = true },
 
-                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 3, Start = MonthStart(1), End = MonthStart(2) },
                     CreateOrderMissingRequiredField(orderId: 3, deal: false),
                     new Order.InactiveReference { OrderId = 3, Deal = false });
 
@@ -43,15 +43,15 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustHaveActiveDealMessage))
                 .Aggregate(
-                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.MissingRequiredField { OrderId = 1, Deal = true },
                     new Order.InactiveReference { OrderId = 1, Deal = false },
 
-                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 2, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.MissingRequiredField { OrderId = 2, Deal = false },
                     new Order.InactiveReference { OrderId = 2, Deal = true },
 
-                    new Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 3, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.MissingRequiredField { OrderId = 3, Deal = false },
                     new Order.InactiveReference { OrderId = 3, Deal = false })
                 .Message(

@@ -28,7 +28,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Validation
                 from order in query.For<Order>()
                                    .Where(x => !x.IsFreeOfCharge)
                                    .Where(x => x.AccountId == accountPeriod.AccountId)
-                                   .Where(x => x.BeginDistributionDate < accountPeriod.End && accountPeriod.Start < x.EndDistributionDate)
+                                   .Where(x => x.Start < accountPeriod.End && accountPeriod.Start < x.End)
                 where !query.For<Order.DebtPermission>().Any(x => x.OrderId == order.Id && x.Start <= accountPeriod.Start && accountPeriod.End <= x.End)
                 select new Version.ValidationResult
                     {

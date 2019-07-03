@@ -207,12 +207,6 @@
   <data name="OrderMustNotIncludeReleasedPeriod" xml:space="preserve">
     <value>Заказ оформлен на период, по которому уже сформирована сборка. Необходимо указать другие даты размещения заказа.</value>
   </data>
-  <data name="OrderBeginDistrubutionShouldBeFirstDayOfMonth" xml:space="preserve">
-    <value>Указана некорректная дата начала размещения.</value>
-  </data>
-  <data name="OrderEndDistrubutionShouldBeLastSecondOfMonth" xml:space="preserve">
-    <value>Указана некорректная дата окончания размещения.</value>
-  </data>
   <data name="BargainScanShouldPresent" xml:space="preserve">
     <value>Отсутствует сканированная копия договора</value>
   </data>
