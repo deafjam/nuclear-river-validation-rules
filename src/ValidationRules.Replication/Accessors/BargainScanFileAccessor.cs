@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public BargainScanFileAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public BargainScanFileAccessor(IQuery query) => _query = query;
 
         public IQueryable<BargainScanFile> GetSource() => _query
             .For<Erm::BargainFile>()
@@ -34,7 +32,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<BargainScanFile> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<BargainScanFile>.Contains(x => x.Id, ids);
         }
 
@@ -49,13 +47,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<BargainScanFile> dataObjects)
         {
-            var bargainIds = dataObjects.Select(x => x.BargainId);
+            var bargainIds = dataObjects.Select(x => x.BargainId).ToHashSet();
 
             var orderIds =
-                from order in _query.For<Order>().Where(x => x.BargainId.HasValue && bargainIds.Contains(x.BargainId.Value))
+                from order in _query.For<Order>().Where(x => bargainIds.Contains(x.BargainId.Value))
                 select order.Id;
 
-            return new EventCollectionHelper<BargainScanFile> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(BargainScanFile), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

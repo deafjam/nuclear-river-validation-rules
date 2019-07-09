@@ -37,10 +37,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public ProjectAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public ProjectAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -58,10 +55,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Project> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Project>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -70,10 +64,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public CategoryAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public CategoryAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -92,7 +83,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Project.Category> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Project.Category>(x => aggregateIds.Contains(x.ProjectId));
             }
         }
@@ -101,10 +92,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public CostPerClickRestrictionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public CostPerClickRestrictionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -128,7 +116,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Project.CostPerClickRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Project.CostPerClickRestriction>(x => aggregateIds.Contains(x.ProjectId));
             }
         }
@@ -137,10 +125,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public SalesModelRestrictionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public SalesModelRestrictionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -163,7 +148,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Project.SalesModelRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Project.SalesModelRestriction>(x => aggregateIds.Contains(x.ProjectId));
             }
         }
@@ -172,10 +157,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public NextReleaseAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public NextReleaseAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -196,7 +178,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Project.NextRelease> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Project.NextRelease>(x => aggregateIds.Contains(x.ProjectId));
             }
         }

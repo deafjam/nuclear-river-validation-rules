@@ -36,10 +36,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public FirmAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public FirmAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator();
@@ -49,10 +46,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Firm> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Firm>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -61,26 +55,20 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public FirmPositionAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(x, query)))
-            {
-                _query = query;
-            }
+            public FirmPositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Firm.FirmPosition>, IReadOnlyCollection<long>> func)
+            private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipal, func },
-                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithDifferentBindingObject, func },
-                        { MessageTypeCode.FirmPositionMustNotHaveDeniedPositions, func },
-                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithMatchedBindingObject, func },
+                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipal, GetRelatedOrders },
+                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithDifferentBindingObject, GetRelatedOrders },
+                        { MessageTypeCode.FirmPositionMustNotHaveDeniedPositions, GetRelatedOrders },
+                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithMatchedBindingObject, GetRelatedOrders },
                         MessageTypeCode.FirmAssociatedPositionShouldNotStayAlone
                     };
 
-            private static IReadOnlyCollection<long> GetRelatedOrders(IReadOnlyCollection<Firm.FirmPosition> arg, IQuery query)
-                => GetRelatedOrders(arg.Select(x => x.FirmId), query);
-
-            private static IReadOnlyCollection<long> GetRelatedOrders(IEnumerable<long> firmIds, IQuery query)
-                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).ToHashSet();
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Firm.FirmPosition> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Firm.FirmPosition> GetSource()
             {
@@ -124,7 +112,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Firm.FirmPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Firm.FirmPosition>(x => aggregateIds.Contains(x.FirmId));
             }
         }
@@ -133,12 +121,9 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public FirmAssociatedPositionAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(x, query)))
-            {
-                _query = query;
-            }
+            public FirmAssociatedPositionAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(query, x))) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Firm.FirmAssociatedPosition>, IReadOnlyCollection<long>> func)
+            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Firm.FirmAssociatedPosition>, IEnumerable<long>> func)
                 => new RuleInvalidator
                     {
                         { MessageTypeCode.FirmAssociatedPositionMustHavePrincipal, func },
@@ -147,11 +132,11 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         MessageTypeCode.FirmAssociatedPositionShouldNotStayAlone,
                     };
 
-            private static IReadOnlyCollection<long> GetRelatedOrders(IReadOnlyCollection<Firm.FirmAssociatedPosition> arg, IQuery query)
-                => GetRelatedOrders(arg.Select(x => x.FirmId), query);
-
-            private static IReadOnlyCollection<long> GetRelatedOrders(IEnumerable<long> firmIds, IQuery query)
-                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).ToHashSet();
+            private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.FirmAssociatedPosition> dataObjects)
+            {
+                var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
+                return query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId);
+            }
 
             public IQueryable<Firm.FirmAssociatedPosition> GetSource()
             {
@@ -187,7 +172,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Firm.FirmAssociatedPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Firm.FirmAssociatedPosition>(x => aggregateIds.Contains(x.FirmId));
             }
         }
@@ -196,22 +181,19 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public FirmDeniedPositionAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(x, query)))
-            {
-                _query = query;
-            }
+            public FirmDeniedPositionAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(query, x))) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Firm.FirmDeniedPosition>, IReadOnlyCollection<long>> func)
+            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Firm.FirmDeniedPosition>, IEnumerable<long>> func)
                 => new RuleInvalidator
                     {
                         { MessageTypeCode.FirmPositionMustNotHaveDeniedPositions, func },
                     };
 
-            private static IReadOnlyCollection<long> GetRelatedOrders(IReadOnlyCollection<Firm.FirmDeniedPosition> arg, IQuery query)
-                => GetRelatedOrders(arg.Select(x => x.FirmId), query);
-
-            private static IReadOnlyCollection<long> GetRelatedOrders(IEnumerable<long> firmIds, IQuery query)
-                => query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).ToHashSet();
+            private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.FirmDeniedPosition> dataObjects)
+            {
+                var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
+                return query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId);
+            }
 
             public IQueryable<Firm.FirmDeniedPosition> GetSource()
             {
@@ -246,7 +228,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Firm.FirmDeniedPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Firm.FirmDeniedPosition>(x => aggregateIds.Contains(x.FirmId));
             }
         }

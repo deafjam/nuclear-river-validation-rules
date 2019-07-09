@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
@@ -19,10 +20,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public OrderItemAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public OrderItemAccessor(IQuery query) => _query = query;
 
         public IQueryable<OrderItem> GetSource()
         {
@@ -70,7 +68,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<OrderItem> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<OrderItem>.Contains(x => x.OrderPositionId, ids);
         }
 
@@ -85,13 +83,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<OrderItem> dataObjects)
         {
-            var orderIds = dataObjects.Select(x => x.OrderId);
+            var orderIds = dataObjects.Select(x => x.OrderId).ToHashSet();
 
             var firmIds =
                 from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
                 select order.FirmId;
 
-            return new EventCollectionHelper<OrderItem> { { typeof(Firm), firmIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(OrderItem), typeof(Firm), firmIds.ToHashSet())};
         }
     }
 }

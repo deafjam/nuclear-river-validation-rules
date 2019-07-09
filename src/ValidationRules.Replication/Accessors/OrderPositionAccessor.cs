@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
@@ -19,10 +20,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public OrderPositionAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public OrderPositionAccessor(IQuery query) => _query = query;
 
         public IQueryable<OrderPosition> GetSource()
             => from x in _query.For<Erm::OrderPosition>().Where(Specs.Find.Erm.OrderPosition)
@@ -35,7 +33,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<OrderPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<OrderPosition>.Contains(x => x.Id, ids);
         }
 
@@ -50,14 +48,18 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<OrderPosition> dataObjects)
         {
-            var orderIds = dataObjects.Select(x => x.OrderId);
+            var orderIds = dataObjects.Select(x => x.OrderId).ToHashSet();
 
             var accountIds =
                 from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
                 from account in _query.For<Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
                 select account.Id;
 
-            return new EventCollectionHelper<OrderPosition> { { typeof(Order), orderIds }, { typeof(Account), accountIds } };
+            return new[]
+            {
+                new RelatedDataObjectOutdatedEvent(typeof(OrderPosition), typeof(Order), orderIds),
+                new RelatedDataObjectOutdatedEvent(typeof(OrderPosition), typeof(Account), accountIds.ToHashSet())
+            };
         }
     }
 }

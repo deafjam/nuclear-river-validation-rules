@@ -32,10 +32,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public RulesetAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public RulesetAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator();
@@ -45,10 +42,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Ruleset> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Ruleset>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -57,10 +51,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public AdvertisementAmountRestrictionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public AdvertisementAmountRestrictionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -95,7 +86,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Ruleset.AdvertisementAmountRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Ruleset.AdvertisementAmountRestriction>(x => aggregateIds.Contains(x.RulesetId));
             }
         }

@@ -21,10 +21,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
         private static readonly TimeSpan OneSecond = TimeSpan.FromSeconds(1);
         private readonly IQuery _query;
 
-        public OrderAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public OrderAccessor(IQuery query) => _query = query;
 
         public IQueryable<Order> GetSource() => _query
             .For(Specs.Find.Erm.Order)
@@ -43,34 +40,34 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 LegalPersonId = order.LegalPersonId,
                 LegalPersonProfileId = order.LegalPersonProfileId,
                 BranchOfficeOrganizationUnitId = order.BranchOfficeOrganizationUnitId,
-                CurrencyId = order.CurrencyId,
                 BargainId = order.BargainId,
                 DealId = order.DealId,
 
                 WorkflowStep = order.WorkflowStepId,
                 IsFreeOfCharge = Erm::Order.FreeOfChargeTypes.Contains(order.OrderType),
+                HasCurrency = order.CurrencyId != null,
                 IsSelfAds = order.OrderType == Erm::Order.OrderTypeSelfAds,
                 IsSelfSale = order.SaleType == Erm::Order.OrderSaleTypeSelfSale,
             });
 
         public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<Order>.Contains(x => x.Id, ids);
         }
 
         public IReadOnlyCollection<IEvent> HandleCreates(IReadOnlyCollection<Order> dataObjects)
-            => dataObjects.Select(x => new DataObjectCreatedEvent(typeof(Order), x.Id)).ToList();
+            => new [] {new DataObjectCreatedEvent(typeof(Order), dataObjects.Select(x => x.Id))} ;
 
         public IReadOnlyCollection<IEvent> HandleUpdates(IReadOnlyCollection<Order> dataObjects)
-            => dataObjects.Select(x => new DataObjectUpdatedEvent(typeof(Order), x.Id)).ToList();
+            => new [] {new DataObjectUpdatedEvent(typeof(Order), dataObjects.Select(x => x.Id))} ;
 
         public IReadOnlyCollection<IEvent> HandleDeletes(IReadOnlyCollection<Order> dataObjects)
-            => dataObjects.Select(x => new DataObjectDeletedEvent(typeof(Order), x.Id)).ToList();
+            => new [] {new DataObjectDeletedEvent(typeof(Order), dataObjects.Select(x => x.Id))} ;
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Order> dataObjects)
         {
-            var orderIds = dataObjects.Select(x => x.Id).ToList();
+            var orderIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var accountIds =
                 from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
@@ -85,11 +82,16 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var firmIds = orders.Select(x => x.FirmId);
 
             var periods =
-                orders.Select(x => new PeriodKey { Date = x.BeginDistribution })
-                      .Concat(orders.Select(x => new PeriodKey { Date = x.EndDistributionFact }))
-                      .Concat(orders.Select(x => new PeriodKey { Date = x.EndDistributionPlan }));
+                orders.Select(x => new PeriodKey(x.BeginDistribution))
+                      .Concat(orders.Select(x => new PeriodKey(x.EndDistributionFact)))
+                      .Concat(orders.Select(x => new PeriodKey(x.EndDistributionPlan)));
 
-            return new EventCollectionHelper<Order> { { typeof(Account), accountIds }, { typeof(Firm), firmIds }, { typeof(object), periods } };
+            return new IEvent[]
+            {
+                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Account), accountIds.ToHashSet()),
+                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Firm), firmIds.ToHashSet()),
+                new PeriodKeyOutdatedEvent(periods), 
+            };
         }
     }
 }

@@ -4,11 +4,7 @@ namespace NuClear.ValidationRules.Replication.Events
 {
     public sealed class AmsStateIncrementedEvent : IEvent
     {
-        public AmsStateIncrementedEvent(AmsState state)
-        {
-            State = state;
-        }
-
         public AmsState State { get; }
+        public AmsStateIncrementedEvent(AmsState state) => State = state;
     }
 }

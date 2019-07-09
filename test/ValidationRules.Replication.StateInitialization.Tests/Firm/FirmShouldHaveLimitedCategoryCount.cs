@@ -19,6 +19,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(FirmShouldHaveLimitedCategoryCountAggregates))
                 .Fact(
+                    new Facts::Firm { Id = 1 },
                     new Facts::Order { Id = 1, WorkflowStep = 4, FirmId = 1, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(3), EndDistributionPlan = MonthStart(4) },
                     new Facts::OrderItem { OrderId = 1, OrderPositionId = 1, CategoryId = 5 },
 
@@ -26,6 +27,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderItem { OrderId = 2, OrderPositionId = 21, CategoryId = 5 },
                     new Facts::OrderItem { OrderId = 2, OrderPositionId = 22, CategoryId = 6 },
 
+                    new Facts::Firm { Id = 2 },
                     new Facts::Order { Id = 3, WorkflowStep = 1, FirmId = 2, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(5), EndDistributionPlan = MonthStart(5) },
                     new Facts::OrderItem { OrderId = 3, OrderPositionId = 3, CategoryId = 5 },
                     new Facts::Order { Id = 4, WorkflowStep = 1, FirmId = 2, BeginDistribution = MonthStart(1), EndDistributionFact = MonthStart(5), EndDistributionPlan = MonthStart(5) },

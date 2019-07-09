@@ -30,10 +30,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public ProjectAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public ProjectAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -50,10 +47,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
 
             public FindSpecification<Project> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Project>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -62,10 +56,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public ProjectDefaultThemeAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public ProjectDefaultThemeAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -92,7 +83,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
 
             public FindSpecification<Project.ProjectDefaultTheme> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Project.ProjectDefaultTheme>(x => aggregateIds.Contains(x.ProjectId));
             }
         }

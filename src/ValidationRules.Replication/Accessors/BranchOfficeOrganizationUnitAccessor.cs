@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public BranchOfficeOrganizationUnitAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public BranchOfficeOrganizationUnitAccessor(IQuery query) => _query = query;
 
         public IQueryable<BranchOfficeOrganizationUnit> GetSource() => _query
             .For<Erm::BranchOfficeOrganizationUnit>()
@@ -34,7 +32,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<BranchOfficeOrganizationUnit> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<BranchOfficeOrganizationUnit>.Contains(x => x.Id, ids);
         }
 
@@ -49,13 +47,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<BranchOfficeOrganizationUnit> dataObjects)
         {
-            var ids = dataObjects.Select(x => x.Id);
+            var branchOfficeOrganizationUnitIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var orderIds =
-                from order in _query.For<Order>().Where(x => ids.Contains(x.BranchOfficeOrganizationUnitId.Value))
+                from order in _query.For<Order>().Where(x => branchOfficeOrganizationUnitIds.Contains(x.BranchOfficeOrganizationUnitId.Value))
                 select order.Id;
 
-            return new EventCollectionHelper<BranchOfficeOrganizationUnit> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(BranchOfficeOrganizationUnit), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

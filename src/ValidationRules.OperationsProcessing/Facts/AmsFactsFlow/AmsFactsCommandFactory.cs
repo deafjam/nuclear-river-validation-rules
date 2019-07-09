@@ -9,29 +9,19 @@ using NuClear.ValidationRules.Storage.Model.Facts;
 
 namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
 {
-    public sealed class AmsFactsCommandFactory : ICommandFactory<KafkaMessage>
+    internal sealed class AmsFactsCommandFactory : ICommandFactory<KafkaMessage>
     {
-        private readonly IDeserializer<Confluent.Kafka.Message, AdvertisementDto> _deserializer;
-        public AmsFactsCommandFactory()
-        {
-            _deserializer = new AdvertisementDtoDeserializer();
-        }
+        private readonly IDeserializer<Confluent.Kafka.Message, AdvertisementDto> _deserializer = new AdvertisementDtoDeserializer();
 
-        public IReadOnlyCollection<ICommand> CreateCommands(KafkaMessage kafkaMessage)
+        public IEnumerable<ICommand> CreateCommands(KafkaMessage kafkaMessage)
         {
-            var commands = new List<ICommand>
-                {
-                    new IncrementAmsStateCommand(new AmsState(kafkaMessage.Message.Offset,
-                                                              kafkaMessage.Message.Timestamp.UtcDateTime))
-                };
-
+            yield return new IncrementAmsStateCommand(new AmsState(kafkaMessage.Message.Offset, kafkaMessage.Message.Timestamp.UtcDateTime));
+            
             var dtos = _deserializer.Deserialize(kafkaMessage.Message);
             if (dtos.Count > 0)
             {
-                commands.Add(new ReplaceDataObjectCommand(typeof(Advertisement), dtos));
+                yield return new ReplaceDataObjectCommand(typeof(Advertisement), dtos);
             }
-
-            return commands;
         }
     }
 }

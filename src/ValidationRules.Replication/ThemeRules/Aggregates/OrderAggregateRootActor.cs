@@ -30,18 +30,18 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.DefaultThemeMustHaveOnlySelfAds,
-                        MessageTypeCode.ThemeCategoryMustBeActiveAndNotDeleted,
-                        MessageTypeCode.ThemePeriodMustContainOrderPeriod,
+                        {MessageTypeCode.DefaultThemeMustHaveOnlySelfAds, GetRelatedOrders},
+                        {MessageTypeCode.ThemeCategoryMustBeActiveAndNotDeleted, GetRelatedOrders},
+                        {MessageTypeCode.ThemePeriodMustContainOrderPeriod, GetRelatedOrders},
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects) =>
+                dataObjects.Select(x => x.Id);
 
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>()
@@ -57,10 +57,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -69,19 +66,19 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderThemeAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderThemeAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.DefaultThemeMustHaveOnlySelfAds,
-                        MessageTypeCode.ThemeCategoryMustBeActiveAndNotDeleted,
-                        MessageTypeCode.ThemePeriodMustContainOrderPeriod,
+                        {MessageTypeCode.DefaultThemeMustHaveOnlySelfAds, GetRelatedOrders},
+                        {MessageTypeCode.ThemeCategoryMustBeActiveAndNotDeleted, GetRelatedOrders},
+                        {MessageTypeCode.ThemePeriodMustContainOrderPeriod, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.OrderTheme> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.OrderTheme> GetSource()
             {
                 var orderThemes = from order in _query.For<Facts::Order>()
@@ -98,7 +95,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
 
             public FindSpecification<Order.OrderTheme> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.OrderTheme>(x => aggregateIds.Contains(x.OrderId));
             }
         }

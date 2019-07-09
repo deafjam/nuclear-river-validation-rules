@@ -64,35 +64,35 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.BargainScanShouldPresent,
-                        MessageTypeCode.BillsShouldBeCreated,
-                        MessageTypeCode.BillsSumShouldMatchOrder,
-                        MessageTypeCode.LegalPersonProfileBargainShouldNotBeExpired,
-                        MessageTypeCode.LegalPersonProfileWarrantyShouldNotBeExpired,
-                        MessageTypeCode.LegalPersonShouldHaveAtLeastOneProfile,
-                        MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm,
-                        MessageTypeCode.LinkedCategoryFirmAddressShouldBeValid,
-                        MessageTypeCode.LinkedCategoryShouldBeActive,
-                        MessageTypeCode.LinkedCategoryShouldBelongToFirm,
-                        MessageTypeCode.LinkedFirmAddressShouldBeValid,
-                        MessageTypeCode.OrderBeginDistrubutionShouldBeFirstDayOfMonth,
-                        MessageTypeCode.OrderEndDistrubutionShouldBeLastSecondOfMonth,
-                        MessageTypeCode.OrderMustHaveActiveDeal,
-                        MessageTypeCode.OrderMustHaveActiveLegalEntities,
-                        MessageTypeCode.OrderRequiredFieldsShouldBeSpecified,
-                        MessageTypeCode.OrderScanShouldPresent,
-                        MessageTypeCode.OrderShouldHaveAtLeastOnePosition,
-                        MessageTypeCode.OrderShouldNotBeSignedBeforeBargain,
+                        {MessageTypeCode.BargainScanShouldPresent, GetRelatedOrders},
+                        {MessageTypeCode.BillsShouldBeCreated, GetRelatedOrders},
+                        {MessageTypeCode.BillsSumShouldMatchOrder, GetRelatedOrders},
+                        {MessageTypeCode.LegalPersonProfileBargainShouldNotBeExpired, GetRelatedOrders},
+                        {MessageTypeCode.LegalPersonProfileWarrantyShouldNotBeExpired, GetRelatedOrders},
+                        {MessageTypeCode.LegalPersonShouldHaveAtLeastOneProfile, GetRelatedOrders},
+                        {MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm, GetRelatedOrders},
+                        {MessageTypeCode.LinkedCategoryFirmAddressShouldBeValid, GetRelatedOrders},
+                        {MessageTypeCode.LinkedCategoryShouldBeActive, GetRelatedOrders},
+                        {MessageTypeCode.LinkedCategoryShouldBelongToFirm, GetRelatedOrders},
+                        {MessageTypeCode.LinkedFirmAddressShouldBeValid, GetRelatedOrders},
+                        {MessageTypeCode.OrderBeginDistrubutionShouldBeFirstDayOfMonth, GetRelatedOrders},
+                        {MessageTypeCode.OrderEndDistrubutionShouldBeLastSecondOfMonth, GetRelatedOrders},
+                        {MessageTypeCode.OrderMustHaveActiveDeal, GetRelatedOrders},
+                        {MessageTypeCode.OrderMustHaveActiveLegalEntities, GetRelatedOrders},
+                        {MessageTypeCode.OrderRequiredFieldsShouldBeSpecified, GetRelatedOrders},
+                        {MessageTypeCode.OrderScanShouldPresent, GetRelatedOrders},
+                        {MessageTypeCode.OrderShouldHaveAtLeastOnePosition, GetRelatedOrders},
+                        {MessageTypeCode.OrderShouldNotBeSignedBeforeBargain, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects) =>
+                dataObjects.Select(x => x.Id);
+            
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>()
                    select new Order
@@ -105,10 +105,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -117,17 +114,17 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public InvalidFirmAddressAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public InvalidFirmAddressAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.LinkedFirmAddressShouldBeValid,
-                        MessageTypeCode.AtLeastOneLinkedPartnerFirmAddressShouldBeValid
+                        {MessageTypeCode.LinkedFirmAddressShouldBeValid, GetRelatedOrders},
+                        {MessageTypeCode.AtLeastOneLinkedPartnerFirmAddressShouldBeValid, GetRelatedOrders}
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidFirmAddress> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.InvalidFirmAddress> GetSource()
                 => from order in _query.For<Facts::Order>()
@@ -164,7 +161,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.InvalidFirmAddress> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.InvalidFirmAddress>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -173,17 +170,17 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public CategoryNotBelongsToAddressAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public CategoryNotBelongsToAddressAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.LinkedCategoryFirmAddressShouldBeValid,
+                        {MessageTypeCode.LinkedCategoryFirmAddressShouldBeValid, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.CategoryNotBelongsToAddress> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.CategoryNotBelongsToAddress> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
@@ -202,7 +199,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.CategoryNotBelongsToAddress> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.CategoryNotBelongsToAddress>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -211,19 +208,19 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public InvalidCategoryAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public InvalidCategoryAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm,
-                        MessageTypeCode.LinkedCategoryShouldBeActive,
-                        MessageTypeCode.LinkedCategoryShouldBelongToFirm,
+                        {MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm, GetRelatedOrders},
+                        {MessageTypeCode.LinkedCategoryShouldBeActive, GetRelatedOrders},
+                        {MessageTypeCode.LinkedCategoryShouldBelongToFirm, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidCategory> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.InvalidCategory> GetSource()
             {
                 var result = 
@@ -254,7 +251,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.InvalidCategory> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.InvalidCategory>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -263,16 +260,16 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderBargainSignedLaterThanOrderAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderBargainSignedLaterThanOrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderShouldNotBeSignedBeforeBargain,
+                        {MessageTypeCode.OrderShouldNotBeSignedBeforeBargain, GetRelatedOrders},
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.BargainSignedLaterThanOrder> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.BargainSignedLaterThanOrder> GetSource()
                 => from order in _query.For<Facts::Order>().Where(x => x.BargainId.HasValue)
@@ -285,7 +282,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.BargainSignedLaterThanOrder> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.BargainSignedLaterThanOrder>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -294,16 +291,16 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderHasNoAnyLegalPersonProfileAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderHasNoAnyLegalPersonProfileAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.LegalPersonShouldHaveAtLeastOneProfile,
+                        {MessageTypeCode.LegalPersonShouldHaveAtLeastOneProfile, GetRelatedOrders},
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.HasNoAnyLegalPersonProfile> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.HasNoAnyLegalPersonProfile> GetSource()
                 => from order in _query.For<Facts::Order>()
@@ -316,7 +313,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.HasNoAnyLegalPersonProfile> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.HasNoAnyLegalPersonProfile>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -325,17 +322,17 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderHasNoAnyPositionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderHasNoAnyPositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderShouldHaveAtLeastOnePosition,
+                        {MessageTypeCode.OrderShouldHaveAtLeastOnePosition, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.HasNoAnyPosition> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.HasNoAnyPosition> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id).DefaultIfEmpty()
@@ -347,7 +344,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.HasNoAnyPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.HasNoAnyPosition>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -356,18 +353,18 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public InactiveReferenceAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public InactiveReferenceAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderMustHaveActiveDeal,
-                        MessageTypeCode.OrderMustHaveActiveLegalEntities,
+                        {MessageTypeCode.OrderMustHaveActiveDeal, GetRelatedOrders},
+                        {MessageTypeCode.OrderMustHaveActiveLegalEntities, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InactiveReference> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             // todo: сравнить запросы left join и exists
             public IQueryable<Order.InactiveReference> GetSource()
                 => from order in _query.For<Facts::Order>()
@@ -389,7 +386,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.InactiveReference> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.InactiveReference>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -398,16 +395,16 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderInvalidBeginDistributionDateAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderInvalidBeginDistributionDateAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderBeginDistrubutionShouldBeFirstDayOfMonth,
+                        {MessageTypeCode.OrderBeginDistrubutionShouldBeFirstDayOfMonth, GetRelatedOrders},
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidBeginDistributionDate> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.InvalidBeginDistributionDate> GetSource()
                 => from order in _query.For<Facts::Order>()
@@ -419,7 +416,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.InvalidBeginDistributionDate> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.InvalidBeginDistributionDate>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -428,17 +425,17 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderInvalidEndDistributionDateAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderInvalidEndDistributionDateAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderEndDistrubutionShouldBeLastSecondOfMonth,
+                        {MessageTypeCode.OrderEndDistrubutionShouldBeLastSecondOfMonth, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidEndDistributionDate> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.InvalidEndDistributionDate> GetSource()
                 => from order in _query.For<Facts::Order>()
                    where order.EndDistributionPlan.Day != 1 || order.EndDistributionPlan.TimeOfDay != TimeSpan.Zero
@@ -449,7 +446,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
         public FindSpecification<Order.InvalidEndDistributionDate> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.InvalidEndDistributionDate>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -458,16 +455,16 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderInvalidBillsTotalAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderInvalidBillsTotalAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.BillsSumShouldMatchOrder,
+                        {MessageTypeCode.BillsSumShouldMatchOrder, GetRelatedOrders},
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidBillsTotal> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.InvalidBillsTotal> GetSource()
                 => from order in _query.For<Facts::Order>().Where(x => x.WorkflowStep == Facts::Order.State.OnRegistration && !x.IsFreeOfCharge)
@@ -483,7 +480,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.InvalidBillsTotal> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.InvalidBillsTotal>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -492,16 +489,16 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public LegalPersonProfileBargainExpiredAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public LegalPersonProfileBargainExpiredAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.LegalPersonProfileBargainShouldNotBeExpired,
+                        {MessageTypeCode.LegalPersonProfileBargainShouldNotBeExpired, GetRelatedOrders},
                     };
+
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.LegalPersonProfileBargainExpired> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.LegalPersonProfileBargainExpired> GetSource()
                 => from order in _query.For<Facts::Order>()
@@ -515,7 +512,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.LegalPersonProfileBargainExpired> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.LegalPersonProfileBargainExpired>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -524,17 +521,17 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public LegalPersonProfileWarrantyExpiredAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public LegalPersonProfileWarrantyExpiredAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.LegalPersonProfileWarrantyShouldNotBeExpired,
+                        {MessageTypeCode.LegalPersonProfileWarrantyShouldNotBeExpired, GetRelatedOrders},
                     };
-
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.LegalPersonProfileWarrantyExpired> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.LegalPersonProfileWarrantyExpired> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from profile in _query.For<Facts::LegalPersonProfile>().Where(x => x.WarrantyEndDate.HasValue).Where(x => x.LegalPersonId == order.LegalPersonId)
@@ -547,7 +544,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.LegalPersonProfileWarrantyExpired> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.LegalPersonProfileWarrantyExpired>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -556,16 +553,16 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderMissingBargainScanAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderMissingBargainScanAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.BargainScanShouldPresent,
+                        {MessageTypeCode.BargainScanShouldPresent, GetRelatedOrders},
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingBargainScan> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.MissingBargainScan> GetSource()
                 => from order in _query.For<Facts::Order>().Where(x => x.BargainId.HasValue)
@@ -578,7 +575,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.MissingBargainScan> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.MissingBargainScan>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -587,17 +584,17 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderMissingBillsAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderMissingBillsAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.BillsShouldBeCreated,
+                        {MessageTypeCode.BillsShouldBeCreated, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingBills> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.MissingBills> GetSource()
                 => from order in _query.For<Facts::Order>().Where(x => x.WorkflowStep == Facts::Order.State.OnRegistration && !x.IsFreeOfCharge)
                    let billCount = _query.For<Facts::Bill>().Count(x => x.OrderId == order.Id)
@@ -612,7 +609,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.MissingBills> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.MissingBills>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -621,34 +618,34 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public MissingRequiredFieldAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public MissingRequiredFieldAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderMustHaveActiveDeal,
-                        MessageTypeCode.OrderRequiredFieldsShouldBeSpecified,
+                        {MessageTypeCode.OrderMustHaveActiveDeal, GetRelatedOrders},
+                        {MessageTypeCode.OrderRequiredFieldsShouldBeSpecified, GetRelatedOrders},
                     };
+
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingRequiredField> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.MissingRequiredField> GetSource()
                 => from order in _query.For<Facts::Order>()
-                   where !(order.BranchOfficeOrganizationUnitId.HasValue && order.CurrencyId.HasValue && order.LegalPersonId.HasValue && order.LegalPersonProfileId.HasValue && order.DealId.HasValue)
+                   where !(order.BranchOfficeOrganizationUnitId.HasValue && order.HasCurrency && order.LegalPersonId.HasValue && order.LegalPersonProfileId.HasValue && order.DealId.HasValue)
                    select new Order.MissingRequiredField
                        {
                            OrderId = order.Id,
-                           BranchOfficeOrganizationUnit = !order.BranchOfficeOrganizationUnitId.HasValue,
-                           Currency = !order.CurrencyId.HasValue,
-                           LegalPerson = !order.LegalPersonId.HasValue,
-                           LegalPersonProfile = !order.LegalPersonProfileId.HasValue,
-                           Deal = !order.DealId.HasValue,
+                           BranchOfficeOrganizationUnit = order.BranchOfficeOrganizationUnitId == null,
+                           Currency = !order.HasCurrency,
+                           LegalPerson = order.LegalPersonId == null,
+                           LegalPersonProfile = order.LegalPersonId == null,
+                           Deal = order.DealId == null,
                        };
 
             public FindSpecification<Order.MissingRequiredField> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.MissingRequiredField>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -657,16 +654,16 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public MissingValidPartnerFirmAddressesAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public MissingValidPartnerFirmAddressesAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AtLeastOneLinkedPartnerFirmAddressShouldBeValid
+                        {MessageTypeCode.AtLeastOneLinkedPartnerFirmAddressShouldBeValid, GetRelatedOrders}
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingValidPartnerFirmAddresses> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.MissingValidPartnerFirmAddresses> GetSource()
             {
@@ -699,7 +696,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.MissingValidPartnerFirmAddresses> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.MissingValidPartnerFirmAddresses>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -708,17 +705,17 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderMissingOrderScanAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderMissingOrderScanAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderScanShouldPresent,
+                        {MessageTypeCode.OrderScanShouldPresent, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingOrderScan> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.MissingOrderScan> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from scan in _query.For<Facts::OrderScanFile>().Where(x => x.OrderId == order.Id).DefaultIfEmpty()
@@ -730,7 +727,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public FindSpecification<Order.MissingOrderScan> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.MissingOrderScan>(x => aggregateIds.Contains(x.OrderId));
             }
         }

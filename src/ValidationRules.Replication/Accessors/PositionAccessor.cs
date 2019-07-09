@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
@@ -17,10 +18,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public PositionAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public PositionAccessor(IQuery query) => _query = query;
 
         public IQueryable<Position> GetSource() => _query
             .For(Specs.Find.Erm.Position)
@@ -42,7 +40,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<Position> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<Position>.Contains(x => x.Id, ids);
         }
 
@@ -57,7 +55,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Position> dataObjects)
         {
-            var positionIds = dataObjects.Select(x => x.Id).ToList();
+            var positionIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var orderIdsFromOpa =
                 from opa in _query.For<OrderPositionAdvertisement>().Where(x => positionIds.Contains(x.PositionId))
@@ -69,13 +67,17 @@ namespace NuClear.ValidationRules.Replication.Accessors
                   from orderPosition in _query.For<OrderPosition>().Where(x => x.PricePositionId == pricePosition.Id)
                   select orderPosition.OrderId;
 
-            var orderIds = orderIdsFromOpa.Union(orderIdsFromPricePosition);
+            var orderIds = orderIdsFromOpa.Concat(orderIdsFromPricePosition).ToHashSet();
 
             var firmIds =
                 from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
                 select order.FirmId;
 
-            return new EventCollectionHelper<Position> { { typeof(Order), orderIds }, { typeof(Firm), firmIds } };
+            return new[]
+            {
+                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Order), orderIds),
+                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Firm), firmIds.ToHashSet())
+            };
         }
     }
 }

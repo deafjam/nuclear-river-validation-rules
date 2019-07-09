@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -20,10 +21,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         private readonly IQuery _query;
 
-        public ReleaseInfoAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public ReleaseInfoAccessor(IQuery query) => _query = query;
 
         public IQueryable<ReleaseInfo> GetSource() => _query
             .For<Erm::ReleaseInfo>()
@@ -37,7 +35,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<ReleaseInfo> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<ReleaseInfo>.Contains(x => x.Id, ids);
         }
 
@@ -52,13 +50,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<ReleaseInfo> dataObjects)
         {
-            var organizationUnitIds = dataObjects.Select(x => x.OrganizationUnitId);
+            var organizationUnitIds = dataObjects.Select(x => x.OrganizationUnitId).ToHashSet();
 
-            var orderIds =
+            var projectIds =
                 from project in _query.For<Project>().Where(project => organizationUnitIds.Contains(project.OrganizationUnitId))
                 select project.Id;
 
-            return new EventCollectionHelper<ReleaseInfo> { { typeof(Project), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(ReleaseInfo), typeof(Project), projectIds.ToHashSet())};
         }
     }
 }

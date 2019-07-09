@@ -8,6 +8,6 @@ namespace NuClear.ValidationRules.OperationsProcessing
     public interface ICommandFactory<in TMessage>
         where TMessage : class, IMessage
     {
-        IReadOnlyCollection<ICommand> CreateCommands(TMessage message);
+        IEnumerable<ICommand> CreateCommands(TMessage message);
     }
 }

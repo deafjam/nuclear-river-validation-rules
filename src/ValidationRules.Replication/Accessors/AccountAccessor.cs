@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.Replication.Core.Specs;
@@ -9,7 +8,6 @@ using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
-
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
 
 namespace NuClear.ValidationRules.Replication.Accessors
@@ -18,10 +16,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public AccountAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public AccountAccessor(IQuery query) => _query = query;
 
         public IQueryable<Account> GetSource()
             => _query.For<Erm::Account>()
@@ -36,29 +31,31 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<Account> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<Account>.Contains(x => x.Id, ids);
         }
 
         public IReadOnlyCollection<IEvent> HandleCreates(IReadOnlyCollection<Account> dataObjects)
-            => dataObjects.Select(x => new DataObjectCreatedEvent(typeof(Account), x.Id)).ToList();
+            => new[] {new DataObjectCreatedEvent(typeof(Account), dataObjects.Select(x => x.Id))};
 
         public IReadOnlyCollection<IEvent> HandleUpdates(IReadOnlyCollection<Account> dataObjects)
-            => dataObjects.Select(x => new DataObjectUpdatedEvent(typeof(Account), x.Id)).ToList();
+            => new[] {new DataObjectUpdatedEvent(typeof(Account), dataObjects.Select(x => x.Id))};
 
         public IReadOnlyCollection<IEvent> HandleDeletes(IReadOnlyCollection<Account> dataObjects)
-            => dataObjects.Select(x => new DataObjectDeletedEvent(typeof(Account), x.Id)).ToList();
+            => new[] {new DataObjectDeletedEvent(typeof(Account), dataObjects.Select(x => x.Id))};
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Account> dataObjects)
         {
-            var accountIds = dataObjects.Select(x => x.Id);
+            var accountIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var orderIds =
                 from account in _query.For<Account>().Where(x => accountIds.Contains(x.Id))
-                from order in _query.For<Order>().Where(x => x.LegalPersonId == account.LegalPersonId && x.BranchOfficeOrganizationUnitId == account.BranchOfficeOrganizationUnitId)
+                from order in _query.For<Order>().Where(x =>
+                    x.LegalPersonId == account.LegalPersonId &&
+                    x.BranchOfficeOrganizationUnitId == account.BranchOfficeOrganizationUnitId)
                 select order.Id;
 
-            return new EventCollectionHelper<Account> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(Account), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

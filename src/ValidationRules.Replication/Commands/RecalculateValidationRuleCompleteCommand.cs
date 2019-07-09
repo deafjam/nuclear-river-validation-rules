@@ -4,11 +4,8 @@ namespace NuClear.ValidationRules.Replication.Commands
 {
     public sealed class RecalculateValidationRuleCompleteCommand : IRecalculateValidationRuleCommand
     {
-        public RecalculateValidationRuleCompleteCommand(MessageTypeCode rule)
-        {
-            Rule = rule;
-        }
-
         public MessageTypeCode Rule { get; }
+        
+        public RecalculateValidationRuleCompleteCommand(MessageTypeCode rule) => Rule = rule;
     }
 }

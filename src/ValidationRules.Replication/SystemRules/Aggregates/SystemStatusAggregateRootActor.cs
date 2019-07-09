@@ -25,10 +25,7 @@ namespace NuClear.ValidationRules.Replication.SystemRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public SystemStatusAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public SystemStatusAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -47,10 +44,7 @@ namespace NuClear.ValidationRules.Replication.SystemRules.Aggregates
 
             public FindSpecification<SystemStatus> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<SystemStatus>(x => aggregateIds.Contains(x.Id));
             }
         }

@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -19,10 +20,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
         private static readonly TimeSpan OneSecond = TimeSpan.FromSeconds(1);
         private readonly IQuery _query;
 
-        public ReleaseWithdrawalAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public ReleaseWithdrawalAccessor(IQuery query) => _query = query;
 
         public IQueryable<ReleaseWithdrawal> GetSource() => _query
             .For<Erm::ReleaseWithdrawal>()
@@ -36,7 +34,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<ReleaseWithdrawal> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<ReleaseWithdrawal>.Contains(x => x.OrderPositionId, ids);
         }
 
@@ -51,7 +49,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<ReleaseWithdrawal> dataObjects)
         {
-            var orderPositionIds = dataObjects.Select(x => x.OrderPositionId);
+            var orderPositionIds = dataObjects.Select(x => x.OrderPositionId).ToHashSet();
 
             var accountIds =
                 from order in _query.For<Order>()
@@ -63,7 +61,11 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 from orderPosition in _query.For<OrderPosition>().Where(x => orderPositionIds.Contains(x.Id))
                 select orderPosition.OrderId;
 
-            return new EventCollectionHelper<ReleaseWithdrawal> { { typeof(Account), accountIds }, { typeof(Order), orderIds } };
+            return new[]
+            {
+                new RelatedDataObjectOutdatedEvent(typeof(ReleaseWithdrawal), typeof(Account), accountIds.ToHashSet()),
+                new RelatedDataObjectOutdatedEvent(typeof(ReleaseWithdrawal), typeof(Order), orderIds.ToHashSet())
+            };
         }
     }
 }

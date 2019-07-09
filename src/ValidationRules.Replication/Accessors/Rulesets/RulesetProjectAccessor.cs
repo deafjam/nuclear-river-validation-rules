@@ -8,6 +8,7 @@ using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Dto;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
@@ -16,10 +17,7 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
     {
         private readonly IQuery _query;
 
-        public RulesetProjectAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public RulesetProjectAccessor(IQuery query) => _query = query;
 
         public IReadOnlyCollection<Ruleset.RulesetProject> GetDataObjects(ICommand command)
         {
@@ -48,13 +46,7 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Ruleset.RulesetProject> dataObjects)
         {
-            if (!dataObjects.Any())
-            {
-                return Array.Empty<IEvent>();
-            }
-
-            var rulesetsIds = dataObjects.Select(x => x.RulesetId)
-                                         .ToHashSet();
+            var rulesetsIds = dataObjects.Select(x => x.RulesetId).ToHashSet();
 
             var firmIds = from ruleset in _query.For<Ruleset>().Where(x => rulesetsIds.Contains(x.Id))
                           from rulesetProject in _query.For<Ruleset.RulesetProject>().Where(x => x.RulesetId == ruleset.Id)
@@ -65,10 +57,7 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
                                                           && x.DestOrganizationUnitId == project.OrganizationUnitId)
                           select order.FirmId;
 
-            return new EventCollectionHelper<Ruleset>
-                {
-                    { typeof(Firm), firmIds.ToHashSet() }
-                };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(Ruleset), typeof(Firm), firmIds.ToHashSet())};
         }
     }
 }

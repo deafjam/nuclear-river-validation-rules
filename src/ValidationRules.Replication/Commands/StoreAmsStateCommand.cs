@@ -2,11 +2,8 @@
 {
     public sealed class StoreAmsStateCommand : IValidationRuleCommand
     {
-        public StoreAmsStateCommand(AmsState state)
-        {
-            State = state;
-        }
-
         public AmsState State { get; }
+        
+        public StoreAmsStateCommand(AmsState state) => State = state;
     }
 }

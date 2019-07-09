@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -20,10 +21,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         private readonly IQuery _query;
 
-        public UnlimitedOrderAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public UnlimitedOrderAccessor(IQuery query) => _query = query;
 
         public IQueryable<UnlimitedOrder> GetSource()
             => from x in _query.For<Erm::UnlimitedOrder>()
@@ -37,7 +35,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<UnlimitedOrder> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<UnlimitedOrder>.Contains(x => x.OrderId, ids);
         }
 
@@ -54,7 +52,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
         {
             var orderIds = dataObjects.Select(x => x.OrderId);
 
-            return new EventCollectionHelper<UnlimitedOrder> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(UnlimitedOrder), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

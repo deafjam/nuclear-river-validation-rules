@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
 {
     public sealed class AmsFactsFlowHandler : IMessageProcessingHandler
     {
-        private readonly IDataObjectsActorFactory _dataObjectsActorFactory;
+        private readonly IDataObjectsActorFactoryRefactored _dataObjectsActorFactory;
         private readonly SyncEntityNameActor _syncEntityNameActor;
         private readonly IEventLogger _eventLogger;
         private readonly ITracer _tracer;
@@ -32,7 +32,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
             };
 
         public AmsFactsFlowHandler(
-            IDataObjectsActorFactory dataObjectsActorFactory,
+            IDataObjectsActorFactoryRefactored dataObjectsActorFactory,
             SyncEntityNameActor syncEntityNameActor,
             IEventLogger eventLogger,
             AmsFactsFlowTelemetryPublisher telemetryPublisher,
@@ -49,26 +49,25 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
         {
             try
             {
+                var commands = processingResultsMap.SelectMany(x => x.Value)
+                    .Cast<AggregatableMessage<ICommand>>()
+                    .SelectMany(x => x.Commands)
+                    .ToList();
+
                 using (var transaction = new TransactionScope(TransactionScopeOption.Required, _transactionOptions))
                 {
-                    var commands = processingResultsMap.SelectMany(x => x.Value)
-                                                       .Cast<AggregatableMessage<ICommand>>()
-                                                       .SelectMany(x => x.Commands)
-                                                       .ToList();
-
                     var replaceEvents = Handle(commands.OfType<IReplaceDataObjectCommand>().ToList())
                                         .Select(x => new FlowEvent(AmsFactsFlow.Instance, x)).ToList();
-                    var stateEvents = Handle(commands.OfType<IncrementAmsStateCommand>().ToList())
-                                      .Select(x => new FlowEvent(AmsFactsFlow.Instance, x));
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                         _eventLogger.Log<IEvent>(replaceEvents);
 
                     transaction.Complete();
-
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                        _eventLogger.Log<IEvent>(replaceEvents.Concat(stateEvents).ToList());
                 }
+                
+                var stateEvents = Handle(commands.OfType<IncrementAmsStateCommand>().ToList())
+                    .Select(x => new FlowEvent(AmsFactsFlow.Instance, x)).ToList();
+                _eventLogger.Log<IEvent>(stateEvents);
 
                 return processingResultsMap.Keys.Select(bucketId => MessageProcessingStage.Handling.ResultFor(bucketId).AsSucceeded());
             }
@@ -81,9 +80,9 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
 
         private IEnumerable<IEvent> Handle(IReadOnlyCollection<IncrementAmsStateCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                return Enumerable.Empty<IEvent>();
             }
 
             var eldestEventTime = commands.Min(x => x.State.UtcDateTime);
@@ -100,22 +99,24 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
 
         private IEnumerable<IEvent> Handle(IReadOnlyCollection<IReplaceDataObjectCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                return Enumerable.Empty<IEvent>();
             }
 
-            var actors = _dataObjectsActorFactory.Create();
-            var events = new HashSet<IEvent>();
+            var dataObjectTypes = commands.Select(x => x.DataObjectType).ToHashSet();
+            var actors = _dataObjectsActorFactory.Create(dataObjectTypes);
 
+            var eventCollector = new FactsEventCollector();
             foreach (var actor in actors)
             {
-                events.UnionWith(actor.ExecuteCommands(commands));
+                var events = actor.ExecuteCommands(commands);
+                eventCollector.Add(events);
             }
 
             _syncEntityNameActor.ExecuteCommands(commands);
 
-            return events;
+            return eventCollector.Events();
         }
     }
 }

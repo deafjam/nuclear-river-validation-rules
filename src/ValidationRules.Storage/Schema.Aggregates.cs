@@ -83,12 +83,12 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<FirmAggregates::Firm.CategoryPurchase>()
                 .HasSchemaName(FirmAggregatesSchema)
-                .HasPrimaryKey(x => new { x.FirmId, x.Begin, x.End, x.CategoryId, x.Scope });
+                .HasPrimaryKey(x => new { x.FirmId, x.Begin, x.End, x.Scope, x.CategoryId });
 
             builder.Entity<FirmAggregates::Order>()
                    .HasSchemaName(FirmAggregatesSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.FirmId, x.Begin, x.End }, x => new { x.Id, x.Scope });
+                   .HasIndex(x => new { x.Begin, x.End }, x => new { x.Scope });
 
             builder.Entity<FirmAggregates::Order.FirmOrganizationUnitMismatch>()
                    .HasSchemaName(FirmAggregatesSchema)
@@ -101,7 +101,8 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<FirmAggregates::Order.PartnerPosition>()
                 .HasSchemaName(FirmAggregatesSchema)
                 .HasPrimaryKey(x => new {x.OrderId, x.DestinationFirmAddressId})
-                .HasIndex(x => x.DestinationFirmId);
+                .HasIndex(x => x.DestinationFirmId)
+                .HasIndex(x => x.DestinationFirmAddressId, x => x.DestinationFirmId);
 
             builder.Entity<FirmAggregates::Order.PremiumPartnerPosition>()
                     .HasSchemaName(FirmAggregatesSchema)

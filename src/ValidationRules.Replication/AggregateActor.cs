@@ -27,35 +27,36 @@ namespace NuClear.ValidationRules.Replication
             var aggregateCommands =
                 commands.OfType<IAggregateCommand>()
                         .Where(x => x.AggregateRootType == _aggregateRootActor.EntityType)
-                        .ToHashSet();
-
-            IEnumerable<IEvent> events = Array<IEvent>.Empty;
-
-            if (!aggregateCommands.Any())
+                        .ToList();
+            if (aggregateCommands.Count == 0)
             {
                 return Array<IEvent>.Empty;
             }
-
+            
             var aggregateNameParts = _aggregateRootActor.EntityType.FullName.Split('.').Reverse().ToList();
             using (Probe.Create("Aggregate", aggregateNameParts[2], aggregateNameParts[0]))
             {
+                var events = new List<IEvent>();
+                
                 var recalculateCommands =
                     aggregateCommands.OfType<AggregateCommand.Recalculate>()
                                      .SelectMany(next => new ICommand[]
                                                      {
-                                                         new SyncDataObjectCommand(next.AggregateRootType, next.AggregateRootId),
-                                                         new ReplaceValueObjectCommand(next.AggregateRootId)
+                                                         new SyncDataObjectCommand(next.AggregateRootType, next.AggregateRootIds),
+                                                         new ReplaceValueObjectCommand(next.AggregateRootIds)
                                                      })
                                      .ToList();
-                events = events.Union(_rootToLeafActor.ExecuteCommands(recalculateCommands));
+                events.AddRange(_rootToLeafActor.ExecuteCommands(recalculateCommands));
 
                 var recalculatePeriodCommands =
                     aggregateCommands.OfType<RecalculatePeriodCommand>()
-                                     .Select(next => new SyncPeriodCommand(next.AggregateRootType, next.Point.Date))
+                                     .Select(next => new SyncPeriodCommand(next.AggregateRootType, next.PeriodKeys.Select(x => x.Date)))
                                      .ToList();
-                events = events.Union(_rootToLeafActor.ExecuteCommands(recalculatePeriodCommands));
+                events.AddRange(_rootToLeafActor.ExecuteCommands(recalculatePeriodCommands));
 
-                return events.ToList();
+                // TODO: вопрос: надо ли тут схлапывать events по distinct или не надо, проверить!!! 
+                
+                return events;
             }
         }
     }

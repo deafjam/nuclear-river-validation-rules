@@ -43,19 +43,19 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderPositionCorrespontToInactivePosition,
-                        MessageTypeCode.OrderPositionMayCorrespontToActualPrice,
-                        MessageTypeCode.OrderPositionMustCorrespontToActualPrice,
-                        MessageTypeCode.OrderMustHaveActualPrice,
+                        {MessageTypeCode.OrderPositionCorrespontToInactivePosition, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionMayCorrespontToActualPrice, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionMustCorrespontToActualPrice, GetRelatedOrders},
+                        {MessageTypeCode.OrderMustHaveActualPrice, GetRelatedOrders},
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects) =>
+                dataObjects.Select(x => x.Id);
 
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>()
@@ -69,10 +69,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -81,22 +78,22 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderPeriodAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderPeriodAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited,
-                        MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass,
-                        MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions
+                        {MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass, GetRelatedOrders},
+                        {MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions, GetRelatedOrders}
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.OrderPeriod> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.OrderPeriod> GetSource()
                 => GetSource1().Concat(GetSource2());
 
@@ -123,7 +120,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Order.OrderPeriod> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.OrderPeriod>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -132,19 +129,19 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderPricePositionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderPricePositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderPositionCorrespontToInactivePosition,
-                        MessageTypeCode.OrderPositionMayCorrespontToActualPrice,
-                        MessageTypeCode.OrderPositionMustCorrespontToActualPrice,
+                        {MessageTypeCode.OrderPositionCorrespontToInactivePosition, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionMayCorrespontToActualPrice, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionMustCorrespontToActualPrice, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.OrderPricePosition> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.OrderPricePosition> GetSource()
                 =>
                     from order in _query.For<Facts::Order>() // Чтобы сократить число позиций
@@ -163,7 +160,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Order.OrderPricePosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.OrderPricePosition>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -172,16 +169,16 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderCategoryPositionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderCategoryPositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited,
+                        {MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited, GetRelatedOrders}
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.OrderCategoryPosition> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.OrderCategoryPosition> GetSource()
             {
@@ -204,7 +201,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Order.OrderCategoryPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.OrderCategoryPosition>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -213,16 +210,16 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderThemePositionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderThemePositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited,
+                        {MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited, GetRelatedOrders},
                     };
+            
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.OrderThemePosition> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.OrderThemePosition> GetSource()
             {
@@ -244,7 +241,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Order.OrderThemePosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.OrderThemePosition>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -253,18 +250,18 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public AmountControlledPositionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public AmountControlledPositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass,
+                        {MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass, GetRelatedOrders},
                     };
+
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.AmountControlledPosition> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.AmountControlledPosition> GetSource()
                 =>  from order in _query.For<Facts::Order>() // Чтобы сократить число позиций
@@ -282,7 +279,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Order.AmountControlledPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.AmountControlledPosition>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -291,16 +288,16 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public EntranceControlledPositionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public EntranceControlledPositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions
+                        {MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions, GetRelatedOrders}
                     };
+
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.EntranceControlledPosition> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.EntranceControlledPosition> GetSource()
                 => (from order in _query.For<Facts::Order>()
@@ -317,7 +314,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Order.EntranceControlledPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.EntranceControlledPosition>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -326,19 +323,19 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public ActualPriceAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public ActualPriceAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderPositionMayCorrespontToActualPrice,
-                        MessageTypeCode.OrderPositionMustCorrespontToActualPrice,
-                        MessageTypeCode.OrderMustHaveActualPrice,
+                        {MessageTypeCode.OrderPositionMayCorrespontToActualPrice, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionMustCorrespontToActualPrice, GetRelatedOrders},
+                        {MessageTypeCode.OrderMustHaveActualPrice, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.ActualPrice> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.ActualPrice> GetSource()
             {
                 var result =
@@ -360,7 +357,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Order.ActualPrice> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.ActualPrice>(x => aggregateIds.Contains(x.OrderId));
             }
         }

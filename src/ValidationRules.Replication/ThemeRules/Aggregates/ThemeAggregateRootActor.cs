@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using NuClear.Replication.Core;
@@ -30,19 +31,22 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public ThemeAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public ThemeAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(query, x))) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
+            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Theme>, IEnumerable<long>> func)
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.DefaultThemeMustHaveOnlySelfAds,
-                        MessageTypeCode.ThemeCategoryMustBeActiveAndNotDeleted,
-                        MessageTypeCode.ThemePeriodMustContainOrderPeriod,
+                        {MessageTypeCode.DefaultThemeMustHaveOnlySelfAds, func},
+                        {MessageTypeCode.ThemeCategoryMustBeActiveAndNotDeleted, func},
+                        {MessageTypeCode.ThemePeriodMustContainOrderPeriod, func},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Theme> dataObjects)
+            {
+                var themeIds = dataObjects.Select(x => x.Id).ToHashSet();
+                return query.For<Order.OrderTheme>().Where(x => themeIds.Contains(x.ThemeId)).Select(x => x.OrderId);
+            }
+            
             public IQueryable<Theme> GetSource()
                 => from theme in _query.For<Facts::Theme>()
                    select new Theme
@@ -55,10 +59,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
 
             public FindSpecification<Theme> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Theme>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -67,17 +68,20 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public InvalidCategoryAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public InvalidCategoryAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(query, x))) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
+            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Theme.InvalidCategory>, IEnumerable<long>> func)
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.ThemeCategoryMustBeActiveAndNotDeleted,
+                        {MessageTypeCode.ThemeCategoryMustBeActiveAndNotDeleted, func},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Theme.InvalidCategory> dataObjects)
+            {
+                var themeIds = dataObjects.Select(x => x.ThemeId).ToHashSet();
+                return query.For<Order.OrderTheme>().Where(x => themeIds.Contains(x.ThemeId)).Select(x => x.OrderId);
+            }
+            
             public IQueryable<Theme.InvalidCategory> GetSource()
             {
                 var invalidCategories =
@@ -94,7 +98,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
 
             public FindSpecification<Theme.InvalidCategory> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Theme.InvalidCategory>(x => aggregateIds.Contains(x.ThemeId));
             }
         }

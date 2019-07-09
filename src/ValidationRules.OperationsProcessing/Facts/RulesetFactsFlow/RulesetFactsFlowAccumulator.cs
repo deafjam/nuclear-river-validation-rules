@@ -1,4 +1,5 @@
-﻿using NuClear.Messaging.API.Processing.Actors.Accumulators;
+﻿using System.Linq;
+using NuClear.Messaging.API.Processing.Actors.Accumulators;
 using NuClear.OperationsProcessing.Transports.Kafka;
 using NuClear.Replication.Core;
 using NuClear.Replication.OperationsProcessing;
@@ -18,11 +19,13 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 
         protected override AggregatableMessage<ICommand> Process(KafkaMessage kafkaMessage)
         {
+            var commands = _commandFactory.CreateCommands(kafkaMessage).ToList();
+            
             return new AggregatableMessage<ICommand>
-                {
-                    TargetFlow = MessageFlow,
-                    Commands = _commandFactory.CreateCommands(kafkaMessage),
-                };
+            {
+                TargetFlow = MessageFlow,
+                Commands = commands,
+            };
         }
     }
 }

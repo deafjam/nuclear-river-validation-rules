@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public ThemeOrganizationUnitAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public ThemeOrganizationUnitAccessor(IQuery query) => _query = query;
 
         public IQueryable<ThemeOrganizationUnit> GetSource() => _query
             .For<Erm::ThemeOrganizationUnit>()
@@ -35,7 +33,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<ThemeOrganizationUnit> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<ThemeOrganizationUnit>.Contains(x => x.Id, ids);
         }
 
@@ -53,7 +51,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 from project in _query.For<Project>().Where(x => organizationUnitIds.Contains(x.OrganizationUnitId))
                 select project.Id;
 
-            return new EventCollectionHelper<ThemeOrganizationUnit> { { typeof(Project), projectIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(ThemeOrganizationUnit), typeof(Project), projectIds.ToHashSet())};
         }
     }
 }

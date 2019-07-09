@@ -11,13 +11,14 @@ using NuClear.Replication.Core;
 using NuClear.Replication.Core.Commands;
 using NuClear.Replication.OperationsProcessing;
 using NuClear.Tracing.API;
+using NuClear.ValidationRules.Replication;
 using NuClear.ValidationRules.Replication.Events;
 
 namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 {
     public sealed class RulesetFactsFlowHandler : IMessageProcessingHandler
     {
-        private readonly IDataObjectsActorFactory _dataObjectsActorFactory;
+        private readonly IDataObjectsActorFactoryRefactored _dataObjectsActorFactory;
         private readonly IEventLogger _eventLogger;
         private readonly ITracer _tracer;
 
@@ -28,7 +29,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
             };
 
         public RulesetFactsFlowHandler(
-            IDataObjectsActorFactory dataObjectsActorFactory,
+            IDataObjectsActorFactoryRefactored dataObjectsActorFactory,
             IEventLogger eventLogger,
             ITracer tracer)
         {
@@ -41,20 +42,19 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
         {
             try
             {
+                var commands = processingResultsMap.SelectMany(x => x.Value)
+                    .Cast<AggregatableMessage<ICommand>>()
+                    .SelectMany(x => x.Commands)
+                    .ToList();
+
                 using (var transaction = new TransactionScope(TransactionScopeOption.Required, _transactionOptions))
                 {
-                    var commands = processingResultsMap.SelectMany(x => x.Value)
-                                                       .Cast<AggregatableMessage<ICommand>>()
-                                                       .SelectMany(x => x.Commands)
-                                                       .ToList();
                     var events = Handle(commands.OfType<IReplaceDataObjectCommand>().ToList());
                     var replaceEvents = events.Select(x => new FlowEvent(RulesetFactsFlow.Instance, x))
                                               .ToList();
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
-                    {
                         _eventLogger.Log<IEvent>(replaceEvents);
-                    }
 
                     transaction.Complete();
                 }
@@ -77,20 +77,22 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 
         private IEnumerable<IEvent> Handle(IReadOnlyCollection<IReplaceDataObjectCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                return Enumerable.Empty<IEvent>();
             }
 
-            var actors = _dataObjectsActorFactory.Create();
-            var events = new HashSet<IEvent>(new FactsEventEqualityComparer());
+            var dataObjectTypes = commands.Select(x => x.DataObjectType).ToHashSet();
+            var actors = _dataObjectsActorFactory.Create(dataObjectTypes);
+            var eventsCollector = new FactsEventCollector();
 
             foreach (var actor in actors)
             {
-                events.UnionWith(actor.ExecuteCommands(commands));
+                var events = actor.ExecuteCommands(commands);
+                eventsCollector.Add(events);
             }
 
-            return events;
+            return eventsCollector.Events();
         }
     }
 }

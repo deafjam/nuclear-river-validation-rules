@@ -1,36 +1,15 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using NuClear.Replication.Core.Commands;
 using NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 
 namespace NuClear.ValidationRules.Replication.Commands
 {
-    public class RecalculatePeriodCommand : IAggregateCommand
+    public sealed class RecalculatePeriodCommand : IAggregateCommand
     {
-        public RecalculatePeriodCommand(PeriodKey periodKey)
-        {
-            Point = periodKey;
-        }
-
-        public PeriodKey Point { get; }
         public Type AggregateRootType => typeof(Period);
+        public IEnumerable<PeriodKey> PeriodKeys { get; }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((RecalculatePeriodCommand)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return Point.GetHashCode();
-        }
-
-        protected bool Equals(RecalculatePeriodCommand other)
-        {
-            return Point.Equals(other.Point);
-        }
+        public RecalculatePeriodCommand(IEnumerable<PeriodKey> periodKeys) => PeriodKeys = periodKeys;
     }
 }

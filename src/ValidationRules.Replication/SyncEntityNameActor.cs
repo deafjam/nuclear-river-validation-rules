@@ -66,10 +66,17 @@ namespace NuClear.ValidationRules.Replication
                     foreach (var replaceDataObjectCommand in replaceDataObjectCommands)
                     {
                         var specification = accessor.GetFindSpecification(replaceDataObjectCommand);
-                        _bulkRepository.Delete(_query.For<EntityName>().WhereMatched(specification));
 
-                        var entityNames = accessor.GetDataObjects(replaceDataObjectCommand);
-                        _bulkRepository.Create(entityNames);
+                        var dataChangesDetector = new TwoPhaseDataChangesDetector<EntityName>(
+                            _ => accessor.GetDataObjects(replaceDataObjectCommand),
+                            spec => _query.For<EntityName>().WhereMatched(spec),
+                            _identityComparer,
+                            _completeComparer);
+
+                        var changes = dataChangesDetector.DetectChanges(specification);
+                        _bulkRepository.Delete(changes.Complement);
+                        _bulkRepository.Create(changes.Difference);
+                        _bulkRepository.Update(changes.Intersection);
                     }
                 }
             }
@@ -323,8 +330,9 @@ namespace NuClear.ValidationRules.Replication
         {
             var ids = commands.Cast<SyncDataObjectCommand>()
                               .Where(c => c.DataObjectType == type)
-                              .ToHashSet() // distinct
-                              .Select(c => new { Id = c.DataObjectId, EntityType = typeId }).ToList();
+                              .SelectMany(x => x.DataObjectIds)
+                              .ToHashSet()
+                              .Select(id => new { Id = id, EntityType = typeId }).ToList();
 
             return SpecificationFactory<EntityName>.Contains(x => new { x.Id, x.EntityType }, ids);
         }

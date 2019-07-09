@@ -78,7 +78,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
         private static Order.MissingRequiredField CreateOrderMissingRequiredField(long orderId,
                                                                                       bool branchOfficeOrganizationUnit = true,
-                                                                                      bool currency = true,
+                                                                                      bool currency = false,
                                                                                       bool deal = true,
                                                                                       bool legalPerson = true,
                                                                                       bool legalPersonProfile = true)

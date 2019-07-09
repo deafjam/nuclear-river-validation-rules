@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public FirmAddressCategoryAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public FirmAddressCategoryAccessor(IQuery query) => _query = query;
 
         public IQueryable<FirmAddressCategory> GetSource() => GetLevelThreeSource().Union(GetLevelOneSource());
 
@@ -46,7 +44,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<FirmAddressCategory> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<FirmAddressCategory>.Contains(x => x.FirmAddressId, ids);
         }
 
@@ -61,14 +59,14 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<FirmAddressCategory> dataObjects)
         {
-            var firmAddressIds = dataObjects.Select(x => x.FirmAddressId);
+            var firmAddressIds = dataObjects.Select(x => x.FirmAddressId).ToHashSet();
 
             var orderIds =
                 from firmAddress in _query.For<FirmAddress>().Where(x => firmAddressIds.Contains(x.Id))
                 from order in _query.For<Order>().Where(x => x.FirmId == firmAddress.FirmId)
                 select order.Id;
 
-            return new EventCollectionHelper<FirmAddressCategory> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(FirmAddressCategory), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

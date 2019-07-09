@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public CostPerClickCategoryRestrictionAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public CostPerClickCategoryRestrictionAccessor(IQuery query) => _query = query;
 
         public IQueryable<CostPerClickCategoryRestriction> GetSource() => _query
             .For<Erm::CostPerClickCategoryRestriction>()
@@ -35,7 +33,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<CostPerClickCategoryRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<CostPerClickCategoryRestriction>.Contains(x => x.ProjectId, ids);
         }
 
@@ -50,9 +48,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<CostPerClickCategoryRestriction> dataObjects)
         {
-            var projectId = dataObjects.Select(x => x.ProjectId);
+            var projectIds = dataObjects.Select(x => x.ProjectId);
 
-            return new EventCollectionHelper<CostPerClickCategoryRestriction> { { typeof(Project), projectId } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(CostPerClickCategoryRestriction), typeof(Project), projectIds.ToHashSet())};
         }
     }
 }

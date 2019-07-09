@@ -19,8 +19,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.AggregatesFlow
 {
     public sealed class AggregatesFlowHandler : IMessageProcessingHandler
     {
-        private static readonly EventEqualityComparer EqualityComparer = new EventEqualityComparer();
-
         private readonly IAggregateActorFactory _aggregateActorFactory;
         private readonly AggregatesFlowTelemetryPublisher _telemetryPublisher;
         private readonly IEventLogger _eventLogger;
@@ -40,26 +38,25 @@ namespace NuClear.ValidationRules.OperationsProcessing.AggregatesFlow
         {
             try
             {
+                var commands = processingResultsMap.SelectMany(x => x.Value).Cast<AggregatableMessage<ICommand>>().SelectMany(x => x.Commands).ToList();
+                
                 using (Probe.Create("ETL2 Transforming"))
                 using (var transaction = new TransactionScope(TransactionScopeOption.Required, _transactionOptions))
                 {
-                    var commands = processingResultsMap.SelectMany(x => x.Value).Cast<AggregatableMessage<ICommand>>().SelectMany(x => x.Commands).ToList();
-
                     var syncEvents = Handle(commands.OfType<IAggregateCommand>().ToList())
                                     .Select(x => new FlowEvent(AggregatesFlow.Instance, x)).ToList();
-                    var stateEvents = Handle(commands.OfType<IncrementErmStateCommand>().ToList()).Concat(
-                                      Handle(commands.OfType<IncrementAmsStateCommand>().ToList())).Concat(
-                                      Handle(commands.OfType<LogDelayCommand>().ToList()))
-                                      .Select(x => new FlowEvent(AggregatesFlow.Instance, x));
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                         _eventLogger.Log<IEvent>(syncEvents);
 
                     transaction.Complete();
-
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                        _eventLogger.Log<IEvent>(syncEvents.Concat(stateEvents).ToList());
                 }
+                
+                var stateEvents = Handle(commands.OfType<IncrementErmStateCommand>().ToList()).Concat(
+                        Handle(commands.OfType<IncrementAmsStateCommand>().ToList())).Concat(
+                        Handle(commands.OfType<LogDelayCommand>().ToList()))
+                    .Select(x => new FlowEvent(AggregatesFlow.Instance, x)).ToList();
+                _eventLogger.Log<IEvent>(stateEvents);
 
                 return processingResultsMap.Keys.Select(bucketId => MessageProcessingStage.Handling.ResultFor(bucketId).AsSucceeded());
             }
@@ -72,9 +69,9 @@ namespace NuClear.ValidationRules.OperationsProcessing.AggregatesFlow
 
         private IEnumerable<IEvent> Handle(IReadOnlyCollection<LogDelayCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                return Enumerable.Empty<IEvent>();
             }
 
             var eldestEventTime = commands.Min(x => x.EventTime);
@@ -85,9 +82,9 @@ namespace NuClear.ValidationRules.OperationsProcessing.AggregatesFlow
 
         private static IEnumerable<IEvent> Handle(IReadOnlyCollection<IncrementAmsStateCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                return Enumerable.Empty<IEvent>();
             }
 
             var maxAmsState = commands.Select(x => x.State).OrderByDescending(x => x.Offset).First();
@@ -96,59 +93,32 @@ namespace NuClear.ValidationRules.OperationsProcessing.AggregatesFlow
 
         private static IEnumerable<IEvent> Handle(IReadOnlyCollection<IncrementErmStateCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                yield break;
             }
 
-            return new IEvent[] { new ErmStateIncrementedEvent(commands.SelectMany(x => x.States)) };
+            yield return new ErmStateIncrementedEvent(commands.SelectMany(x => x.States));
         }
 
         private IEnumerable<IEvent> Handle(IReadOnlyCollection<IAggregateCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                return Enumerable.Empty<IEvent>();
             }
 
-            var actors = _aggregateActorFactory.Create(new HashSet<Type>(commands.Select(x => x.AggregateRootType)));
-            var events = new HashSet<IEvent>(EqualityComparer);
+            var aggregateTypes = commands.Select(x => x.AggregateRootType).ToHashSet();
+            var actors = _aggregateActorFactory.Create(aggregateTypes);
 
+            var eventCollector = new AggregateEventCollector();
             foreach (var actor in actors)
             {
-                events.UnionWith(actor.ExecuteCommands(commands));
+                var events = actor.ExecuteCommands(commands);
+                eventCollector.Add(events);
             }
 
-            return events;
-        }
-
-        private sealed class EventEqualityComparer : IEqualityComparer<IEvent>
-        {
-            public bool Equals(IEvent x, IEvent y)
-            {
-                switch (x)
-                {
-                    case ResultOutdatedEvent resultOutdatedEventX:
-                        return y is ResultOutdatedEvent resultOutdatedEventY && ResultOutdatedEvent.Comparer.Equals(resultOutdatedEventX, resultOutdatedEventY);
-                    case ResultPartiallyOutdatedEvent resultPartiallyOutdatedEventX:
-                        return y is ResultPartiallyOutdatedEvent resultPartiallyOutdatedEventY && ResultPartiallyOutdatedEvent.Comparer.Equals(resultPartiallyOutdatedEventX, resultPartiallyOutdatedEventY);
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(x));
-                }
-            }
-
-            public int GetHashCode(IEvent obj)
-            {
-                switch (obj)
-                {
-                    case ResultOutdatedEvent resultOutdatedEvent:
-                        return ResultOutdatedEvent.Comparer.GetHashCode(resultOutdatedEvent);
-                    case ResultPartiallyOutdatedEvent resultPartiallyOutdatedEvent:
-                        return ResultPartiallyOutdatedEvent.Comparer.GetHashCode(resultPartiallyOutdatedEvent);
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(obj));
-                }
-            }
+            return eventCollector.Events();
         }
     }
 }

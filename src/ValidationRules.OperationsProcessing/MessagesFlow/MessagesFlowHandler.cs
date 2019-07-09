@@ -37,12 +37,12 @@ namespace NuClear.ValidationRules.OperationsProcessing.MessagesFlow
         {
             try
             {
+                var commands = processingResultsMap.SelectMany(x => x.Value).Cast<AggregatableMessage<ICommand>>().SelectMany(x => x.Commands).ToList();
+                
                 using (Probe.Create("ETL3 Transforming"))
                 // Транзакция важна для запросов в пространстве Messages, запросы в Aggregates нужно выполнять без транзакции, хотя в идеале хотелось бы две независимые транзакции.
                 using (var transaction = new TransactionScope(TransactionScopeOption.Required, _transactionOptions))
                 {
-                    var commands = processingResultsMap.SelectMany(x => x.Value).Cast<AggregatableMessage<ICommand>>().SelectMany(x => x.Commands).ToList();
-
                     Handle(commands.OfType<IValidationRuleCommand>().ToList());
                     Handle(commands.OfType<LogDelayCommand>().ToList());
 
@@ -60,7 +60,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.MessagesFlow
 
         private void Handle(IReadOnlyCollection<LogDelayCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
                 return;
             }
@@ -72,7 +72,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.MessagesFlow
 
         private void Handle(IReadOnlyCollection<IValidationRuleCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
                 return;
             }

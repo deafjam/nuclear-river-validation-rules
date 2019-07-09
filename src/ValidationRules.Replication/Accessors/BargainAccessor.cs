@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public BargainAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public BargainAccessor(IQuery query) => _query = query;
 
         public IQueryable<Bargain> GetSource() => _query
             .For<Erm::Bargain>()
@@ -34,7 +32,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<Bargain> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<Bargain>.Contains(x => x.Id, ids);
         }
 
@@ -49,13 +47,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Bargain> dataObjects)
         {
-            var bargainIds = dataObjects.Select(x => x.Id);
+            var bargainIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var orderIds =
                 from order in _query.For<Order>().Where(x => x.BargainId.HasValue && bargainIds.Contains(x.BargainId.Value))
                 select order.Id;
 
-            return new EventCollectionHelper<Bargain> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(Bargain), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

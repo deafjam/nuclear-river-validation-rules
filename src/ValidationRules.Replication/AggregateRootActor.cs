@@ -61,15 +61,10 @@ namespace NuClear.ValidationRules.Replication
                 IStorageBasedDataObjectAccessor<TEntity> storageBasedDataObjectAccessor,
                 IDataChangesHandler<TEntity> dataChangesHandler,
                 IReadOnlyCollection<IActor> valueObjectActors)
-                : base(query, bulkRepository, equalityComparerFactory, storageBasedDataObjectAccessor, dataChangesHandler)
-            {
+                : base(query, bulkRepository, equalityComparerFactory, storageBasedDataObjectAccessor, dataChangesHandler) =>
                 _valueObjectActors = valueObjectActors;
-            }
 
-            public override IReadOnlyCollection<IActor> GetValueObjectActors()
-            {
-                return _valueObjectActors;
-            }
+            public override IReadOnlyCollection<IActor> GetValueObjectActors() => _valueObjectActors;
         }
     }
 }

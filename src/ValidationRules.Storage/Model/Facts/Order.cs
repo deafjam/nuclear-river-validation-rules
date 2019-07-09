@@ -17,13 +17,13 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
         public long? LegalPersonId { get; set; }
         public long? LegalPersonProfileId { get; set; }
         public long? BranchOfficeOrganizationUnitId { get; set; }
-        public long? CurrencyId { get; set; }
         public long? BargainId { get; set; }
         public long? DealId { get; set; }
 
 
         public int WorkflowStep { get; set; }
         public bool IsFreeOfCharge { get; set; }
+        public bool HasCurrency { get; set; }
         public bool IsSelfAds { get; set; }
         public bool IsSelfSale { get; set; }
 

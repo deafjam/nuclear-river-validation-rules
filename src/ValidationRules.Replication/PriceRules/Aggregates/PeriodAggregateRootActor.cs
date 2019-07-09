@@ -29,10 +29,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public PeriodAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public PeriodAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
@@ -63,7 +60,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Period> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var dates = commands.Cast<SyncPeriodCommand>().Select(c => c.Date).ToHashSet();
+                var dates = commands.Cast<SyncPeriodCommand>().SelectMany(c => c.Dates).ToHashSet();
                 return Periods(dates);
             }
 

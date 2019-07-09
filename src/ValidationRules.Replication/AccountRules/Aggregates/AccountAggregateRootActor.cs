@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using NuClear.Replication.Core;
@@ -31,10 +32,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public AccountAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public AccountAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator();
@@ -44,10 +42,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
 
             public FindSpecification<Account> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Account>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -59,16 +54,19 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
 
             private readonly IQuery _query;
 
-            public AccountPeriodAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public AccountPeriodAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(query, x))) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
+            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Account.AccountPeriod>, IEnumerable<long>> func)
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AccountBalanceShouldBePositive
+                        {MessageTypeCode.AccountBalanceShouldBePositive, func}
                     };
+
+            private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Account.AccountPeriod> dataObjects)
+            {
+                var accountIds = dataObjects.Select(x => x.AccountId).ToHashSet();
+                return query.For<Order>().Where(x => accountIds.Contains(x.AccountId.Value)).Select(x => x.Id);
+            }
 
             public IQueryable<Account.AccountPeriod> GetSource()
             {
@@ -113,7 +111,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
 
             public FindSpecification<Account.AccountPeriod> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Account.AccountPeriod>(x => aggregateIds.Contains(x.AccountId));
             }
         }

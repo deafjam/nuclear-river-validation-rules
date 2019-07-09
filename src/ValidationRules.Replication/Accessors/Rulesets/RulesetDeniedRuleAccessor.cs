@@ -14,11 +14,8 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
 {
     public sealed class RulesetDeniedRuleAccessor : IMemoryBasedDataObjectAccessor<Ruleset.DeniedRule>, IDataChangesHandler<Ruleset.DeniedRule>
     {
-        private readonly IQuery _query;
-
-        public RulesetDeniedRuleAccessor(IQuery query)
+        public RulesetDeniedRuleAccessor(IQuery _)
         {
-            _query = query;
         }
 
         public IReadOnlyCollection<Ruleset.DeniedRule> GetDataObjects(ICommand command)

@@ -1,10 +1,11 @@
 ﻿using System;
-
+using System.Linq;
 using NuClear.Jobs;
 using NuClear.OperationsLogging.API;
 using NuClear.Replication.Core;
 using NuClear.Security.API.Auth;
 using NuClear.Security.API.Context;
+using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Writings;
 using NuClear.Tracing.API;
 using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
@@ -23,6 +24,7 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
         private static readonly TimeSpan AmsSyncInterval = TimeSpan.FromMinutes(1);
 
         private readonly KafkaMessageFlowInfoProvider _kafkaMessageFlowInfoProvider;
+        private readonly IQuery _query;
         private readonly IRepository<SystemStatus> _repository;
         private readonly IEventLogger _eventLogger;
 
@@ -31,11 +33,13 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
                             IUserAuthorizationService userAuthorizationService,
                             ITracer tracer,
                             KafkaMessageFlowInfoProvider kafkaMessageFlowInfoProvider,
+                            IQuery query,
                             IRepository<SystemStatus> repository,
                             IEventLogger eventLogger)
             : base(userContextManager, userAuthenticationService, userAuthorizationService, tracer)
         {
             _kafkaMessageFlowInfoProvider = kafkaMessageFlowInfoProvider;
+            _query = query;
             _repository = repository;
             _eventLogger = eventLogger;
         }
@@ -56,10 +60,16 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
             var amsUtcNow = amsLastMessage.Timestamp.UtcDateTime;
             var amsIsDown = (utcNow - amsUtcNow).Duration() > AmsSyncInterval;
 
-            _repository.Update(new SystemStatus { Id = SystemStatus.SystemId.Ams, SystemIsDown = amsIsDown });
-            _repository.Save();
+            var amsSystemStatus = _query.For<SystemStatus>().Single(x => x.Id == SystemStatus.SystemId.Ams);
+            if (amsSystemStatus.SystemIsDown == amsIsDown)
+            {
+                return;
+            }
 
-            _eventLogger.Log<IEvent>(new[] { new FlowEvent(AmsFactsFlow.Instance, new DataObjectUpdatedEvent(typeof(SystemStatus), SystemStatus.SystemId.Ams)) });
+            amsSystemStatus.SystemIsDown = amsIsDown;
+            _repository.Update(amsSystemStatus);
+            _repository.Save();
+            _eventLogger.Log<IEvent>(new[] { new FlowEvent(AmsFactsFlow.Instance, new DataObjectUpdatedEvent(typeof(SystemStatus), new[] { SystemStatus.SystemId.Ams })) });
         }
     }
 }

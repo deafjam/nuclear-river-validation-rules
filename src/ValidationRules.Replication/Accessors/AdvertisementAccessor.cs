@@ -8,6 +8,7 @@ using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Dto;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 namespace NuClear.ValidationRules.Replication.Accessors
@@ -16,10 +17,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public AdvertisementAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public AdvertisementAccessor(IQuery query) => _query = query;
 
         public IReadOnlyCollection<Advertisement> GetDataObjects(ICommand command)
         {
@@ -47,11 +45,11 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var advertisementIds = dataObjects.Select(x => x.Id);
 
             var orderIds =
-                from pricePosition in _query.For<OrderPositionAdvertisement>().Where(x => x.AdvertisementId != null && advertisementIds.Contains(x.AdvertisementId.Value))
+                from pricePosition in _query.For<OrderPositionAdvertisement>().Where(x => advertisementIds.Contains(x.AdvertisementId.Value))
                 from orderPosition in _query.For<OrderPosition>().Where(x => x.Id == pricePosition.OrderPositionId)
                 select orderPosition.OrderId;
 
-            return new EventCollectionHelper<Advertisement> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(Advertisement), typeof(Order), orderIds.ToHashSet())};
         }
 
         public IReadOnlyCollection<IEvent> HandleCreates(IReadOnlyCollection<Advertisement> dataObjects) => Array.Empty<IEvent>();

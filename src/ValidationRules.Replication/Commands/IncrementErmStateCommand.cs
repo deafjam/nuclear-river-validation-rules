@@ -7,11 +7,8 @@ namespace NuClear.ValidationRules.Replication.Commands
 {
     public sealed class IncrementErmStateCommand : ICommand
     {
-        public IncrementErmStateCommand(IEnumerable<ErmState> states)
-        {
-            States = states;
-        }
-
         public IEnumerable<ErmState> States { get; }
+        
+        public IncrementErmStateCommand(IEnumerable<ErmState> states) => States = states;
     }
 }

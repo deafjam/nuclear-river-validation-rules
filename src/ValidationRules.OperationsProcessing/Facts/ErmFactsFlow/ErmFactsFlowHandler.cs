@@ -20,9 +20,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
 {
     public sealed class ErmFactsFlowHandler : IMessageProcessingHandler
     {
-        private static readonly FactsEventEqualityComparer EqualityComparer = new FactsEventEqualityComparer();
-
-        private readonly IDataObjectsActorFactory _dataObjectsActorFactory;
+        private readonly IDataObjectsActorFactoryRefactored _dataObjectsActorFactory;
         private readonly SyncEntityNameActor _syncEntityNameActor;
         private readonly IEventLogger _eventLogger;
         private readonly ITracer _tracer;
@@ -30,7 +28,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
         private readonly TransactionOptions _transactionOptions;
 
         public ErmFactsFlowHandler(
-            IDataObjectsActorFactory dataObjectsActorFactory,
+            IDataObjectsActorFactoryRefactored dataObjectsActorFactory,
             SyncEntityNameActor syncEntityNameActor,
             IEventLogger eventLogger,
             ErmFactsFlowTelemetryPublisher telemetryPublisher,
@@ -48,25 +46,24 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
         {
             try
             {
+                var commands = processingResultsMap.SelectMany(x => x.Value).Cast<AggregatableMessage<ICommand>>().SelectMany(x => x.Commands).ToList();
+                
                 using (Probe.Create("ETL1 Transforming"))
                 using (var transaction = new TransactionScope(TransactionScopeOption.Required, _transactionOptions))
                 {
-                    var commands = processingResultsMap.SelectMany(x => x.Value).Cast<AggregatableMessage<ICommand>>().SelectMany(x => x.Commands).ToList();
-
                     var syncEvents = Handle(commands.OfType<ISyncDataObjectCommand>().ToList())
                                      .Select(x => new FlowEvent(ErmFactsFlow.Instance, x)).ToList();
-                    var stateEvents = Handle(commands.OfType<IncrementErmStateCommand>().ToList())
-                                      .Select(x => new FlowEvent(ErmFactsFlow.Instance, x));
-
+                    
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                         _eventLogger.Log<IEvent>(syncEvents);
 
                     transaction.Complete();
-
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                        _eventLogger.Log<IEvent>(syncEvents.Concat(stateEvents).ToList());
                 }
 
+                var stateEvents = Handle(commands.OfType<IncrementErmStateCommand>().ToList())
+                    .Select(x => new FlowEvent(ErmFactsFlow.Instance, x)).ToList();
+                _eventLogger.Log<IEvent>(stateEvents);
+                
                 return processingResultsMap.Keys.Select(bucketId => MessageProcessingStage.Handling.ResultFor(bucketId).AsSucceeded());
             }
             catch (Exception ex)
@@ -78,44 +75,42 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
 
         private IEnumerable<IEvent> Handle(IReadOnlyCollection<IncrementErmStateCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                yield break;
             }
 
             var eldestEventTime = commands.SelectMany(x => x.States).Min(x => x.UtcDateTime);
             var delta = DateTime.UtcNow - eldestEventTime;
             _telemetryPublisher.Delay((int)delta.TotalMilliseconds);
 
-            return new IEvent[]
-            {
-                new ErmStateIncrementedEvent(commands.SelectMany(x => x.States)),
-                new DelayLoggedEvent(DateTime.UtcNow)
-            };
+            yield return new ErmStateIncrementedEvent(commands.SelectMany(x => x.States));
+            yield return new DelayLoggedEvent(DateTime.UtcNow);
         }
 
         private IEnumerable<IEvent> Handle(IReadOnlyCollection<ISyncDataObjectCommand> commands)
         {
-            if (!commands.Any())
+            if (commands.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                return Enumerable.Empty<IEvent>();
             }
 
-            var actors = _dataObjectsActorFactory.Create();
-            var events = new HashSet<IEvent>(EqualityComparer);
+            var dataObjectTypes = commands.Select(x => x.DataObjectType).ToHashSet();
+            var actors = _dataObjectsActorFactory.Create(dataObjectTypes);
 
+            var eventCollector = new FactsEventCollector();
             foreach (var actor in actors)
             {
-                var actorType = actor.GetType().GetFriendlyName();
-                using (Probe.Create($"ETL1 {actorType}"))
+                using (Probe.Create($"ETL1 {actor.GetType().GetFriendlyName()}"))
                 {
-                    events.UnionWith(actor.ExecuteCommands(commands));
+                    var events = actor.ExecuteCommands(commands);
+                    eventCollector.Add(events);
                 }
             }
 
             _syncEntityNameActor.ExecuteCommands(commands);
 
-            return events;
+            return eventCollector.Events();
         }
     }
 }

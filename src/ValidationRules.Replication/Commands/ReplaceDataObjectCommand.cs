@@ -10,10 +10,7 @@ namespace NuClear.ValidationRules.Replication.Commands
         public Type DataObjectType { get; }
         public IEnumerable<object> Dtos { get; }
 
-        public ReplaceDataObjectCommand(Type dataObjectType, IEnumerable<object> dtos)
-        {
-            DataObjectType = dataObjectType;
-            Dtos = dtos;
-        }
+        public ReplaceDataObjectCommand(Type dataObjectType, IEnumerable<object> dtos) =>
+            (DataObjectType, Dtos) = (dataObjectType, dtos);
     }
 }

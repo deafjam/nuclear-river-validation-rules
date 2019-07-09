@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ValidationRules.Replication.Host": {
+      "commandName": "Project",
+      "commandLineArgs": "-console"
+    }
+  }
+}

@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public PositionChildAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public PositionChildAccessor(IQuery query) => _query = query;
 
         public IQueryable<PositionChild> GetSource() => _query
             .For<Erm::PositionChild>()
@@ -33,7 +31,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<PositionChild> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<PositionChild>.Contains(x => x.MasterPositionId, ids);
         }
 
@@ -48,14 +46,14 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<PositionChild> dataObjects)
         {
-            var positionIds = dataObjects.Select(x => x.MasterPositionId).ToList();
+            var positionIds = dataObjects.Select(x => x.MasterPositionId).ToHashSet();
 
-            var orderIdsFromPricePosition =
+            var orderIds =
                   from pricePosition in _query.For<PricePosition>().Where(x => positionIds.Contains(x.PositionId))
                   from orderPosition in _query.For<OrderPosition>().Where(x => x.PricePositionId == pricePosition.Id)
                   select orderPosition.OrderId;
 
-            return new EventCollectionHelper<PositionChild> { { typeof(Order), orderIdsFromPricePosition } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(PositionChild), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

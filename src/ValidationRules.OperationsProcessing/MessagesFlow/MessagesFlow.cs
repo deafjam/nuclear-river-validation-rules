@@ -8,6 +8,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.MessagesFlow
     {
         public override Guid Id => new Guid("2B3D30F7-6E59-4510-B680-D7FDD9DEFE0F");
 
-        public override string Description => "Маркер для потока пересчёта сообщений валидации";
+        public override string Description => nameof(MessagesFlow);
     }
 }

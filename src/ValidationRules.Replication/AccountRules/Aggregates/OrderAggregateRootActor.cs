@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using NuClear.Replication.Core;
@@ -31,18 +32,18 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AccountBalanceShouldBePositive,
-                        MessageTypeCode.AccountShouldExist,
+                        {MessageTypeCode.AccountBalanceShouldBePositive, GetRelatedOrders},
+                        {MessageTypeCode.AccountShouldExist, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects)
+                => dataObjects.Select(x => x.Id);
+            
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>().Where(x => Facts::Order.State.Payable.Contains(x.WorkflowStep))
                    from account in _query.For<Facts::Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId).DefaultIfEmpty()
@@ -57,10 +58,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -69,16 +67,16 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public DebtPermissionAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public DebtPermissionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AccountBalanceShouldBePositive
+                        {MessageTypeCode.AccountBalanceShouldBePositive, GetRelatedOrders}
                     };
+
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.DebtPermission> dataObjects)
+                => dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.DebtPermission> GetSource()
                 => from x in _query.For<Facts::UnlimitedOrder>()
@@ -91,7 +89,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
 
             public FindSpecification<Order.DebtPermission> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.DebtPermission>(x => aggregateIds.Contains(x.OrderId));
             }
         }

@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
@@ -17,10 +18,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public NomenclatureCategoryAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public NomenclatureCategoryAccessor(IQuery query) => _query = query;
 
         public IQueryable<NomenclatureCategory> GetSource()
             => _query.For(Specs.Find.Erm.NomenclatureCategory)
@@ -28,7 +26,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<NomenclatureCategory> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<NomenclatureCategory>.Contains(x => x.Id, ids);
         }
 
@@ -43,14 +41,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<NomenclatureCategory> dataObjects)
         {
-            var ids = dataObjects.Select(x => x.Id);
+            var ids = dataObjects.Select(x => x.Id).ToHashSet();
 
             var rulesetIds = _query.For<Ruleset.QuantitativeRule>()
                                    .Where(r => ids.Contains(r.NomenclatureCategoryCode))
-                                   .Select(r => r.RulesetId)
-                                   .ToHashSet();
+                                   .Select(r => r.RulesetId);
 
-            return new EventCollectionHelper<NomenclatureCategory> { { typeof(Ruleset), rulesetIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(NomenclatureCategory), typeof(Ruleset), rulesetIds.ToHashSet())};
         }
     }
 }

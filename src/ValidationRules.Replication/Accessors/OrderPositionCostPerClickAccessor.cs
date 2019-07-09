@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public OrderPositionCostPerClickAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public OrderPositionCostPerClickAccessor(IQuery query) => _query = query;
 
         public IQueryable<OrderPositionCostPerClick> GetSource() => _query
             .For<Erm::OrderPositionCostPerClick>()
@@ -38,7 +36,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<OrderPositionCostPerClick> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<OrderPositionCostPerClick>.Contains(x => x.OrderPositionId, ids);
         }
 
@@ -59,7 +57,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 from op in _query.For<OrderPosition>().Where(x => orderPositionIds.Contains(x.Id))
                 select op.OrderId;
 
-            return new EventCollectionHelper<OrderPositionCostPerClick> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(OrderPositionCostPerClick), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

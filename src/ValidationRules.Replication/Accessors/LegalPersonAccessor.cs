@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Specs;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.ValidationRules.Replication.Commands;
+using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Storage.Model.Facts;
 
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
@@ -18,10 +19,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public LegalPersonAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public LegalPersonAccessor(IQuery query) => _query = query;
 
         public IQueryable<LegalPerson> GetSource() => _query
             .For<Erm::LegalPerson>()
@@ -33,7 +31,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<LegalPerson> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return SpecificationFactory<LegalPerson>.Contains(x => x.Id, ids);
         }
 
@@ -48,13 +46,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<LegalPerson> dataObjects)
         {
-            var ids = dataObjects.Select(x => x.Id);
+            var legalPersonIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var orderIds =
-                from order in _query.For<Order>().Where(x => ids.Contains(x.LegalPersonId.Value))
+                from order in _query.For<Order>().Where(x => legalPersonIds.Contains(x.LegalPersonId.Value))
                 select order.Id;
 
-            return new EventCollectionHelper<LegalPerson> { { typeof(Order), orderIds } };
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(LegalPerson), typeof(Order), orderIds.ToHashSet())};
         }
     }
 }

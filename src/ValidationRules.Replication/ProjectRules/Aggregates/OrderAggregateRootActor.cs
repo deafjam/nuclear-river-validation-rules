@@ -34,23 +34,23 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.FirmAddressMustBeLocatedOnTheMap,
-                        MessageTypeCode.OrderMustNotIncludeReleasedPeriod,
-                        MessageTypeCode.OrderMustUseCategoriesOnlyAvailableInProject,
-                        MessageTypeCode.OrderPositionCostPerClickMustBeSpecified,
-                        MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum,
-                        MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel,
-                        MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction,
+                        {MessageTypeCode.FirmAddressMustBeLocatedOnTheMap, GetRelatedOrders},
+                        {MessageTypeCode.OrderMustNotIncludeReleasedPeriod, GetRelatedOrders},
+                        {MessageTypeCode.OrderMustUseCategoriesOnlyAvailableInProject, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionCostPerClickMustBeSpecified, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel, GetRelatedOrders},
+                        {MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects) =>
+                dataObjects.Select(x => x.Id);
+            
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
@@ -65,10 +65,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -77,17 +74,17 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public AddressAdvertisementNonOnTheMapAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public AddressAdvertisementNonOnTheMapAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.FirmAddressMustBeLocatedOnTheMap,
+                        {MessageTypeCode.FirmAddressMustBeLocatedOnTheMap, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.AddressAdvertisementNonOnTheMap> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.AddressAdvertisementNonOnTheMap> GetSource()
                 => (from order in _query.For<Facts::Order>()
                     from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
@@ -106,7 +103,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
         public FindSpecification<Order.AddressAdvertisementNonOnTheMap> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.AddressAdvertisementNonOnTheMap>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -115,19 +112,19 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public CategoryAdvertisementAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public CategoryAdvertisementAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderMustUseCategoriesOnlyAvailableInProject,
-                        MessageTypeCode.OrderPositionCostPerClickMustBeSpecified,
-                        MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel,
+                        {MessageTypeCode.OrderMustUseCategoriesOnlyAvailableInProject, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionCostPerClickMustBeSpecified, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.CategoryAdvertisement> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.CategoryAdvertisement> GetSource()
                 => (from order in _query.For<Facts::Order>()
                     from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
@@ -147,7 +144,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Order.CategoryAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.CategoryAdvertisement>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -156,19 +153,19 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public CostPerClickAdvertisementAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public CostPerClickAdvertisementAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderPositionCostPerClickMustBeSpecified,
-                        MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum,
-                        MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction,
+                        {MessageTypeCode.OrderPositionCostPerClickMustBeSpecified, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum, GetRelatedOrders},
+                        {MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.CostPerClickAdvertisement> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.CostPerClickAdvertisement> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
@@ -185,7 +182,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
 
             public FindSpecification<Order.CostPerClickAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.CostPerClickAdvertisement>(x => aggregateIds.Contains(x.OrderId));
             }
         }

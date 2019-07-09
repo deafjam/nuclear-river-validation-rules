@@ -19,8 +19,9 @@ namespace NuClear.ValidationRules.Storage
         private static FluentMappingBuilder RegisterFacts(this FluentMappingBuilder builder)
         {
             builder.Entity<Account>()
-                   .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id);
+                    .HasSchemaName(FactsSchema)
+                    .HasPrimaryKey(x => x.Id)
+                    .HasIndex(x => new {x.BranchOfficeOrganizationUnitId, x.LegalPersonId});
 
             builder.Entity<AccountDetail>()
                    .HasSchemaName(FactsSchema)
@@ -125,7 +126,8 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<OrderItem>()
                    .HasSchemaName(FactsSchema)
                    // PK не получается создать, т.к. PricePositionId, FirmAddressId, CategoryId nullable
-                   .HasIndex(x => new { x.OrderId, x.OrderPositionId, x.PackagePositionId, x.ItemPositionId, x.PricePositionId, x.FirmAddressId, x.CategoryId}, clustered: true, unique: true, name: "PK_Analog");
+                   .HasIndex(x => new { x.OrderPositionId, x.PackagePositionId, x.ItemPositionId, x.PricePositionId, x.FirmAddressId, x.CategoryId}, clustered: true, unique: true, name: "PK_Analog")
+                   .HasIndex(x => x.OrderId);
 
             builder.Entity<OrderPosition>()
                    .HasSchemaName(FactsSchema)

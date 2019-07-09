@@ -5,13 +5,10 @@ namespace NuClear.ValidationRules.Replication.Events
 {
     public sealed class FlowEvent : IEvent
     {
-        public FlowEvent(IMessageFlow flow, IEvent @event)
-        {
-            Flow = flow;
-            Event = @event;
-        }
-
         public IMessageFlow Flow { get; }
         public IEvent Event { get; }
+
+        public FlowEvent(IMessageFlow flow, IEvent @event) =>
+            (Flow, Event) = (flow, @event);
     }
 }

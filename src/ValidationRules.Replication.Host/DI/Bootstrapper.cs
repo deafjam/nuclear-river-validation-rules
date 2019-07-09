@@ -401,7 +401,7 @@ namespace NuClear.ValidationRules.Replication.Host.DI
                    .RegisterMemoryAccessor<Ruleset.QuantitativeRule, RulesetQuantitativeRuleAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterMemoryAccessor<Ruleset.RulesetProject, RulesetProjectAccessor>(entryPointSpecificLifetimeManagerFactory)
 
-                   .RegisterType<IDataObjectsActorFactory, UnityDataObjectsActorFactory>(entryPointSpecificLifetimeManagerFactory())
+                   .RegisterType<IDataObjectsActorFactoryRefactored, UnityDataObjectsActorFactory>(entryPointSpecificLifetimeManagerFactory())
                    .RegisterType<IAggregateActorFactory, UnityAggregateActorFactory>(entryPointSpecificLifetimeManagerFactory());
         }
 

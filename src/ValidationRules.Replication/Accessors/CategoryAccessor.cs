@@ -17,10 +17,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
     {
         private readonly IQuery _query;
 
-        public CategoryAccessor(IQuery query)
-        {
-            _query = query;
-        }
+        public CategoryAccessor(IQuery query) => _query = query;
 
         // Тут мы ещё раз столкнулись с https://github.com/linq2db/linq2db/issues/395
         public IQueryable<Category> GetSource()
@@ -67,7 +64,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FindSpecification<Category> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
-            var ids = commands.Cast<SyncDataObjectCommand>().Select(c => c.DataObjectId).ToList();
+            var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
             return new FindSpecification<Category>(x => x.L1Id.HasValue && ids.Contains(x.L1Id.Value) || x.L2Id.HasValue && ids.Contains(x.L2Id.Value) || x.L3Id.HasValue && ids.Contains(x.L3Id.Value));
         }
 
@@ -79,7 +76,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Category> dataObjects)
         {
-            var categoryIds = dataObjects.Select(x => x.Id).ToList();
+            var categoryIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var orderAndFirmIds =
                 (from opa in _query.For<OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue && categoryIds.Contains(x.CategoryId.Value))
@@ -91,7 +88,12 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 from themeCategory in _query.For<ThemeCategory>().Where(x => categoryIds.Contains(x.CategoryId))
                 select themeCategory.ThemeId;
 
-            return new EventCollectionHelper<Category> { { typeof(Theme), themeIds }, { typeof(Order), orderAndFirmIds.Select(x => x.OrderId) }, { typeof(Firm), orderAndFirmIds.Select(x => x.FirmId) } };
+            return new[]
+            {
+                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Order), orderAndFirmIds.Select(x => x.OrderId).ToHashSet()),
+                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Firm), orderAndFirmIds.Select(x => x.FirmId).ToHashSet()),
+                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Theme), themeIds.ToHashSet()),
+            };
         }
     }
 }

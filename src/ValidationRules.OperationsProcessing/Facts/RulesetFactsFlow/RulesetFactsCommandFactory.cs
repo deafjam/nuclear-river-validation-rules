@@ -11,7 +11,7 @@ using ValidationRules.Hosting.Common.Settings;
 
 namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 {
-    public sealed class RulesetFactsCommandFactory : ICommandFactory<KafkaMessage>
+    internal sealed class RulesetFactsCommandFactory : ICommandFactory<KafkaMessage>
     {
         private readonly IDeserializer<Confluent.Kafka.Message, RulesetDto> _deserializer;
 
@@ -20,22 +20,17 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
             _deserializer = new RulesetDtoDeserializer(businessModelSettings);
         }
 
-        IReadOnlyCollection<ICommand> ICommandFactory<KafkaMessage>.CreateCommands(KafkaMessage kafkaMessage)
+        IEnumerable<ICommand> ICommandFactory<KafkaMessage>.CreateCommands(KafkaMessage kafkaMessage)
         {
             var deserializedDtos = _deserializer.Deserialize(kafkaMessage.Message);
-            if (deserializedDtos.Count == 0)
+            if (deserializedDtos.Count != 0)
             {
-                return Array.Empty<ICommand>();
+                yield return new ReplaceDataObjectCommand(typeof(Ruleset), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Ruleset.AssociatedRule), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Ruleset.DeniedRule), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Ruleset.QuantitativeRule), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Ruleset.RulesetProject), deserializedDtos);
             }
-
-            return new[]
-                {
-                    new ReplaceDataObjectCommand(typeof(Ruleset), deserializedDtos),
-                    new ReplaceDataObjectCommand(typeof(Ruleset.AssociatedRule), deserializedDtos),
-                    new ReplaceDataObjectCommand(typeof(Ruleset.DeniedRule), deserializedDtos),
-                    new ReplaceDataObjectCommand(typeof(Ruleset.QuantitativeRule), deserializedDtos),
-                    new ReplaceDataObjectCommand(typeof(Ruleset.RulesetProject), deserializedDtos)
-                };
         }
     }
 }

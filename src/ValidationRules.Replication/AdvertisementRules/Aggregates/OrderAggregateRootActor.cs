@@ -38,23 +38,23 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public OrderAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public OrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderPositionAdvertisementMustBeCreated,
-                        MessageTypeCode.OrderPositionAdvertisementMustHaveAdvertisement,
-                        MessageTypeCode.OrderPositionAdvertisementMustHaveOptionalAdvertisement,
-                        MessageTypeCode.AdvertisementMustPassReview,
-                        MessageTypeCode.OptionalAdvertisementMustPassReview,
-                        MessageTypeCode.AdvertisementShouldNotHaveComments,
-                        MessageTypeCode.AdvertisementMustBelongToFirm,
+                        {MessageTypeCode.OrderPositionAdvertisementMustBeCreated, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionAdvertisementMustHaveAdvertisement, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionAdvertisementMustHaveOptionalAdvertisement, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementMustPassReview, GetRelatedOrders},
+                        {MessageTypeCode.OptionalAdvertisementMustPassReview, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementShouldNotHaveComments, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementMustBelongToFirm, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects) =>
+                dataObjects.Select(x => x.Id);
+            
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>()
                    select new Order
@@ -67,10 +67,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.OfType<CreateDataObjectCommand>().Select(c => c.DataObjectId)
-                                           .Concat(commands.OfType<SyncDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .Concat(commands.OfType<DeleteDataObjectCommand>().Select(c => c.DataObjectId))
-                                           .ToHashSet();
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
             }
         }
@@ -79,17 +76,17 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public MissingAdvertisementReferenceAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public MissingAdvertisementReferenceAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderPositionAdvertisementMustHaveAdvertisement,
-                        MessageTypeCode.OrderPositionAdvertisementMustHaveOptionalAdvertisement
+                        {MessageTypeCode.OrderPositionAdvertisementMustHaveAdvertisement, GetRelatedOrders},
+                        {MessageTypeCode.OrderPositionAdvertisementMustHaveOptionalAdvertisement, GetRelatedOrders}
                     };
+
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingAdvertisementReference> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.MissingAdvertisementReference> GetSource()
             {
@@ -123,7 +120,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order.MissingAdvertisementReference> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.MissingAdvertisementReference>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -132,17 +129,17 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public MissingOrderPositionAdvertisementAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public MissingOrderPositionAdvertisementAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderPositionAdvertisementMustBeCreated,
+                        {MessageTypeCode.OrderPositionAdvertisementMustBeCreated, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingOrderPositionAdvertisement> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.MissingOrderPositionAdvertisement> GetSource()
             {
                 var positionChilds = from position in _query.For<Facts::Position>().Where(x => !x.IsDeleted).Where(x => !x.IsCompositionOptional)
@@ -175,7 +172,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order.MissingOrderPositionAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.MissingOrderPositionAdvertisement>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -184,17 +181,17 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public AdvertisementNotBelongToFirmAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public AdvertisementNotBelongToFirmAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AdvertisementMustBelongToFirm,
+                        {MessageTypeCode.AdvertisementMustBelongToFirm, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.AdvertisementNotBelongToFirm> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.AdvertisementNotBelongToFirm> GetSource()
             {
                 var result =
@@ -217,7 +214,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order.AdvertisementNotBelongToFirm> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.AdvertisementNotBelongToFirm>(x => aggregateIds.Contains(x.OrderId));
             }
         }
@@ -226,19 +223,19 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public AdvertisementFailedReviewAccessor(IQuery query) : base(CreateInvalidator())
-            {
-                _query = query;
-            }
+            public AdvertisementFailedReviewAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.AdvertisementMustPassReview,
-                        MessageTypeCode.AdvertisementShouldNotHaveComments,
-                        MessageTypeCode.OptionalAdvertisementMustPassReview,
+                        {MessageTypeCode.AdvertisementMustPassReview, GetRelatedOrders},
+                        {MessageTypeCode.AdvertisementShouldNotHaveComments, GetRelatedOrders},
+                        {MessageTypeCode.OptionalAdvertisementMustPassReview, GetRelatedOrders},
                     };
 
+            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.AdvertisementFailedReview> dataObjects) =>
+                dataObjects.Select(x => x.OrderId);
+            
             public IQueryable<Order.AdvertisementFailedReview> GetSource()
             {
                 var result =
@@ -261,7 +258,7 @@ namespace NuClear.ValidationRules.Replication.AdvertisementRules.Aggregates
 
             public FindSpecification<Order.AdvertisementFailedReview> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().Select(c => c.AggregateRootId).ToHashSet();
+                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.AdvertisementFailedReview>(x => aggregateIds.Contains(x.OrderId));
             }
         }
