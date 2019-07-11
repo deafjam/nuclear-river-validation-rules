@@ -6,7 +6,6 @@ $ErrorActionPreference = 'Stop'
 Import-Module "$PSScriptRoot\metadata.servicebus.psm1" -DisableNameChecking
 
 $DomainNames = @{
-	'Chile' = 'cl'
 	'Cyprus' = 'com.cy'
 	'Czech' = 'cz'
 	'Emirates' = 'ae'
@@ -14,10 +13,10 @@ $DomainNames = @{
 	'Ukraine' = 'ua'
 	'Kazakhstan' = 'kz'
 	'Kyrgyzstan' = 'kg'
+	'Uzbekistan' = 'uz'
 }
 
 $DBSuffixes = @{
-	'Chile' = 'CL'
 	'Cyprus' = 'CY'
 	'Czech' = 'CZ'
 	'Emirates' = 'AE'
@@ -25,6 +24,7 @@ $DBSuffixes = @{
 	'Ukraine' = 'UA'
 	'Kazakhstan' = 'KZ'
 	'Kyrgyzstan' = 'KG'
+	'Uzbekistan' = 'UZ'
 }
 
 function Get-DBSuffix($Context){

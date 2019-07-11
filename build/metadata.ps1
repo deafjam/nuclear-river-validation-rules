@@ -155,7 +155,6 @@ $AllEntryPoints = @(
 
 $AllEnvironments = @{
 
-	'Edu.Chile' = @{ EnvType = 'Edu'; Country = 'Chile' }
 	'Edu.Cyprus' = @{ EnvType = 'Edu'; Country = 'Cyprus' }
 	'Edu.Czech' = @{ EnvType = 'Edu'; Country = 'Czech' }
 	'Edu.Emirates' = @{ EnvType = 'Edu'; Country = 'Emirates' }
@@ -163,29 +162,20 @@ $AllEnvironments = @{
 	'Edu.Kyrgyzstan' = @{ EnvType = 'Edu'; Country ='Kyrgyzstan' }
 	'Edu.Russia' = @{ EnvType = 'Edu'; Country = 'Russia' }
 	'Edu.Ukraine' = @{ EnvType = 'Edu'; Country = 'Ukraine' }
+	'Edu.Uzbekistan' = @{ EnvType = 'Edu'; Country = 'Uzbekistan' }
 
 	'Business.Russia' = @{ EnvType = 'Business'; Country = 'Russia' }
 	'Business.Russia.01' = @{ EnvType = 'Business'; Country = 'Russia'; Index = '01'}
 	
-	'Int.Chile' = @{ EnvType = 'Int'; Country = 'Chile' }
-	'Int.Cyprus' = @{ EnvType = 'Int'; Country = 'Cyprus' }
-	'Int.Czech' = @{ EnvType = 'Int'; Country = 'Czech' }
-	'Int.Emirates' = @{ EnvType = 'Int'; Country = 'Emirates' }
-	'Int.Kazakhstan' = @{ EnvType = 'Int'; Country = 'Kazakhstan' }
-	'Int.Kyrgyzstan' = @{ EnvType = 'Int'; Country = 'Kyrgyzstan' }
-	'Int.Russia' = @{ EnvType = 'Int'; Country = 'Russia' }
-	'Int.Ukraine' = @{ EnvType = 'Int'; Country = 'Ukraine' }
-	
 	'Load.Russia' = @{ EnvType = 'Load'; Country = 'Russia' }
 	'Load.Cyprus' = @{ EnvType = 'Load'; Country = 'Cyprus' }
 	'Load.Czech' = @{ EnvType = 'Load'; Country = 'Czech' }
-	'Load.Chile' = @{ EnvType = 'Load'; Country = 'Chile' }
 	'Load.Emirates' = @{ EnvType = 'Load'; Country = 'Emirates' }
 	'Load.Kazakhstan' = @{ EnvType = 'Load'; Country = 'Kazakhstan' }
 	'Load.Kyrgyzstan' = @{ EnvType = 'Load'; Country = 'Kyrgyzstan' }
 	'Load.Ukraine' = @{ EnvType = 'Load'; Country = 'Ukraine' }
+	'Load.Uzbekistan' = @{ EnvType = 'Load'; Country = 'Uzbekistan' }
 
-	'Production.Chile' = @{ EnvType = 'Production'; Country = 'Chile' }
 	'Production.Cyprus' = @{ EnvType = 'Production'; Country = 'Cyprus' }
 	'Production.Czech' = @{ EnvType = 'Production'; Country = 'Czech' }
 	'Production.Emirates' = @{ EnvType = 'Production'; Country = 'Emirates' }
@@ -193,6 +183,7 @@ $AllEnvironments = @{
 	'Production.Russia' = @{ EnvType = 'Production'; Country = 'Russia' }
 	'Production.Ukraine' = @{ EnvType = 'Production'; Country = 'Ukraine' }
 	'Production.Kyrgyzstan' = @{ EnvType = 'Production'; Country = 'Kyrgyzstan' }
+	'Production.Uzbekistan' = @{ EnvType = 'Production'; Country = 'Uzbekistan' }
 	
 	'Test.01' = @{ EnvType = 'Test'; Country = 'Russia'; Index = '01' }
 	'Test.02' = @{ EnvType = 'Test'; Country = 'Russia'; Index = '02' }
@@ -248,17 +239,7 @@ $AllEnvironments = @{
 	'Test.205' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '205' }
 	'Test.206' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '206' }
 	'Test.207' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '207' }
-	'Test.208' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '208' }
-	
-	'Test.301' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '301' }
-	'Test.302' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '302' }
-	'Test.303' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '303' }
-	'Test.304' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '304' }
-	'Test.305' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '305' }
-	'Test.306' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '306' }
-	'Test.307' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '307' }
-	'Test.308' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '308' }
-	'Test.320' = @{ EnvType = 'Test'; Country = 'Chile'; Index = '320' }
+	'Test.208' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '208' }	
 	
 	'Test.401' = @{ EnvType = 'Test'; Country = 'Ukraine'; Index = '401' }
 	'Test.402' = @{ EnvType = 'Test'; Country = 'Ukraine'; Index = '402' }
@@ -295,6 +276,15 @@ $AllEnvironments = @{
 	'Test.706' = @{ EnvType = 'Test'; Country = 'Kyrgyzstan'; Index = '706' }
 	'Test.707' = @{ EnvType = 'Test'; Country = 'Kyrgyzstan'; Index = '707' }
 	'Test.708' = @{ EnvType = 'Test'; Country = 'Kyrgyzstan'; Index = '708' }
+
+	'Test.901' = @{ EnvType = 'Test'; Country = 'Uzbekistan'; Index = '901' }
+	'Test.902' = @{ EnvType = 'Test'; Country = 'Uzbekistan'; Index = '902' }
+	'Test.903' = @{ EnvType = 'Test'; Country = 'Uzbekistan'; Index = '903' }
+	'Test.904' = @{ EnvType = 'Test'; Country = 'Uzbekistan'; Index = '904' }
+	'Test.905' = @{ EnvType = 'Test'; Country = 'Uzbekistan'; Index = '905' }
+	'Test.906' = @{ EnvType = 'Test'; Country = 'Uzbekistan'; Index = '906' }
+	'Test.907' = @{ EnvType = 'Test'; Country = 'Uzbekistan'; Index = '907' }
+	'Test.908' = @{ EnvType = 'Test'; Country = 'Uzbekistan'; Index = '908' }
 		
 	'Appveyor' = @{ EnvType = 'Appveyor'; Country = 'Russia' }
 }

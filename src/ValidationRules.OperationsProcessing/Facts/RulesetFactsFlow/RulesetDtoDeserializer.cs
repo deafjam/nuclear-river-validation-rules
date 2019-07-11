@@ -156,8 +156,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                     return "CY";
                 case "Czech":
                     return "CZ";
-                case "Chile":
-                    return "CL";
                 case "Ukraine":
                     return "UA";
                 case "Emirates":
@@ -166,6 +164,8 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                     return "KZ";
                 case "Kyrgyzstan":
                     return "KG";
+                case "Uzbekistan":
+                    return "UZ";
                 default:
                     throw new ArgumentOutOfRangeException();
             }
