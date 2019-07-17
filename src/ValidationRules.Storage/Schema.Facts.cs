@@ -231,7 +231,8 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<Ruleset.RulesetProject>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => new { x.RulesetId, x.ProjectId });
+                   .HasPrimaryKey(x => new { x.RulesetId, x.ProjectId })
+                   .HasIndex(x => x.ProjectId);
 
             return builder;
         }
