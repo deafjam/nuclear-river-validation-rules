@@ -170,7 +170,7 @@ function Get-XdtMetadata($Context){
 
 function Get-RegexMetadata($Context){
 
-	$regex = @{}
+	$regex = @{ '{EntryPoint}' = $Context['EntryPoint'] }
 
 	if ($Context['Index']){
 		$regex += @{ '{EnvNum}' = $Context['Index'] }
