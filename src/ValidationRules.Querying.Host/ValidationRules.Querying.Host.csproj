@@ -89,7 +89,6 @@
     <Compile Include="Composition\ConsistencyRules\OrderMustHaveActiveLegalEntitiesMessageComposer.cs" />
     <Compile Include="Composition\FirmRules\PartnerAdvertisementShouldNotBeSoldToAdvertiserMessageComposer.cs" />
     <Compile Include="Composition\ProjectRules\ProjectMustContainCostPerClickMinimumRestrictionMessageComposer.cs" />
-    <Compile Include="Composition\FirmRules\PeriodUtils.cs" />
     <Compile Include="Composition\IDistinctor.cs" />
     <Compile Include="Composition\ReferenceExtensions.cs" />
     <Compile Include="DataAccess\NameResolvingService.cs" />

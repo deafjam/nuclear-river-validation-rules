@@ -54,7 +54,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                                             { "min", violation.Min },
                                             { "max", violation.Max },
                                             { "count", violation.Count },
-                                            { "begin", violation.Start },
+                                            { "start", violation.Start },
                                             { "end", violation.End },
                                         },
                                     new Reference<EntityTypeProject>(violation.ProjectId),

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using Newtonsoft.Json;
 using NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules;
 using NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
 using Order = NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules.Order;
@@ -25,7 +27,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                 Min = int.Parse(message["min"], CultureInfo.InvariantCulture),
                 Max = int.Parse(message["max"], CultureInfo.InvariantCulture),
                 Count = int.Parse(message["count"], CultureInfo.InvariantCulture),
-                Begin = DateTime.Parse(message["begin"], CultureInfo.InvariantCulture),
+                Start = DateTime.Parse(message["start"], CultureInfo.InvariantCulture),
                 End = DateTime.Parse(message["end"], CultureInfo.InvariantCulture),
             };
         }
@@ -90,9 +92,9 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             return (DealState)int.Parse(message["state"]);
         }
 
-        public static DateTime ReadBeginDate(this IReadOnlyDictionary<string, string> message)
+        public static DateTime ReadStartDate(this IReadOnlyDictionary<string, string> message)
         {
-            return DateTime.Parse(message["begin"]);
+            return DateTime.Parse(message["start"]);
         }
 
         public static Order.AdvertisementReviewState ReadAdvertisementReviewState(this IReadOnlyDictionary<string, string> message)
@@ -100,6 +102,37 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             return (Order.AdvertisementReviewState)int.Parse(message["reviewState"], CultureInfo.InvariantCulture);
         }
 
+        public static IReadOnlyCollection<DateTime> ExtractPeriods(this IReadOnlyDictionary<string, string> extra)
+        {
+            return FromString(extra["periods"]);
+        }
+
+        public static Dictionary<string, string> StorePeriods(this IReadOnlyCollection<Message> messages, Dictionary<string, string> extra)
+        {
+            extra.Add("periods", messages.Select(x => x.Extra).SelectMany(MonthlySplit).ToHashSet().ConvertToString());
+            return extra;
+        }
+
+        private static IReadOnlyCollection<DateTime> FromString(string str)
+            => JsonConvert.DeserializeObject<DateTime[]>(str);
+
+        private static IEnumerable<DateTime> MonthlySplit(IReadOnlyDictionary<string, string> extra)
+            => MonthlySplit(extra["start"], extra["end"]);
+
+        private static IEnumerable<DateTime> MonthlySplit(string start, string end)
+            => MonthlySplit(DateTime.Parse(start), DateTime.Parse(end));
+
+        private static IEnumerable<DateTime> MonthlySplit(DateTime start, DateTime end)
+        {
+            for (var x = start; x < end; x = x.AddMonths(1))
+            {
+                yield return new DateTime(x.Year, x.Month, 1);
+            }
+        }
+
+        private static string ConvertToString(this IEnumerable<DateTime> periods)
+            => JsonConvert.SerializeObject(periods);
+        
         public sealed class CategoryCountDto
         {
             public int Allowed { get; set; }
@@ -117,7 +150,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             public int Min { get; set; }
             public int Max { get; set; }
             public int Count { get; set; }
-            public DateTime Begin { get; set; }
+            public DateTime Start { get; set; }
             public DateTime End { get; set; }
         }
 

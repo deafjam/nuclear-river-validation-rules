@@ -13,17 +13,12 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
 
         public MessageComposerResult Compose(NamedReference[] references, IReadOnlyDictionary<string, string> extra)
         {
-            var begin = DateTime.Parse(extra["begin"]);
-            var end = DateTime.Parse(extra["end"]);
+            var period = extra["period"];
             var maxCount = extra["maxCount"];
             var entranceCode = extra["entranceCode"];
 
             var orders = references.GetMany<EntityTypeOrder>().ToList();
             var firmAddress = references.Get<EntityTypeFirmAddress>();
-
-            var period = begin.AddMonths(1) == end
-                             ? begin.ToString("MMMM")
-                             : $"{begin:MMMM} - {end:MMMM}";
 
             var currentOrder = orders[0];
             var conflictingOrders = orders.Skip(1).ToList();
@@ -44,8 +39,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
                                             x.OrderId,
                                             x.MessageType,
                                             x.ProjectId,
-                                            Begin = x.Extra["begin"],
-                                            End = x.Extra["end"],
+                                            Period = CalculatePeriod(x.Extra),
                                             MaxCount = x.Extra["maxCount"],
                                             EntranceCode = x.Extra["entranceCode"],
                                             FirmAddressId = x.References.Get<EntityTypeFirmAddress>().Id
@@ -58,13 +52,25 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
                                    ProjectId = x.Key.ProjectId,
                                    Extra = new Dictionary<string, string>
                                        {
-                                           ["begin"] = x.Key.Begin,
-                                           ["end"] = x.Key.End,
+                                           ["period"] = x.Key.Period,
                                            ["maxCount"] = x.Key.MaxCount,
                                            ["entranceCode"] = x.Key.EntranceCode
                                        },
                                    References = new[] { new Reference<EntityTypeOrder>(x.Key.OrderId.Value) }.Concat(x.SelectMany(y => y)).ToList()
                                });
+
+            // TODO: в дальнейшем возможно стоит объединить с PeriodUtils
+            string CalculatePeriod(IReadOnlyDictionary<string, string> extra)
+            {
+                var start = DateTime.Parse(extra["start"]);
+                var end = DateTime.Parse(extra["end"]);
+                
+                var period = start.Month == end.Month
+                    ? start.ToString("MMMM")
+                    : $"{start:MMMM} - {end:MMMM}";
+
+                return period;
+            } 
         }
     }
 }

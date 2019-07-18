@@ -53,7 +53,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                            MessageParams =
                                new MessageParams(new Dictionary<string, object>
                                                      {
-                                                         { "begin", violation.Start },
+                                                         { "start", violation.Start },
                                                          { "end", violation.End },
                                                          { "maxCount", MaxSalesOnEntrance },
                                                          { "entranceCode", violation.EntranceCode }

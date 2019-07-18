@@ -48,7 +48,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 3 }, { "begin", MonthStart(1) }, { "end", MonthStart(2) } },
+                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 3 }, { "start", MonthStart(1) }, { "end", MonthStart(2) } },
                                     new Reference<EntityTypeOrder>(3),
                                     new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
@@ -60,7 +60,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 4 }, { "begin", MonthStart(1) }, { "end", MonthStart(2) } },
+                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 4 }, { "start", MonthStart(1) }, { "end", MonthStart(2) } },
                                     new Reference<EntityTypeOrder>(4),
                                     new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
@@ -72,7 +72,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 3 }, { "begin", MonthStart(2) }, { "end", MonthStart(3) } },
+                                    new Dictionary<string, object> { { "min", 0 }, { "max", 2 }, { "count", 3 }, { "start", MonthStart(2) }, { "end", MonthStart(3) } },
                                     new Reference<EntityTypeOrder>(5),
                                     new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,

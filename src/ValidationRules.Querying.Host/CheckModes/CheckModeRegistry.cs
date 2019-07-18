@@ -168,6 +168,7 @@ namespace NuClear.ValidationRules.Querying.Host.CheckModes
 
                     Rule(MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
                          single: RuleSeverityLevel.Error,
+                         manualReport: RuleSeverityLevel.Error,
                          prerelease: RuleSeverityLevel.Error,
                          release: RuleSeverityLevel.Error),
 

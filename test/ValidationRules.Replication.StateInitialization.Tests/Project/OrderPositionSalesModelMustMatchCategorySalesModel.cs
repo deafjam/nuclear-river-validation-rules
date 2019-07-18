@@ -77,7 +77,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                        new Dictionary<string, object> { { "begin", MonthStart(1) } },
+                                        new Dictionary<string, object> { { "start", MonthStart(1) } },
                                         new Reference<EntityTypeCategory>(12),
                                         new Reference<EntityTypeOrderPositionAdvertisement>(0,
                                             new Reference<EntityTypeOrderPosition>(1),
@@ -94,7 +94,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                        new Dictionary<string, object> { { "begin", MonthStart(4) } },
+                                        new Dictionary<string, object> { { "start", MonthStart(4) } },
                                         new Reference<EntityTypeCategory>(12),
                                         new Reference<EntityTypeOrderPositionAdvertisement>(0,
                                             new Reference<EntityTypeOrderPosition>(4),

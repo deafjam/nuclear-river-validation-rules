@@ -15,9 +15,9 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
             var nomenclatureCategoryReference = references.Get<EntityTypeNomenclatureCategory>();
 
             var dto = extra.ReadAdvertisementCountMessage();
-            var period = dto.Begin.AddMonths(1) == dto.End
-                ? dto.Begin.ToString("MMMM")
-                : $"{dto.Begin:MMMM} - {dto.End:MMMM}";
+            var period = dto.Start.Month == dto.End.Month
+                ? dto.Start.ToString("MMMM")
+                : $"{dto.Start:MMMM} - {dto.End:MMMM}";
 
             return new MessageComposerResult(
                 projectReference,
