@@ -27,8 +27,6 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                 Min = int.Parse(message["min"], CultureInfo.InvariantCulture),
                 Max = int.Parse(message["max"], CultureInfo.InvariantCulture),
                 Count = int.Parse(message["count"], CultureInfo.InvariantCulture),
-                Start = DateTime.Parse(message["start"], CultureInfo.InvariantCulture),
-                End = DateTime.Parse(message["end"], CultureInfo.InvariantCulture),
             };
         }
 
@@ -102,19 +100,60 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             return (Order.AdvertisementReviewState)int.Parse(message["reviewState"], CultureInfo.InvariantCulture);
         }
 
-        public static IReadOnlyCollection<DateTime> ExtractPeriods(this IReadOnlyDictionary<string, string> extra)
+        public static string ExtractPeriod(this IReadOnlyDictionary<string, string> extra)
         {
-            return FromString(extra["periods"]);
+            var start = DateTime.Parse(extra["start"]);
+            var end = DateTime.Parse(extra["end"]);
+                
+            var period = start.Month == end.AddSeconds(-1).Month
+                ? start.ToString("MMMM yyyy")
+                : $"{start:MMMM yyyy} - {end:MMMM yyyy}";
+
+            return period;
         }
 
-        public static Dictionary<string, string> StorePeriods(this IReadOnlyCollection<Message> messages, Dictionary<string, string> extra)
+        public static IReadOnlyDictionary<string, string> UnionPeriod(this IEnumerable<Message> messages, IReadOnlyDictionary<string, string> dictionary)
         {
-            extra.Add("periods", messages.Select(x => x.Extra).SelectMany(MonthlySplit).ToHashSet().ConvertToString());
-            return extra;
+            var (start, end) = messages.Aggregate((start: DateTime.MaxValue, end: DateTime.MinValue), (period, message) =>
+            {
+                var messageStart = DateTime.Parse(message.Extra["start"]);
+                if (messageStart < period.start)
+                {
+                    period.start = messageStart;
+                }
+
+                var messageEnd = DateTime.Parse(message.Extra["end"]);
+                if (messageEnd > period.end)
+                {
+                    period.end = messageEnd;
+                }
+
+                return period;
+            });
+
+            var result = dictionary.ToDictionary(x => x.Key, x => x.Value);
+            result["start"] = start.ToString(CultureInfo.CurrentCulture);
+            result["end"] = end.ToString(CultureInfo.CurrentCulture);
+
+            return result;
         }
 
-        private static IReadOnlyCollection<DateTime> FromString(string str)
-            => JsonConvert.DeserializeObject<DateTime[]>(str);
+        public static string ExtractPeriods(this IReadOnlyDictionary<string, string> extra)
+        {
+            var periods = JsonConvert.DeserializeObject<IReadOnlyCollection<DateTime>>(extra["periods"])
+                .OrderBy(x => x)
+                .Select(x => x.ToString("MMMM yyyy"));
+
+            return string.Join(", ", periods);
+        }
+       
+        public static IReadOnlyDictionary<string, string> UnionPeriods(this IEnumerable<Message> messages, IReadOnlyDictionary<string, string> dictionary)
+        {
+            var result = dictionary.ToDictionary(x => x.Key, x => x.Value);
+            result["periods"] = JsonConvert.SerializeObject(messages.Select(x => x.Extra).SelectMany(MonthlySplit).ToHashSet());
+
+            return result;
+        }
 
         private static IEnumerable<DateTime> MonthlySplit(IReadOnlyDictionary<string, string> extra)
             => MonthlySplit(extra["start"], extra["end"]);
@@ -130,9 +169,6 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             }
         }
 
-        private static string ConvertToString(this IEnumerable<DateTime> periods)
-            => JsonConvert.SerializeObject(periods);
-        
         public sealed class CategoryCountDto
         {
             public int Allowed { get; set; }
@@ -150,8 +186,6 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             public int Min { get; set; }
             public int Max { get; set; }
             public int Count { get; set; }
-            public DateTime Start { get; set; }
-            public DateTime End { get; set; }
         }
 
         public sealed class OversalesDto

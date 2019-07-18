@@ -30,10 +30,24 @@ namespace NuClear.ValidationRules.Storage.Model.Messages
         private class ReferenceComparer : IEqualityComparer<Reference>
         {
             public bool Equals(Reference x, Reference y)
-                => x.EntityType == y.EntityType && x.Id == y.Id && x.Children.Count == y.Children.Count && x.Children.SequenceEqual(y.Children, this);
+            {
+                return
+                    x.EntityType == y.EntityType &&
+                    x.Id == y.Id &&
+                    x.Children.Count == y.Children.Count &&
+                    x.Children.SequenceEqual(y.Children, this);
+            }
 
             public int GetHashCode(Reference obj)
-                => obj.Id.GetHashCode() ^ obj.EntityType;
+            {
+                unchecked
+                {
+                    var hashCode = obj.EntityType;
+                    hashCode = (hashCode * 397) ^ obj.Id.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.Children.Aggregate(0, (accum, reference) => (accum * 397) ^ GetHashCode(reference));
+                    return hashCode;
+                }
+            }
         }
     }
 
