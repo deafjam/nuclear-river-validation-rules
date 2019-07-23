@@ -124,7 +124,7 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<PriceAggregates::Firm.FirmPosition>()
                    .HasSchemaName(PriceAggregatesSchema)
                    // PK не получается создать, т.к. Category1Id, Category3Id, FirmAddressId nullable
-                   .HasIndex(x => new { x.OrderPositionId, x.ItemPositionId, x.Category1Id, x.Category3Id, x.FirmAddressId, x.Begin, x.End }, unique: true, clustered: true, name: "PK_Analog")
+                   .HasIndex(x => new { x.OrderPositionId, x.ItemPositionId, x.Category1Id, x.Category3Id, x.FirmAddressId, x.Start, x.End }, unique: true, clustered: true, name: "PK_Analog")
                    .HasIndex(x => x.FirmId)
                    .HasIndex(x => x.OrderId);
 
@@ -145,7 +145,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<PriceAggregates::Order.OrderPeriod>()
                    .HasSchemaName(PriceAggregatesSchema)
-                   .HasPrimaryKey(x => new {x.OrderId, x.Begin, x.End});
+                   .HasPrimaryKey(x => new {x.OrderId, x.Start, x.End});
 
             builder.Entity<PriceAggregates::Order.OrderPricePosition>()
                    .HasSchemaName(PriceAggregatesSchema)

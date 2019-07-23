@@ -41,23 +41,23 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                .Aggregate(
                           new Order { Id = 1 },
                           new Order.EntranceControlledPosition { OrderId = 1, EntranceCode = 1, FirmAddressId = 1 },
-                          new Order.OrderPeriod { OrderId = 1, Begin = MonthStart(1), End = MonthStart(3), Scope = 0 },
+                          new Order.OrderPeriod { OrderId = 1, Start = MonthStart(1), End = MonthStart(3), Scope = 0 },
 
                           new Order { Id = 2 },
                           new Order.EntranceControlledPosition { OrderId = 2, EntranceCode = 1, FirmAddressId = 1 },
-                          new Order.OrderPeriod { OrderId = 2, Begin = MonthStart(1), End = MonthStart(3), Scope = 0 },
+                          new Order.OrderPeriod { OrderId = 2, Start = MonthStart(1), End = MonthStart(3), Scope = 0 },
 
                           new Order { Id = 3 },
                           new Order.EntranceControlledPosition { OrderId = 3, EntranceCode = 1, FirmAddressId = 1 },
-                          new Order.OrderPeriod { OrderId = 3, Begin = MonthStart(1), End = MonthStart(2), Scope = -1 },
+                          new Order.OrderPeriod { OrderId = 3, Start = MonthStart(1), End = MonthStart(2), Scope = -1 },
 
                           new Order { Id = 4 },
                           new Order.EntranceControlledPosition { OrderId = 4, EntranceCode = 2, FirmAddressId = 2 },
-                          new Order.OrderPeriod { OrderId = 4, Begin = MonthStart(1), End = MonthStart(2), Scope = 4 },
+                          new Order.OrderPeriod { OrderId = 4, Start = MonthStart(1), End = MonthStart(2), Scope = 4 },
 
                           new Order { Id = 5 },
                           new Order.EntranceControlledPosition { OrderId = 5, EntranceCode = 1, FirmAddressId = 1 },
-                          new Order.OrderPeriod { OrderId = 5, Begin = MonthStart(2), End = MonthStart(3), Scope = 5 },
+                          new Order.OrderPeriod { OrderId = 5, Start = MonthStart(2), End = MonthStart(3), Scope = 5 },
 
                           new Period { Start = MonthStart(1), End = MonthStart(2) },
                           new Period { Start = MonthStart(2), End = MonthStart(3) })

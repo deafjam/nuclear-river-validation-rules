@@ -19,11 +19,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Order { Id = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(2), WorkflowStep = 5 },
                     new Facts::Order { Id = 4, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(3), WorkflowStep = 4 })
                 .Aggregate(
-                    new Order.OrderPeriod { OrderId = 1, Begin = MonthStart(1), End = MonthStart(2), Scope = 1 },
-                    new Order.OrderPeriod { OrderId = 2, Begin = MonthStart(1), End = MonthStart(2), Scope = -1 },
-                    new Order.OrderPeriod { OrderId = 3, Begin = MonthStart(1), End = MonthStart(2), Scope = 0 },
-                    new Order.OrderPeriod { OrderId = 4, Begin = MonthStart(1), End = MonthStart(2), Scope = 0 },
-                    new Order.OrderPeriod { OrderId = 4, Begin = MonthStart(2), End = MonthStart(3), Scope = 4 });
+                    new Order.OrderPeriod { OrderId = 1, Start = MonthStart(1), End = MonthStart(2), Scope = 1 },
+                    new Order.OrderPeriod { OrderId = 2, Start = MonthStart(1), End = MonthStart(2), Scope = -1 },
+                    new Order.OrderPeriod { OrderId = 3, Start = MonthStart(1), End = MonthStart(2), Scope = 0 },
+                    new Order.OrderPeriod { OrderId = 4, Start = MonthStart(1), End = MonthStart(2), Scope = 0 },
+                    new Order.OrderPeriod { OrderId = 4, Start = MonthStart(2), End = MonthStart(3), Scope = 4 });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement Period

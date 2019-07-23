@@ -3,12 +3,13 @@
     public enum MessageTypeCode
     {
         AdvertisementAmountShouldMeetMaximumRestrictions = 1,
+        AdvertisementAmountShouldMeetMinimumRestrictions = 6,
+        AdvertisementAmountShouldMeetMinimumRestrictionsMass = 70,
+
         OrderMustHaveActualPrice = 3,
         OrderPositionCorrespontToInactivePosition = 4,
         OrderPositionMayCorrespontToActualPrice = 5,
         OrderPositionMustCorrespontToActualPrice = 31,
-        AdvertisementAmountShouldMeetMinimumRestrictions = 6,
-        AdvertisementAmountShouldMeetMinimumRestrictionsMass = 70,
         FirmPositionMustNotHaveDeniedPositions = 8,
         FirmAssociatedPositionMustHavePrincipal = 9,
         FirmAssociatedPositionMustHavePrincipalWithMatchedBindingObject = 10,

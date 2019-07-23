@@ -17,9 +17,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Aggregate(
                     new Firm { Id = 1 },
 
-                    new Firm.FirmPosition { FirmId = 1, OrderPositionId = 1, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
-                    new Firm.FirmPosition { FirmId = 1, OrderPositionId = 1, Begin = MonthStart(2), End = MonthStart(3), PackagePositionId = 2, ItemPositionId = 2 },
-                    new Firm.FirmPosition { FirmId = 1, OrderPositionId = 4, Begin = MonthStart(2), End = MonthStart(3), PackagePositionId = 2, ItemPositionId = 3 },
+                    new Firm.FirmPosition { FirmId = 1, OrderPositionId = 1, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
+                    new Firm.FirmPosition { FirmId = 1, OrderPositionId = 1, Start = MonthStart(2), End = MonthStart(3), PackagePositionId = 2, ItemPositionId = 2 },
+                    new Firm.FirmPosition { FirmId = 1, OrderPositionId = 4, Start = MonthStart(2), End = MonthStart(3), PackagePositionId = 2, ItemPositionId = 3 },
 
                     new Firm.FirmAssociatedPosition { FirmId = 1, OrderPositionId = 1, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 })
                 .Message(

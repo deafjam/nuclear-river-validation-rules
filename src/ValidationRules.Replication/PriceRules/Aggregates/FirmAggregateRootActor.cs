@@ -78,15 +78,15 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                           .Distinct();
 
                 var firmPeriods =
-                    from begin in dates
-                    let end = dates.Where(x => x.FirmId == begin.FirmId && x.Date > begin.Date).Min(x => (DateTime?)x.Date)
+                    from start in dates
+                    let end = dates.Where(x => x.FirmId == start.FirmId && x.Date > start.Date).Min(x => (DateTime?)x.Date)
                     where end.HasValue
-                    select new { begin.FirmId, Begin = begin.Date, End = end.Value };
+                    select new { start.FirmId, Start = start.Date, End = end.Value };
 
                 var principals =
                     from order in _query.For<Facts::Order>()
                     from orderItem in _query.For<Facts::OrderItem>().Where(x => order.Id == x.OrderId)
-                    from firmPeriod in firmPeriods.Where(x => x.FirmId == order.FirmId && x.Begin >= order.AgileDistributionStartDate && x.End <= order.AgileDistributionEndPlanDate)
+                    from firmPeriod in firmPeriods.Where(x => x.FirmId == order.FirmId && x.Start >= order.AgileDistributionStartDate && x.End <= order.AgileDistributionEndPlanDate)
                     from category in _query.For<Facts::Category>().Where(x => x.Id == orderItem.CategoryId).DefaultIfEmpty()
                     select new Firm.FirmPosition
                         {
@@ -101,8 +101,8 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                             Category3Id = category.L3Id,
                             FirmAddressId = orderItem.FirmAddressId,
 
-                            Scope = order.AgileDistributionEndFactDate > firmPeriod.Begin ? Scope.Compute(order.WorkflowStep, order.Id) : order.Id,
-                            Begin = firmPeriod.Begin,
+                            Scope = order.AgileDistributionEndFactDate > firmPeriod.Start ? Scope.Compute(order.WorkflowStep, order.Id) : order.Id,
+                            Start = firmPeriod.Start,
                             End = firmPeriod.End,
                         };
 

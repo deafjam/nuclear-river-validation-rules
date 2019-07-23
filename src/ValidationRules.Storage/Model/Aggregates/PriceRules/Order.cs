@@ -73,7 +73,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
         public sealed class OrderPeriod
         {
             public long OrderId { get; set; }
-            public DateTime Begin { get; set; }
+            public DateTime Start { get; set; }
             public DateTime End { get; set; }
             public long Scope { get; set; }
         }

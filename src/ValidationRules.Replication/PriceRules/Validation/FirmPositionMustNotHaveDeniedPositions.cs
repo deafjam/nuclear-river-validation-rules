@@ -53,7 +53,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                                         new Reference<EntityTypePosition>(conflict.denied.ItemPositionId)))
                                 .ToXDocument(),
 
-                    PeriodStart = conflict.position.Begin,
+                    PeriodStart = conflict.position.Start,
                     PeriodEnd = conflict.position.End,
                     OrderId = conflict.position.OrderId,
                 };

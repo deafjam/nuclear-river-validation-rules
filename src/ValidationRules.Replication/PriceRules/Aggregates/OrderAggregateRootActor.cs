@@ -94,7 +94,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         .Select(x => new Order.OrderPeriod
                         {
                             OrderId = x.Id,
-                            Begin = x.AgileDistributionStartDate,
+                            Start = x.AgileDistributionStartDate,
                             End = x.AgileDistributionEndFactDate,
                             Scope = Scope.Compute(x.WorkflowStep, x.Id)
                         });
@@ -105,7 +105,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         .Select(x => new Order.OrderPeriod
                         {
                             OrderId = x.Id,
-                            Begin = x.AgileDistributionEndFactDate,
+                            Start = x.AgileDistributionEndFactDate,
                             End = x.AgileDistributionEndPlanDate,
                             Scope = x.Id
                         });

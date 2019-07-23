@@ -44,7 +44,7 @@ namespace NuClear.ValidationRules.Replication.Specifications
                             from requirement in requirements.Where(x => x.OrderPositionId == associated.OrderPositionId && x.ItemPositionId == associated.ItemPositionId)
                             from principal in principals
                                 .Where(x => x.ItemPositionId == requirement.PrincipalPositionId && x.FirmId == requirement.FirmId)
-                                .Where(x => x.Begin == associated.Begin && x.FirmId == associated.FirmId)
+                                .Where(x => x.Start == associated.Start && x.FirmId == associated.FirmId)
                                 .Where(x => Scope.CanSee(associated.Scope, x.Scope))
                             select new RelatedPositionDto
                             {
@@ -70,8 +70,8 @@ namespace NuClear.ValidationRules.Replication.Specifications
                             from requirement in requirements.Where(x => x.OrderPositionId == associated.OrderPositionId && x.ItemPositionId == associated.ItemPositionId)
                             from principal in principals
                                 .Where(x => x.ItemPositionId == requirement.DeniedPositionId && x.FirmId == requirement.FirmId)
-                                .Where(x => requirement.Begin <= x.Begin && x.Begin < requirement.End)
-                                .Where(x => x.Begin == associated.Begin && x.FirmId == associated.FirmId)
+                                .Where(x => requirement.Begin <= x.Start && x.Start < requirement.End)
+                                .Where(x => x.Start == associated.Start && x.FirmId == associated.FirmId)
                                 .Where(x => Scope.CanSee(associated.Scope, x.Scope))
                             select new RelatedPositionDto
                             {

@@ -21,7 +21,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
             public long? Category3Id { get; set; }
             public long? FirmAddressId { get; set; }
             public long Scope { get; set; }
-            public DateTime Begin { get; set; }
+            public DateTime Start { get; set; }
             public DateTime End { get; set; }
         }
 
