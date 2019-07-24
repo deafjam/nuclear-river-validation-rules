@@ -75,23 +75,29 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 from account in _query.For<Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
                 select account.Id;
 
-            var orders =
+            var orderDtos =
                 (from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
-                 select new { order.FirmId, order.AgileDistributionStartDate, order.AgileDistributionEndFactDate, order.AgileDistributionEndPlanDate })
-                .ToList();
+                from project in _query.For<Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
+                select new
+                {
+                    ProjectId = project.Id,
+                    order.FirmId,
+                    order.AgileDistributionStartDate,
+                    order.AgileDistributionEndFactDate,
+                    order.AgileDistributionEndPlanDate,
+                }).ToList();
 
-            var firmIds = orders.Select(x => x.FirmId);
-
-            var periods =
-                orders.Select(x => new PeriodKey(x.AgileDistributionStartDate))
-                      .Concat(orders.Select(x => new PeriodKey(x.AgileDistributionEndFactDate)))
-                      .Concat(orders.Select(x => new PeriodKey(x.AgileDistributionEndPlanDate)));
+            var firmIds = orderDtos.Select(x => x.FirmId);
+            var periodKeys =
+                  orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionStartDate))
+                  .Concat(orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionEndFactDate)))
+                  .Concat(orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionEndPlanDate)));
 
             return new IEvent[]
             {
                 new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Account), accountIds.ToHashSet()),
                 new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Firm), firmIds.ToHashSet()),
-                new PeriodKeyOutdatedEvent(periods), 
+                new PeriodKeysOutdatedEvent(periodKeys.ToHashSet()), 
             };
         }
     }

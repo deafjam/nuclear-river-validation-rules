@@ -30,8 +30,8 @@ namespace NuClear.ValidationRules.OperationsProcessing.AggregatesFlow
                     return RelatedAggregateTypesFor<RelatedDataObjectOutdatedEvent>(outdatedEvent.DataObjectType, outdatedEvent.RelatedDataObjectType)
                         .Select(x => new AggregateCommand.Recalculate(x, outdatedEvent.RelatedDataObjectIds));
 
-                case PeriodKeyOutdatedEvent periodKeyOutdatedEvent:
-                    return Enumerable.Repeat(new RecalculatePeriodCommand(periodKeyOutdatedEvent.PeriodKeys), 1);
+                case PeriodKeysOutdatedEvent periodKeysOutdatedEvent:
+                    return Enumerable.Repeat(new RecalculatePeriodCommand(periodKeysOutdatedEvent.PeriodKeys), 1);
 
                 case AmsStateIncrementedEvent amsStateIncrementedEvent:
                     return Enumerable.Repeat(new IncrementAmsStateCommand(amsStateIncrementedEvent.State), 1);

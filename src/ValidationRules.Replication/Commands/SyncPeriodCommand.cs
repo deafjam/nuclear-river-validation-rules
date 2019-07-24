@@ -6,10 +6,11 @@ namespace NuClear.ValidationRules.Replication.Commands
 {
     public sealed class SyncPeriodCommand : ISyncDataObjectCommand
     {
+        // TODO: DataObjectType не используется 
         public Type DataObjectType { get; }
-        public IEnumerable<DateTime> Dates { get; }
+        public IEnumerable<PeriodKey> PeriodKeys { get; }
 
-        public SyncPeriodCommand(Type dataObjectType, IEnumerable<DateTime> dates) =>
-            (DataObjectType, Dates) = (dataObjectType, dates);
+        public SyncPeriodCommand(Type dataObjectType, IEnumerable<PeriodKey> periodKeys) =>
+            (DataObjectType, PeriodKeys) = (dataObjectType, periodKeys);
     }
 }

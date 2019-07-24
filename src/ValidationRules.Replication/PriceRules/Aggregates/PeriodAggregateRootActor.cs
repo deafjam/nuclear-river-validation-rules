@@ -25,7 +25,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             HasRootEntity(new PeriodAccessor(query), bulkRepository);
         }
 
-        public sealed class PeriodAccessor : DataChangesHandler<Period>, IStorageBasedDataObjectAccessor<Period>
+        private sealed class PeriodAccessor : DataChangesHandler<Period>, IStorageBasedDataObjectAccessor<Period>
         {
             private readonly IQuery _query;
 
@@ -43,36 +43,45 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public IQueryable<Period> GetSource()
             {
-                var dates =
-                    _query.For<Facts::Order>().Select(x => new { Date = x.AgileDistributionStartDate })
-                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.AgileDistributionEndFactDate }))
-                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.AgileDistributionEndPlanDate }))
-                          .Union(_query.For<Facts::Price>().Select(x => new { Date = x.BeginDate }));
+                var orderDatesOrgUnit =
+                    _query.For<Facts::Order>().Select(x => new {x.DestOrganizationUnitId, Date = x.AgileDistributionStartDate})
+                        .Union(_query.For<Facts::Order>().Select(x => new {x.DestOrganizationUnitId, Date = x.AgileDistributionEndFactDate}))
+                        .Union(_query.For<Facts::Order>().Select(x => new {x.DestOrganizationUnitId, Date = x.AgileDistributionEndPlanDate}));
+
+                var orderDates =
+                    from orderDateOrgUnit in orderDatesOrgUnit
+                    from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == orderDateOrgUnit.DestOrganizationUnitId)
+                    select new { ProjectId = project.Id, orderDateOrgUnit.Date};
+                
+                var priceDates = _query.For<Facts::Price>().Select(x => new {x.ProjectId, Date = x.BeginDate});
+
+                var dates = orderDates.Union(priceDates);
 
                 var result =
                     from date in dates
                     from next in dates.Where(x => x.Date > date.Date).OrderBy(x => x.Date).Take(1).DefaultIfEmpty()
-                    select new Period { Start = date.Date, End = next != null ? next.Date : DateTime.MaxValue };
+                    select new Period { ProjectId = date.ProjectId, Start = date.Date, End = next != null ? next.Date : DateTime.MaxValue };
 
                 return result;
             }
 
             public FindSpecification<Period> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var dates = commands.Cast<SyncPeriodCommand>().SelectMany(c => c.Dates).ToHashSet();
-                return Periods(dates);
+                var ids = commands.Cast<SyncPeriodCommand>()
+                    .SelectMany(x => x.PeriodKeys)
+                    .ToHashSet();
+
+                return Periods(ids);
             }
 
-            public static FindSpecification<Period> Periods(IEnumerable<DateTime> aggregateIds)
+            private static FindSpecification<Period> Periods(IEnumerable<PeriodKey> periodKeys)
             {
-                var result = new FindSpecification<Period>(x => false);
-
-                return aggregateIds.Select(PeriodSpecificationForSingleKey)
-                                   .Aggregate(result, (current, spec) => current | spec);
+                return periodKeys.Select(PeriodSpecificationForPeriodKey)
+                                   .Aggregate(new FindSpecification<Period>(x => false), (current, spec) => current | spec);
             }
 
-            private static FindSpecification<Period> PeriodSpecificationForSingleKey(DateTime date)
-                => new FindSpecification<Period>(x => x.Start <= date && date <= x.End);
+            private static FindSpecification<Period> PeriodSpecificationForPeriodKey(PeriodKey periodKey)
+                => new FindSpecification<Period>(x => x.ProjectId == periodKey.ProjectId && x.Start <= periodKey.Date && periodKey.Date <= x.End);
 
         }
     }

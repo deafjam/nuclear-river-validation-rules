@@ -11,6 +11,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
     /// </summary>
     public sealed class Period
     {
+        public long ProjectId { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
     }

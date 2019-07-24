@@ -29,7 +29,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
         {
             var restrictionGrid =
                 from period in query.For<Period>()
-                from restriction in query.For<Ruleset.AdvertisementAmountRestriction>().Where(x => x.Begin < period.End && period.Start < x.End)
+                from restriction in query.For<Ruleset.AdvertisementAmountRestriction>().Where(x => x.ProjectId == period.ProjectId && x.Begin < period.End && period.Start < x.End)
                 select new { period.Start, period.End, restriction.ProjectId, restriction.CategoryCode, restriction.Min, restriction.Max };
 
             var saleGrid =

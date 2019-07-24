@@ -175,7 +175,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<PriceAggregates::Period>()
                   .HasSchemaName(PriceAggregatesSchema)
-                  .HasPrimaryKey(x => x.Start);
+                  .HasPrimaryKey(x => new { x.ProjectId, x.Start});
 
             builder.Entity<PriceAggregates::Ruleset>()
                    .HasSchemaName(PriceAggregatesSchema)
