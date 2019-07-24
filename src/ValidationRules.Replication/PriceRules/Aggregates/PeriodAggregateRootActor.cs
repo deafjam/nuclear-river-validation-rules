@@ -25,7 +25,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             HasRootEntity(new PeriodAccessor(query), bulkRepository);
         }
 
-        private sealed class PeriodAccessor : DataChangesHandler<Period>, IStorageBasedDataObjectAccessor<Period>
+        public sealed class PeriodAccessor : DataChangesHandler<Period>, IStorageBasedDataObjectAccessor<Period>
         {
             private readonly IQuery _query;
 
@@ -59,7 +59,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
                 var result =
                     from date in dates
-                    from next in dates.Where(x => x.Date > date.Date).OrderBy(x => x.Date).Take(1).DefaultIfEmpty()
+                    from next in dates.Where(x => x.ProjectId == date.ProjectId && x.Date > date.Date).OrderBy(x => x.Date).Take(1).DefaultIfEmpty()
                     select new Period { ProjectId = date.ProjectId, Start = date.Date, End = next != null ? next.Date : DateTime.MaxValue };
 
                 return result;

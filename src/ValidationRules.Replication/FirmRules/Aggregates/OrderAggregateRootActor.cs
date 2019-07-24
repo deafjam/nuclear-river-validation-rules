@@ -137,7 +137,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                         DestinationFirmId = fa.FirmId,
                     };
 
-                return addressPositions;
+                return addressPositions.Distinct();
             }
 
             public FindSpecification<Order.PartnerPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
@@ -173,7 +173,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                         OrderId = op.OrderId
                     };
 
-                return ordersWithPremium;
+                return ordersWithPremium.Distinct();
             }
 
             public FindSpecification<Order.PremiumPartnerPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
