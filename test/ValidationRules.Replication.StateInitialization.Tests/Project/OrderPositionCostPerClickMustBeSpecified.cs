@@ -40,8 +40,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Position { Id = 5, SalesModel = 11 },
                     new Facts::Category { Id = 12, IsActiveNotDeleted = true },
                     new Facts::CategoryOrganizationUnit { CategoryId = 12 },
-                    new Facts::Project(),
-                    new Facts::CostPerClickCategoryRestriction { Start = MonthStart(1), CategoryId = 12 })
+                    new Facts::CostPerClickCategoryRestriction { Start = MonthStart(1), CategoryId = 12 },
+                    new Facts::Project())
                 .Aggregate(
                     // Заказ с позицией с покликовой моделью, но без ставки - есть ошибка
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3) },

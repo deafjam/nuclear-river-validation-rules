@@ -88,16 +88,19 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
             => ArrangeMetadataElement.Config
                 .Name(nameof(FirmFacts))
                 .Erm(
-                    new Erm::Firm { Id = 1, IsActive = true, IsDeleted = false, ClosedForAscertainment = false, Name = "one" },
-                    new Erm::Firm { Id = 2, IsActive = false, IsDeleted = true, ClosedForAscertainment = false, Name = "two" },
-                    new Erm::Firm { Id = 3, IsActive = false, IsDeleted = false, ClosedForAscertainment = true, Name = "three" })
+                    new Erm::Firm { Id = 1, OrganizationUnitId = 1, IsActive = true, IsDeleted = false, ClosedForAscertainment = false, Name = "one" },
+                    new Erm::Firm { Id = 2, OrganizationUnitId = 1, IsActive = false, IsDeleted = true, ClosedForAscertainment = false, Name = "two" },
+                    new Erm::Firm { Id = 3, OrganizationUnitId = 1, IsActive = false, IsDeleted = false, ClosedForAscertainment = true, Name = "three" },
+                    new Erm::Project{ Id = 2, OrganizationUnitId = 1, IsActive = true, DisplayName="project"}
+                    )
                 .Fact(
-                    new Firm { Id = 1 },
+                    new Firm { Id = 1, ProjectId = 2},
                     new FirmInactive { Id = 2, IsActive = false, IsDeleted = true, IsClosedForAscertainment = false },
                     new FirmInactive { Id = 3, IsActive = false, IsDeleted = false, IsClosedForAscertainment = true },
                     new EntityName { EntityType = EntityTypeIds.Firm, Id = 1, Name = "one" },
                     new EntityName { EntityType = EntityTypeIds.Firm, Id = 2, Name = "two" },
-                    new EntityName { EntityType = EntityTypeIds.Firm, Id = 3, Name = "three" });
+                    new EntityName { EntityType = EntityTypeIds.Firm, Id = 3, Name = "three" },
+                    new EntityName { EntityType = EntityTypeIds.Project, Id = 2, Name = "project"});
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement FirmAddressFacts
@@ -194,9 +197,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
             .Erm(
                 new Erm::Order { Id = 1, IsActive = true, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = LastSecondJan, AgileDistributionEndPlanDate = LastSecondMar, DestOrganizationUnitId = 2, FirmId = 5, OwnerCode = 6, WorkflowStepId = 8, CurrencyId = 9, OrderType = 2 },
                 new Erm::Order { Id = 2, IsActive = false, IsDeleted = false },
-                new Erm::Order { Id = 3, IsActive = true, IsDeleted = true })
+                new Erm::Order { Id = 3, IsActive = true, IsDeleted = true },
+                new Erm::Order { Id = 4, IsActive = true, IsDeleted = true },
+                new Erm::Project { Id = 3, OrganizationUnitId = 2, IsActive = true })
             .Fact(
-                new Order { Id = 1, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = LastSecondJan.AddSeconds(1), AgileDistributionEndPlanDate = LastSecondMar.AddSeconds(1), DestOrganizationUnitId = 2, FirmId = 5, WorkflowStep = 8, HasCurrency = true, IsFreeOfCharge = true, IsSelfAds = true });
+                new Order { Id = 1, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = LastSecondJan.AddSeconds(1), AgileDistributionEndPlanDate = LastSecondMar.AddSeconds(1), DestProjectId = 3, FirmId = 5, WorkflowStep = 8, HasCurrency = true, IsFreeOfCharge = true, IsSelfAds = true });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderPositionFacts

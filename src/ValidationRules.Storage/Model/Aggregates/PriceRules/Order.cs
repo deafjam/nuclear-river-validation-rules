@@ -30,7 +30,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
         public sealed class OrderCategoryPosition
         {
             public long OrderId { get; set; }
-            public long ProjectId { get; set; }
             public long OrderPositionAdvertisementId { get; set; }
             public long CategoryId { get; set; }
         }
@@ -41,7 +40,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
         public sealed class OrderThemePosition
         {
             public long OrderId { get; set; }
-            public long ProjectId { get; set; }
             public long OrderPositionAdvertisementId { get; set; }
             public long ThemeId { get; set; }
         }
@@ -61,7 +59,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
             public long OrderId { get; set; }
             public long OrderPositionId { get; set; }
             public long CategoryCode { get; set; }
-            public long ProjectId { get; set; }
         }
 
         public sealed class ActualPrice
@@ -73,6 +70,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
         public sealed class OrderPeriod
         {
             public long OrderId { get; set; }
+            public long ProjectId { get; set; }
             public DateTime Start { get; set; }
             public DateTime End { get; set; }
             public long Scope { get; set; }

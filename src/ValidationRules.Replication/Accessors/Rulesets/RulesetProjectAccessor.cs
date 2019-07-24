@@ -50,11 +50,10 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
 
             var firmIds = from ruleset in _query.For<Ruleset>().Where(x => rulesetsIds.Contains(x.Id))
                           from rulesetProject in _query.For<Ruleset.RulesetProject>().Where(x => x.RulesetId == ruleset.Id)
-                          from project in _query.For<Project>().Where(x => x.Id == rulesetProject.ProjectId)
                           from order in _query.For<Order>()
                                               .Where(x => ruleset.BeginDate <= x.AgileDistributionStartDate
                                                           && x.AgileDistributionStartDate < ruleset.EndDate
-                                                          && x.DestOrganizationUnitId == project.OrganizationUnitId)
+                                                          && x.DestProjectId == rulesetProject.ProjectId)
                           select order.FirmId;
 
             return new[] {new RelatedDataObjectOutdatedEvent(typeof(Ruleset), typeof(Firm), firmIds.ToHashSet())};

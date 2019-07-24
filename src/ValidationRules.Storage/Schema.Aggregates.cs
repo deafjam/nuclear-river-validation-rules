@@ -145,7 +145,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<PriceAggregates::Order.OrderPeriod>()
                    .HasSchemaName(PriceAggregatesSchema)
-                   .HasPrimaryKey(x => new {x.OrderId, x.Start, x.End});
+                   .HasPrimaryKey(x => new {x.OrderId, x.ProjectId, x.Start, x.End});
 
             builder.Entity<PriceAggregates::Order.OrderPricePosition>()
                    .HasSchemaName(PriceAggregatesSchema)
@@ -161,7 +161,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<PriceAggregates::Order.AmountControlledPosition>()
                   .HasSchemaName(PriceAggregatesSchema)
-                  .HasPrimaryKey(x => new { x.OrderId, x.ProjectId, x.OrderPositionId});
+                  .HasPrimaryKey(x => new { x.OrderId, x.OrderPositionId});
 
             builder.Entity<PriceAggregates::Order.ActualPrice>()
                    .HasSchemaName(PriceAggregatesSchema)
@@ -175,7 +175,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<PriceAggregates::Period>()
                   .HasSchemaName(PriceAggregatesSchema)
-                  .HasPrimaryKey(x => new { x.ProjectId, x.Start});
+                  .HasPrimaryKey(x => new { x.Start, x.End, x.ProjectId});
 
             builder.Entity<PriceAggregates::Ruleset>()
                    .HasSchemaName(PriceAggregatesSchema)

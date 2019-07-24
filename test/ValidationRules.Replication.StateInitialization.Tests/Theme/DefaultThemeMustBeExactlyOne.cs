@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(DefaultThemeMustBeExactlyOne_NoDefaultTheme))
                 .Fact(
-                    new Facts::Project { Id = 1, OrganizationUnitId = 2 }
+                    new Facts::Project { Id = 1 }
                 )
                 .Aggregate(
                     new Project { Id = 1 }

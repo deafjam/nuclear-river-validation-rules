@@ -144,8 +144,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 var evaluatedRestrictions =
                     from order in _query.For<Facts::Order>()
                     from item in _query.For<Facts::OrderItem>().Where(x => x.OrderId == order.Id)
-                    from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
-                    from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == project.Id)
+                    from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == order.DestProjectId)
                     from rule in _query.For<Facts::Ruleset.AssociatedRule>().Where(x => x.AssociatedNomenclatureId == item.ItemPositionId)
                     where _query.For(Specs.Find.Facts.Ruleset)
                                 .Any(x => x.Id == rule.RulesetId
@@ -198,8 +197,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 var evaluatedRestrictions =
                     from order in _query.For<Facts::Order>()
                     from item in _query.For<Facts::OrderItem>().Where(x => x.OrderId == order.Id)
-                    from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
-                    from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == project.Id)
+                    from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == order.DestProjectId)
                     from ruleset in _query.For(Specs.Find.Facts.Ruleset)
                                           .Where(x => x.Id == rp.RulesetId
                                                       && x.BeginDate <= order.AgileDistributionStartDate

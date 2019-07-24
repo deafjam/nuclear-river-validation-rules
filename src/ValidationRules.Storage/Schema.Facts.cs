@@ -118,10 +118,10 @@ namespace NuClear.ValidationRules.Storage
                    .HasIndex(x => x.BargainId, x => x.Id)
                    .HasIndex(x => new { x.BargainId, x.SignupDate }, x => x.Id)
                    .HasIndex(x => x.DealId)
-                   .HasIndex(x => x.FirmId, x => new { x.DestOrganizationUnitId, x.AgileDistributionStartDate })
+                   .HasIndex(x => x.FirmId, x => new { x.DestProjectId, x.AgileDistributionStartDate })
                    // подумать, может быть индекс по DestOrganizationUnitId можно объединить с каким-нибудь другим  
-                   .HasIndex(x => x.DestOrganizationUnitId, x => new { x.FirmId, x.AgileDistributionStartDate, x.AgileDistributionEndFactDate, x.IsSelfAds, x.AgileDistributionEndPlanDate, x.WorkflowStep })
-                   .HasIndex(x => new { x.AgileDistributionStartDate, x.DestOrganizationUnitId }, x => x.FirmId)
+                   .HasIndex(x => x.DestProjectId, x => new { x.FirmId, x.AgileDistributionStartDate, x.AgileDistributionEndFactDate, x.IsSelfAds, x.AgileDistributionEndPlanDate, x.WorkflowStep })
+                   .HasIndex(x => new { x.AgileDistributionStartDate, x.DestProjectId }, x => x.FirmId)
                    .HasIndex(x => x.AgileDistributionEndPlanDate)
                    .HasIndex(x => x.AgileDistributionEndFactDate);
 

@@ -16,8 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemePeriodMustContainOrderPeriodPositive))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb},
-                    new Facts::Project {Id = 3, OrganizationUnitId = 2},
+                    new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb},
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
                     new Facts::OrderPositionAdvertisement { OrderPositionId = 4, ThemeId = 5 },
@@ -49,8 +48,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemePeriodMustContainOrderPeriodNegative))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb },
-                    new Facts::Project { Id = 3, OrganizationUnitId = 2 },
+                    new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb },
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
                     new Facts::OrderPositionAdvertisement { OrderPositionId = 4, ThemeId = 5 },

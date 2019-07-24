@@ -30,9 +30,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::FirmAddress { Id = 3, IsLocatedOnTheMap = true },
 
                     new Facts::Position { Id = 4 },
-                    new Facts::Position { Id = 5, CategoryCode = 11 }, // Позиции "Рекламная ссылка", "Выгодные покупки с 2ГИС", "Комментарий к адресу" могут продаваться к адресам, не размещённым на карте
-
-                    new Facts::Project())
+                    new Facts::Position { Id = 5, CategoryCode = 11 }) // Позиции "Рекламная ссылка", "Выгодные покупки с 2ГИС", "Комментарий к адресу" могут продаваться к адресам, не размещённым на карте
                 .Aggregate(
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.AddressAdvertisementNonOnTheMap { OrderId = 1, AddressId = 2, OrderPositionId = 3, PositionId = 4 })

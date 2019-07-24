@@ -39,8 +39,7 @@ namespace NuClear.ValidationRules.OperationsProcessing
                           .DependOn<Facts::OrderPositionAdvertisement>()
                           .DependOn<Facts::Position>()
                           .DependOn<Facts::PositionChild>()
-                          .DependOn<Facts::PricePosition>()
-                          .DependOn<Facts::Project>())
+                          .DependOn<Facts::PricePosition>())
 
                 // ConsistencyAggregates
                 .Aggregate<ConsistencyAggregates::Order>(
@@ -85,8 +84,7 @@ namespace NuClear.ValidationRules.OperationsProcessing
                           .DependOn<Facts::FirmAddress>()
                           .DependOn<Facts::Position>()
                           .DependOn<Facts::Price>()
-                          .DependOn<Facts::PricePosition>()
-                          .DependOn<Facts::Project>())
+                          .DependOn<Facts::PricePosition>())
                 .Aggregate<PriceAggregates::Period>(
                     x => x.Match<object>()
                           .DependOn<Facts::Order>()
@@ -110,8 +108,7 @@ namespace NuClear.ValidationRules.OperationsProcessing
                           .DependOn<Facts::OrderPositionCostPerClick>()
                           .DependOn<Facts::OrderPositionAdvertisement>()
                           .DependOn<Facts::Position>()
-                          .DependOn<Facts::PricePosition>()
-                          .DependOn<Facts::Project>())
+                          .DependOn<Facts::PricePosition>())
                 .Aggregate<ProjectAggregates::Project>(
                     x => x.Match<Facts::Project>()
                           .DependOn<Facts::CostPerClickCategoryRestriction>()
@@ -123,8 +120,7 @@ namespace NuClear.ValidationRules.OperationsProcessing
                 .Aggregate<ThemeAggregates::Order>(
                     x => x.Match<Facts::Order>()
                           .DependOn<Facts::OrderPosition>()
-                          .DependOn<Facts::OrderPositionAdvertisement>()
-                          .DependOn<Facts::Project>())
+                          .DependOn<Facts::OrderPositionAdvertisement>())
                 .Aggregate<ThemeAggregates::Project>(
                     x => x.Match<Facts::Project>()
                           .DependOn<Facts::Theme>()

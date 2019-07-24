@@ -31,11 +31,11 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
             var sales =
-                from orderPosition in query.For<Order.OrderCategoryPosition>()
-                from orderPeriod in query.For<Order.OrderPeriod>().Where(x => x.OrderId == orderPosition.OrderId)
-                from period in query.For<Period>().Where(x => x.ProjectId == orderPosition.ProjectId && orderPeriod.Start <= x.Start && x.End <= orderPeriod.End)
-                select new { orderPosition.CategoryId, orderPosition.ProjectId, orderPeriod.OrderId, orderPeriod.Scope, period.Start, period.End };
-
+                from period in query.For<Period>()
+                from orderPeriod in query.For<Order.OrderPeriod>().Where(x => x.ProjectId == period.ProjectId && x.Start <= period.Start && period.End <= x.End)
+                from orderPosition in query.For<Order.OrderCategoryPosition>().Where(x => x.OrderId == orderPeriod.OrderId)
+                select new { orderPosition.CategoryId, orderPeriod.ProjectId, orderPeriod.OrderId, orderPeriod.Scope, period.Start, period.End };
+                
             var oversales =
                 from sale in sales
                 let count = sales

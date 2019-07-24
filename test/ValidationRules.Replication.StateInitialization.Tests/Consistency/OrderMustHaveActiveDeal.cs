@@ -22,8 +22,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Order { Id = 2, DealId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), HasCurrency = true },
                     new Facts::Order { Id = 3, DealId = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), HasCurrency = true },
 
-                    new Facts::Deal { Id = 3 },
-                    new Facts::Project())
+                    new Facts::Deal { Id = 3 })
                 .Aggregate(
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     CreateOrderMissingRequiredField(orderId: 1, deal: true),

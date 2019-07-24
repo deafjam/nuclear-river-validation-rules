@@ -95,7 +95,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             public IQueryable<Order.FirmOrganizationUnitMismatch> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from firm in _query.For<Facts::Firm>().Where(x => x.Id == order.FirmId)
-                   where order.DestOrganizationUnitId != firm.OrganizationUnitId
+                   where order.DestProjectId != firm.ProjectId
                    select new Order.FirmOrganizationUnitMismatch { OrderId = order.Id };
 
             public FindSpecification<Order.FirmOrganizationUnitMismatch> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

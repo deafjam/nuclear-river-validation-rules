@@ -3,7 +3,6 @@ using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
 using NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
-using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
 
 // ReSharper disable once CheckNamespace
@@ -17,8 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderPositionAdvertisementMustHaveOptionalAdvertisementPositive))
                 .Fact(
-                      new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndPlanDate = FirstDayFeb },
-                      new Facts::Project { Id = 3, OrganizationUnitId = 2 },
+                      new Facts::Order { Id = 1, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndPlanDate = FirstDayFeb },
 
                       new Facts::OrderPosition { Id = 4, OrderId = 1, PricePositionId = 4 },
                       new Facts::PricePosition { Id = 4, PositionId = 5, IsActiveNotDeleted = true },
@@ -31,7 +29,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                            new Order.MissingAdvertisementReference { OrderId = 1, OrderPositionId = 4, CompositePositionId = 5, PositionId = 5, AdvertisementIsOptional = true}
                           )
                 .Message(
-                         new Messages::Version.ValidationResult
+                         new Version.ValidationResult
                              {
                                  MessageParams = new MessageParams(
                                                                    new Reference<EntityTypeOrderPosition>(4,

@@ -35,9 +35,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Category { Id = 12, IsActiveNotDeleted = true },
                     new Facts::Category { Id = 13, IsActiveNotDeleted = true },
 
-                    new Facts::Project(),
                     new Facts::CostPerClickCategoryRestriction { Start = MonthStart(1), CategoryId = 13, MinCostPerClick = 2 },
-                    new Facts::CostPerClickCategoryRestriction { Start = MonthStart(2), CategoryId = 14, MinCostPerClick = 2 })
+                    new Facts::CostPerClickCategoryRestriction { Start = MonthStart(2), CategoryId = 14, MinCostPerClick = 2 },
+                    new Facts::Project())
                 .Aggregate(
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3) },
                     new Order.CostPerClickAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 13, Bid = 2 },

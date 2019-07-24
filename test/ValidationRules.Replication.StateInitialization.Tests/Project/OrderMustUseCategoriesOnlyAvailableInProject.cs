@@ -20,8 +20,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPosition { Id = 1, OrderId = 1 },
                     new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
                     new Facts::Position { Id = 4 },
-                    new Facts::Category { Id = 12, IsActiveNotDeleted = true },
-                    new Facts::Project())
+                    new Facts::Category { Id = 12, IsActiveNotDeleted = true })
                 .Aggregate(
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3) },
                     new Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12 })
@@ -53,8 +52,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
                     new Facts::Position { Id = 4 },
                     // category not active
-                    new Facts::Category { Id = 12, IsActiveNotDeleted = false },
-                    new Facts::Project())
+                    new Facts::Category { Id = 12, IsActiveNotDeleted = false })
                 .Aggregate(
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3) })
                 .Message();
@@ -70,8 +68,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
                     new Facts::Position { Id = 4 },
                     new Facts::Category { Id = 12, IsActiveNotDeleted = true },
-                    new Facts::Project(),
-                    new Facts::CategoryOrganizationUnit { CategoryId = 12 })
+                    new Facts::CategoryOrganizationUnit { CategoryId = 12 },
+                    new Facts::Project())
                 .Aggregate(
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3) },
                     new Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12 },

@@ -186,9 +186,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                           IsFreeOfCharge = true
                       },
                       new Facts::OrderPosition { Id = 11, OrderId = 11 },
-                      new Facts::ReleaseWithdrawal { OrderPositionId = 11, Amount = 3, Start = FirstDayFeb, End = FirstDayMar },
-
-                      new Facts::Project())
+                      new Facts::ReleaseWithdrawal { OrderPositionId = 11, Amount = 3, Start = FirstDayFeb, End = FirstDayMar })
 
                 .Aggregate(
                            new Account { Id = 1 },

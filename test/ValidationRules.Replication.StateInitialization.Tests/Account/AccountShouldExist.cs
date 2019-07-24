@@ -16,8 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(AccountShouldExistNegative))
                 .Fact(
-                    new Facts::Order { Id = 1, LegalPersonId = 2, BranchOfficeOrganizationUnitId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMar, WorkflowStep = 4 },
-                    new Facts::Project())
+                    new Facts::Order { Id = 1, LegalPersonId = 2, BranchOfficeOrganizationUnitId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMar, WorkflowStep = 4 })
                 .Aggregate(
                     new Order { Id = 1, AccountId = null, Start = FirstDayJan, End = FirstDayMar })
                 .Message(
@@ -37,8 +36,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(AccountShouldExistPositive))
                 .Fact(
                     new Facts::Order { Id = 1, LegalPersonId = 2, BranchOfficeOrganizationUnitId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMar, WorkflowStep = 4 },
-                    new Facts::Account { Id = 4, LegalPersonId = 2, BranchOfficeOrganizationUnitId = 3 },
-                    new Facts::Project())
+                    new Facts::Account { Id = 4, LegalPersonId = 2, BranchOfficeOrganizationUnitId = 3 })
                 .Aggregate(
                     new Order { Id = 1, AccountId = 4, Start = FirstDayJan, End = FirstDayMar })
                 .Message();

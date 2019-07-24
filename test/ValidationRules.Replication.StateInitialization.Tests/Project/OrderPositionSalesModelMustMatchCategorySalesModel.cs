@@ -46,11 +46,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Position { Id = 4, SalesModel = 1 },
 
                     // Рубрика 12 в проекте 0 допускает размещение с моделью продаж 1 до 4-го месяца и моделью 2 позднее
-                    new Facts::Project(),
                     new Facts::CategoryOrganizationUnit { CategoryId = 12 },
                     new Facts::Category { Id = 12, L3Id = 3, IsActiveNotDeleted = true },
                     new Facts::SalesModelCategoryRestriction { CategoryId = 12, Start = MonthStart(1), SalesModel = 1 },
-                    new Facts::SalesModelCategoryRestriction { CategoryId = 12, Start = MonthStart(4), SalesModel = 2 })
+                    new Facts::SalesModelCategoryRestriction { CategoryId = 12, Start = MonthStart(4), SalesModel = 2 },
+                    new Facts::Project())
                 .Aggregate(
                     // Заказ 1 с неправильным размещением в рубрике - есть ошибка
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3) },

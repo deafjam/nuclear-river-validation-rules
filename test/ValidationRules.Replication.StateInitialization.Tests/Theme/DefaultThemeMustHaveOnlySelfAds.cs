@@ -16,8 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(DefaultThemeMustHaveOnlySelfAdsPositive))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb, IsSelfAds = false },
-                    new Facts::Project { Id = 3, OrganizationUnitId = 2 },
+                    new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb, IsSelfAds = false },
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
                     new Facts::OrderPositionAdvertisement { OrderPositionId = 4, ThemeId = 5 },
@@ -48,8 +47,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(DefaultThemeMustHaveOnlySelfAdsNegative))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb, IsSelfAds = false },
-                    new Facts::Project { Id = 3, OrganizationUnitId = 2 },
+                    new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb, IsSelfAds = false },
 
                     new Facts::OrderPosition { Id = 4, OrderId = 1, },
                     new Facts::OrderPositionAdvertisement { OrderPositionId = 4, ThemeId = 5 },

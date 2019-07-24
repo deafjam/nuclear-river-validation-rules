@@ -43,16 +43,11 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public IQueryable<Period> GetSource()
             {
-                var orderDatesOrgUnit =
-                    _query.For<Facts::Order>().Select(x => new {x.DestOrganizationUnitId, Date = x.AgileDistributionStartDate})
-                        .Union(_query.For<Facts::Order>().Select(x => new {x.DestOrganizationUnitId, Date = x.AgileDistributionEndFactDate}))
-                        .Union(_query.For<Facts::Order>().Select(x => new {x.DestOrganizationUnitId, Date = x.AgileDistributionEndPlanDate}));
-
                 var orderDates =
-                    from orderDateOrgUnit in orderDatesOrgUnit
-                    from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == orderDateOrgUnit.DestOrganizationUnitId)
-                    select new { ProjectId = project.Id, orderDateOrgUnit.Date};
-                
+                    _query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionStartDate})
+                        .Union(_query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionEndFactDate}))
+                        .Union(_query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionEndPlanDate}));
+               
                 var priceDates = _query.For<Facts::Price>().Select(x => new {x.ProjectId, Date = x.BeginDate});
 
                 var dates = orderDates.Union(priceDates);
@@ -60,7 +55,12 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 var result =
                     from date in dates
                     from next in dates.Where(x => x.ProjectId == date.ProjectId && x.Date > date.Date).OrderBy(x => x.Date).Take(1).DefaultIfEmpty()
-                    select new Period { ProjectId = date.ProjectId, Start = date.Date, End = next != null ? next.Date : DateTime.MaxValue };
+                    select new Period
+                    {
+                        ProjectId = date.ProjectId,
+                        Start = date.Date,
+                        End = next != null ? next.Date : DateTime.MaxValue
+                    };
 
                 return result;
             }
@@ -76,12 +76,17 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             private static FindSpecification<Period> Periods(IEnumerable<PeriodKey> periodKeys)
             {
-                return periodKeys.Select(PeriodSpecificationForPeriodKey)
-                                   .Aggregate(new FindSpecification<Period>(x => false), (current, spec) => current | spec);
+                var projectSpecs = periodKeys.GroupBy(x => x.ProjectId).Select(x =>
+                {
+                    var beginEndSpecs = x.Select(BeginEndSpec).Aggregate(new FindSpecification<Period>(y => false), (current, spec) => current | spec);
+                    return new FindSpecification<Period>(y => y.ProjectId == x.Key) & beginEndSpecs;
+                });
+                
+                return projectSpecs.Aggregate(new FindSpecification<Period>(x => false), (current, spec) => current | spec);
             }
 
-            private static FindSpecification<Period> PeriodSpecificationForPeriodKey(PeriodKey periodKey)
-                => new FindSpecification<Period>(x => x.ProjectId == periodKey.ProjectId && x.Start <= periodKey.Date && periodKey.Date <= x.End);
+            private static FindSpecification<Period> BeginEndSpec(PeriodKey periodKey)
+                => new FindSpecification<Period>(x => x.Start <= periodKey.Date && periodKey.Date <= x.End);
 
         }
     }

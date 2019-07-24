@@ -3,7 +3,6 @@ using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
 using NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules;
 using NuClear.ValidationRules.Storage.Model.Messages;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
-using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 using MessageTypeCode = NuClear.ValidationRules.Storage.Model.Messages.MessageTypeCode;
 
 namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
@@ -16,14 +15,14 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(FirmAndOrderShouldBelongTheSameOrganizationUnit))
                 .Fact(
-                    new Facts::Firm { Id = 1, OrganizationUnitId = 1},
-                    new Facts::Order { Id = 2, FirmId = 1, DestOrganizationUnitId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb, WorkflowStep = 5 })
+                    new Facts::Firm { Id = 1, ProjectId = 1},
+                    new Facts::Order { Id = 2, FirmId = 1, DestProjectId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb, WorkflowStep = 5 })
                 .Aggregate(
                     new Firm { Id = 1, },
                     new Order { Id = 2, FirmId = 1, Start = FirstDayJan, End = FirstDayFeb },
                     new Order.FirmOrganizationUnitMismatch { OrderId = 2 })
                 .Message(
-                    new Messages::Version.ValidationResult
+                    new Version.ValidationResult
                         {
                             MessageParams = new MessageParams(
                                     new Reference<EntityTypeFirm>(1),

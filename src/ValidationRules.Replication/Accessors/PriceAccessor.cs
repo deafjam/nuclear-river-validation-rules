@@ -48,8 +48,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                           select new PeriodKey(price.ProjectId, price.BeginDate);
 
             var orderIds = from price in _query.For<Price>().Where(x => pricesIds.Contains(x.Id))
-                           from project in _query.For<Project>().Where(x => x.Id == price.ProjectId)
-                           from order in _query.For<Order>().Where(x => x.AgileDistributionStartDate >= price.BeginDate && x.DestOrganizationUnitId == project.OrganizationUnitId)
+                           from order in _query.For<Order>().Where(x => x.AgileDistributionStartDate >= price.BeginDate && x.DestProjectId == price.ProjectId)
                            select order.Id;
 
             return new IEvent[]

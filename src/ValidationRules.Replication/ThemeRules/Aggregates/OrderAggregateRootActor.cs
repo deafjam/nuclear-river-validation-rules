@@ -44,16 +44,16 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
                 dataObjects.Select(x => x.Id);
 
             public IQueryable<Order> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
-                   select new Order
-                   {
-                       Id = order.Id,
-                       Start = order.AgileDistributionStartDate,
-                       End = order.AgileDistributionEndFactDate,
-                       ProjectId = project.Id,
-                       IsSelfAds = order.IsSelfAds,
-                   };
+                =>
+                    _query.For<Facts::Order>()
+                        .Select(order => new Order
+                        {
+                            Id = order.Id,
+                            Start = order.AgileDistributionStartDate,
+                            End = order.AgileDistributionEndFactDate,
+                            ProjectId = order.DestProjectId,
+                            IsSelfAds = order.IsSelfAds,
+                        });
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

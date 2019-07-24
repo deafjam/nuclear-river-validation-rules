@@ -22,17 +22,17 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         CategoryCode = 1, Min = 2, Max = 9 },
 
                     // Одобренный заказ на два месяца, поскольку он всего один - будет предупреждение, единичное для этого заказа и массовое.
-                    new Order.AmountControlledPosition { OrderId = 1, CategoryCode = 1, ProjectId = 13 },
-                    new Order.OrderPeriod { OrderId = 1, Start = MonthStart(1), End = MonthStart(2), Scope = 0 },
-                    new Order.OrderPeriod { OrderId = 1, Start = MonthStart(2), End = MonthStart(3), Scope = 0 },
+                    new Order.AmountControlledPosition { OrderId = 1, CategoryCode = 1 },
+                    new Order.OrderPeriod { OrderId = 1, ProjectId = 13, Start = MonthStart(1), End = MonthStart(2), Scope = 0 },
+                    new Order.OrderPeriod { OrderId = 1, ProjectId = 13, Start = MonthStart(2), End = MonthStart(3), Scope = 0 },
 
                     // Заказ на утверждении - второй в этом периоде, единичное предупреждение для него не возникает.
-                    new Order.AmountControlledPosition { OrderId = 2, CategoryCode = 1, ProjectId = 13 },
-                    new Order.OrderPeriod { OrderId = 2, Start = MonthStart(1), End = MonthStart(2), Scope = -1 },
+                    new Order.AmountControlledPosition { OrderId = 2, CategoryCode = 1 },
+                    new Order.OrderPeriod { OrderId = 2, ProjectId = 13, Start = MonthStart(1), End = MonthStart(2), Scope = -1 },
 
                     // Черновик - второй в этом периоде, единичное предупреждение для него не возникает.
-                    new Order.AmountControlledPosition { OrderId = 3, CategoryCode = 1, ProjectId = 13 },
-                    new Order.OrderPeriod { OrderId = 3, Start = MonthStart(2), End = MonthStart(3), Scope = 4 },
+                    new Order.AmountControlledPosition { OrderId = 3, CategoryCode = 1 },
+                    new Order.OrderPeriod { OrderId = 3, ProjectId = 13, Start = MonthStart(2), End = MonthStart(3), Scope = 4 },
 
                     new Period { Start = MonthStart(1), End = MonthStart(2) },
                     new Period { Start = MonthStart(2), End = MonthStart(3) },

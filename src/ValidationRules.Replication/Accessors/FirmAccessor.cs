@@ -19,13 +19,14 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FirmAccessor(IQuery query) => _query = query;
 
-        public IQueryable<Firm> GetSource() => _query
-            .For(Specs.Find.Erm.Firm.Active)
-            .Select(x => new Firm
-            {
-                Id = x.Id,
-                OrganizationUnitId = x.OrganizationUnitId,
-            });
+        public IQueryable<Firm> GetSource() =>
+            from firm in _query.For(Specs.Find.Erm.Firm.Active)
+            from project in _query.For(Specs.Find.Erm.Project).Where(x => x.OrganizationUnitId == firm.OrganizationUnitId)
+            select new Firm
+                {
+                    Id = firm.Id,
+                    ProjectId = project.Id
+                };
 
         public FindSpecification<Firm> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {

@@ -23,9 +23,10 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public OrderAccessor(IQuery query) => _query = query;
 
-        public IQueryable<Order> GetSource() => _query
-            .For(Specs.Find.Erm.Order)
-            .Select(order => new Order
+        public IQueryable<Order> GetSource() =>
+            from order in _query.For(Specs.Find.Erm.Order)
+            from project in _query.For(Specs.Find.Erm.Project).Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
+            select new Order
             {
                 Id = order.Id,
                 FirmId = order.FirmId,
@@ -36,7 +37,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
                 SignupDate = order.SignupDate,
 
-                DestOrganizationUnitId = order.DestOrganizationUnitId,
+                DestProjectId = project.Id,
 
                 LegalPersonId = order.LegalPersonId,
                 LegalPersonProfileId = order.LegalPersonProfileId,
@@ -49,8 +50,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 HasCurrency = order.CurrencyId != null,
                 IsSelfAds = order.OrderType == Erm::Order.OrderTypeSelfAds,
                 IsSelfSale = order.SaleType == Erm::Order.OrderSaleTypeSelfSale,
-            });
-
+            };
         public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
             var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
@@ -75,23 +75,20 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 from account in _query.For<Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
                 select account.Id;
 
-            var orderDtos =
-                (from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
-                from project in _query.For<Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
-                select new
-                {
-                    ProjectId = project.Id,
-                    order.FirmId,
-                    order.AgileDistributionStartDate,
-                    order.AgileDistributionEndFactDate,
-                    order.AgileDistributionEndPlanDate,
-                }).ToList();
+            var orderDtos = _query.For<Order>().Where(x => orderIds.Contains(x.Id)).Select(x => new
+            {
+                x.FirmId,
+                x.DestProjectId,
+                x.AgileDistributionStartDate,
+                x.AgileDistributionEndFactDate,
+                x.AgileDistributionEndPlanDate,
+            }).ToList();
 
             var firmIds = orderDtos.Select(x => x.FirmId);
             var periodKeys =
-                  orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionStartDate))
-                  .Concat(orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionEndFactDate)))
-                  .Concat(orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionEndPlanDate)));
+                  orderDtos.Select(x => new PeriodKey(x.DestProjectId, x.AgileDistributionStartDate))
+                  .Concat(orderDtos.Select(x => new PeriodKey(x.DestProjectId, x.AgileDistributionEndFactDate)))
+                  .Concat(orderDtos.Select(x => new PeriodKey(x.DestProjectId, x.AgileDistributionEndPlanDate)));
 
             return new IEvent[]
             {

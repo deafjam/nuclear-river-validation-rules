@@ -52,13 +52,12 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>()
-                   from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
                    select new Order
                        {
                            Id = order.Id,
                            Start = order.AgileDistributionStartDate,
                            End = order.AgileDistributionEndPlanDate, // ?
-                           ProjectId = project.Id,
+                           ProjectId = order.DestProjectId,
                            IsDraft = order.WorkflowStep == Facts::Order.State.OnRegistration,
                        };
 
