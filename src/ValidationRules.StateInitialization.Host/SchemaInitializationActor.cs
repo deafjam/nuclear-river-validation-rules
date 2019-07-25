@@ -98,7 +98,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 });
 
         public static SchemaInitializationCommand Messages { get; }
-            = new SchemaInitializationCommand(Schema.Messages, DataObjectTypesProviderFactory.MessagesTypes,
+            = new SchemaInitializationCommand(Schema.Messages, DataObjectTypesProviderFactory.MessagesTypes.Concat(DataObjectTypesProviderFactory.ErmMessagesTypes).ToList(),
                 ValidationRulesConnectionStringIdentity.Instance,
                 new[] {"Messages", "MessagesCache"});
 

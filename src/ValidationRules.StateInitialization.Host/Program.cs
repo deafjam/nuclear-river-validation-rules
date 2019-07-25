@@ -51,6 +51,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             if (args.Contains("-messages"))
             {
+                commands.Add(BulkReplicationCommands.ErmToMessages);
                 commands.Add(BulkReplicationCommands.AggregatesToMessages);
                 commands.Add(SchemaInitializationCommands.Messages);
             }

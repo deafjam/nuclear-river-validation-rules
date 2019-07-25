@@ -13,6 +13,11 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             ReplicateFromDbToDbCommand(
                 new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Aggregates),
                 new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Messages));
+        
+        public static ReplicateInBulkCommand ErmToMessages { get; } =
+            ReplicateFromDbToDbCommand(
+                new StorageDescriptor(ErmConnectionStringIdentity.Instance, Schema.Erm),
+                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Messages));
 
         public static ReplicateInBulkCommand FactsToAggregates { get; } =
             ReplicateFromDbToDbCommand(

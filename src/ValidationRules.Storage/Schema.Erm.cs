@@ -10,6 +10,7 @@ namespace NuClear.ValidationRules.Storage
         private const string BillingSchema = "Billing";
         private const string BusinessDirectorySchema = "BusinessDirectory";
         private const string OrderValidationSchema = "OrderValidation";
+        private const string SharedSchema = "Shared";
 
         public static MappingSchema Erm { get; } =
             new MappingSchema(nameof(Erm), new SqlServerMappingSchema())
@@ -52,11 +53,11 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<LegalPerson>().HasSchemaName(BillingSchema).HasTableName("LegalPersons").HasPrimaryKey(x => x.Id);
             builder.Entity<LegalPersonProfile>().HasSchemaName(BillingSchema).HasTableName("LegalPersonProfiles").HasPrimaryKey(x => x.Id);
             builder.Entity<OrderFile>().HasSchemaName(BillingSchema).HasTableName("OrderFiles").HasPrimaryKey(x => x.Id);
-            
+           
             builder.Entity<UnlimitedOrder>().HasSchemaName(OrderValidationSchema).HasTableName("UnlimitedOrders");
-            
             builder.Entity<NomenclatureCategory>().HasSchemaName(BillingSchema).HasTableName("NomenclatureCategories");
-
+            builder.Entity<UseCaseTrackingEvent>().HasSchemaName(SharedSchema).HasTableName("UseCaseTrackingEvents");
+            
             return builder;
         }
     }

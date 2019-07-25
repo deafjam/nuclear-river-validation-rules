@@ -165,10 +165,14 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             {
                 typeof(Messages::Version),
                 typeof(Messages::Version.ValidationResult),
-                typeof(Messages::Version.ErmState),
                 typeof(Messages::Version.AmsState),
                 typeof(Messages::Cache.ValidationResult),
             };
+
+        public static readonly Type[] ErmMessagesTypes =
+        {
+            typeof(Messages::Version.ErmState),
+        };
 
         public IDataObjectTypesProvider Create(ReplicateInBulkCommand command)
         {
@@ -194,6 +198,11 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             if (command.TargetStorageDescriptor.MappingSchema == Schema.Messages)
             {
+                if (command.SourceStorageDescriptor.MappingSchema == Schema.Erm)
+                {
+                    return new CommandRegardlessDataObjectTypesProvider(ErmMessagesTypes);    
+                }
+                
                 return new CommandRegardlessDataObjectTypesProvider(MessagesTypes);
             }
 
