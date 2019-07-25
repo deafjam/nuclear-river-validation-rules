@@ -133,11 +133,12 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                     select new Order.PartnerPosition
                     {
                         OrderId = op.OrderId,
+                        OrderPositionId = op.Id, 
                         DestinationFirmAddressId = opa.FirmAddressId.Value,
                         DestinationFirmId = fa.FirmId,
                     };
 
-                return addressPositions.Distinct();
+                return addressPositions;
             }
 
             public FindSpecification<Order.PartnerPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

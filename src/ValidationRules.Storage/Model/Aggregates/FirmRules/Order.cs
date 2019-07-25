@@ -27,6 +27,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules
         public sealed class PartnerPosition
         {
             public long OrderId { get; set; }
+            public long OrderPositionId { get; set; }
             public long DestinationFirmId { get; set; }
             public long DestinationFirmAddressId { get; set; }
         }

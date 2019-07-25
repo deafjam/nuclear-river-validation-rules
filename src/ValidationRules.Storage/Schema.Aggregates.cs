@@ -100,9 +100,9 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<FirmAggregates::Order.PartnerPosition>()
                 .HasSchemaName(FirmAggregatesSchema)
-                .HasPrimaryKey(x => new {x.OrderId, x.DestinationFirmAddressId})
-                .HasIndex(x => x.DestinationFirmId)
-                .HasIndex(x => x.DestinationFirmAddressId, x => x.DestinationFirmId);
+                .HasPrimaryKey(x => new {x.DestinationFirmAddressId, x.OrderPositionId})
+                .HasIndex(x => x.OrderId)
+                .HasIndex(x => x.DestinationFirmId, x => x.OrderId);
 
             builder.Entity<FirmAggregates::Order.PremiumPartnerPosition>()
                     .HasSchemaName(FirmAggregatesSchema)

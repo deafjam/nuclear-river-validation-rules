@@ -48,11 +48,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Aggregate(
                     // Одобренный заказ с змк в адрес третьей фирмы (не видит второго)
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
-                    new Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
+                    new Order.PartnerPosition { OrderId = 1, OrderPositionId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
 
                     // Заказ на оформлении с змк в адрес третьей фирмы (видит первого)
                     new Order { Id = 2, Start = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
-                    new Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 }
+                    new Order.PartnerPosition { OrderId = 2, OrderPositionId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 }
                 )
                 .Message(
                     new Messages::Version.ValidationResult
@@ -78,12 +78,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Aggregate(
                     // Одобренный заказ с премиум-змк в адрес третьей фирмы (не видит второго)
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3), FirmId = 1, Scope = 0 },
-                    new Order.PartnerPosition { OrderId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
+                    new Order.PartnerPosition { OrderId = 1, OrderPositionId = 1, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
                     new Order.PremiumPartnerPosition { OrderId = 1 },
 
                     // Заказ на оформлении с премиум-змк в адрес третьей фирмы (видит первого)
                     new Order { Id = 2, Start = MonthStart(2), End = MonthStart(4), FirmId = 2, Scope = 2 },
-                    new Order.PartnerPosition { OrderId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
+                    new Order.PartnerPosition { OrderId = 2, OrderPositionId = 2, DestinationFirmId = 3, DestinationFirmAddressId = 3 },
                     new Order.PremiumPartnerPosition { OrderId = 2 }
                 )
                 .Message(

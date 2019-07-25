@@ -25,11 +25,11 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                 from order in query.For<Order>()
                 from fa in query.For<Order.PartnerPosition>().Where(x => x.OrderId == order.Id)
                 from premium in query.For<Order.PremiumPartnerPosition>().Where(x => x.OrderId == order.Id)
-                select new { fa.OrderId, FirmAddressId = fa.DestinationFirmAddressId, FirmId = fa.DestinationFirmId, order.Scope, order.Start, order.End };
+                select new { fa.OrderId, fa.OrderPositionId, FirmAddressId = fa.DestinationFirmAddressId, FirmId = fa.DestinationFirmId, order.Scope, order.Start, order.End };
 
             var multipleSales =
                 from sale in sales
-                from conflict in sales.Where(x => x.FirmAddressId == sale.FirmAddressId && x.OrderId != sale.OrderId)
+                from conflict in sales.Where(x => x.FirmAddressId == sale.FirmAddressId && x.OrderPositionId != sale.OrderPositionId)
                 where sale.Start < conflict.End && conflict.Start < sale.End && Scope.CanSee(sale.Scope, conflict.Scope)
                 select new { sale.OrderId, sale.FirmAddressId, sale.FirmId, Start = sale.Start < conflict.Start ? conflict.Start : sale.Start, End = sale.End < conflict.End ? sale.End : conflict.End };
 

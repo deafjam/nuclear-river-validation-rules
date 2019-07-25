@@ -34,9 +34,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Order.AmountControlledPosition { OrderId = 3, CategoryCode = 1 },
                     new Order.OrderPeriod { OrderId = 3, ProjectId = 13, Start = MonthStart(2), End = MonthStart(3), Scope = 4 },
 
-                    new Period { Start = MonthStart(1), End = MonthStart(2) },
-                    new Period { Start = MonthStart(2), End = MonthStart(3) },
-                    new Period { Start = MonthStart(3), End = DateTime.MaxValue })
+                    new Period { ProjectId = 13, Start = MonthStart(1), End = MonthStart(2) },
+                    new Period { ProjectId = 13, Start = MonthStart(2), End = MonthStart(3) },
+                    new Period { ProjectId = 13, Start = MonthStart(3), End = DateTime.MaxValue })
                 .Message(
                     // Единичные предупреждения - только для опубликованного заказа (он не "видит" остальные)
                     new Messages::Version.ValidationResult
