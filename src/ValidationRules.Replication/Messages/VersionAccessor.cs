@@ -25,24 +25,24 @@ namespace NuClear.ValidationRules.Replication.Messages
     }
     
     // stateinit-only accessor
-    public sealed class ErmStateAccessor : IStorageBasedDataObjectAccessor<Version.ErmState>
-    {
-        private readonly IQuery _query;
-
-        public ErmStateAccessor(IQuery query) => _query = query;
-
-        public IQueryable<Version.ErmState> GetSource() =>
-            _query.For<UseCaseTrackingEvent>()
-                .Where(x => x.EventType == UseCaseTrackingEvent.Committed)
-                .OrderByDescending(x => x.CreatedOn)
-                .Take(1)
-                .Select(x => new Version.ErmState
-                {
-                    VersionId = 0,
-                    Token = x.UseCaseId,
-                    UtcDateTime = x.CreatedOn
-                });
-
-        public FindSpecification<Version.ErmState> GetFindSpecification(IReadOnlyCollection<ICommand> commands) => throw new NotSupportedException();
-    }
+//    public sealed class ErmStateAccessor : IStorageBasedDataObjectAccessor<Version.ErmState>
+//    {
+//        private readonly IQuery _query;
+//
+//        public ErmStateAccessor(IQuery query) => _query = query;
+//
+//        public IQueryable<Version.ErmState> GetSource() =>
+//            _query.For<UseCaseTrackingEvent>()
+//                .Where(x => x.EventType == UseCaseTrackingEvent.Committed)
+//                .OrderByDescending(x => x.CreatedOn)
+//                .Take(1)
+//                .Select(x => new Version.ErmState
+//                {
+//                    VersionId = 0,
+//                    Token = x.UseCaseId,
+//                    UtcDateTime = x.CreatedOn
+//                });
+//
+//        public FindSpecification<Version.ErmState> GetFindSpecification(IReadOnlyCollection<ICommand> commands) => throw new NotSupportedException();
+//    }
 }
