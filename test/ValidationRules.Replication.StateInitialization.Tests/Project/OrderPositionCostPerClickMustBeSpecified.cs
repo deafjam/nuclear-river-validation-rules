@@ -20,18 +20,18 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Fact(
                     // Заказ с позицией с покликовой моделью, но без ставки - есть ошибка
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
-                    new Facts::OrderPosition { Id = 1, OrderId = 1, PricePositionId = 5 },
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
+                    new Facts::OrderPosition { Id = 1, OrderId = 2, PricePositionId = 5 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
 
                     // Заказ с позицией с обычной моделью - нет ошибки
                     new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
                     new Facts::OrderPosition { Id = 2, OrderId = 2, PricePositionId = 5 },
-                    new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 2, CategoryId = 12, PositionId = 5 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 2, OrderPositionId = 2, CategoryId = 12, PositionId = 5 },
 
                     // Заказ с позицией с покликовой моделью, со ставкой - нет ошибки
                     new Facts::Order { Id = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
                     new Facts::OrderPosition { Id = 3, OrderId = 3, PricePositionId = 4 },
-                    new Facts::OrderPositionAdvertisement { Id = 3, OrderPositionId = 3, CategoryId = 12, PositionId = 4 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 3, OrderPositionId = 3, CategoryId = 12, PositionId = 4 },
                     new Facts::OrderPositionCostPerClick { OrderPositionId = 3, CategoryId = 12 },
 
                     new Facts::PricePosition { Id = 4, PositionId = 4 },

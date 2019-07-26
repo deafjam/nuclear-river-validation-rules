@@ -21,7 +21,6 @@
         public const int NomenclatureCategory = 285;
         public const int Order = 151;
         public const int OrderPosition = 150;
-        public const int OrderPositionAdvertisement = 216;
         public const int OrderFile = 202;
         public const int Position = 153;
         public const int Price = 155;
@@ -32,7 +31,8 @@
         public const int ThemeCategory = 223;
         public const int ThemeOrganizationUnit = 224;
 
-        // AMS entity types
+        // internal entity types
         public const int Advertisement = 186;
+        public const int OrderPositionAdvertisement = 216;
     }
 }

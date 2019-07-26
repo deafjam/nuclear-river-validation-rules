@@ -40,7 +40,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests.Infrastr
                     [ContextName.Erm] = ermTypes,
                     [ContextName.Facts] = DataObjectTypesProviderFactory.AllSourcesFactTypes,
                     [ContextName.Aggregates] = DataObjectTypesProviderFactory.AggregateTypes,
-                    [ContextName.Messages] = DataObjectTypesProviderFactory.MessagesTypes
+                    [ContextName.Messages] = DataObjectTypesProviderFactory.AllMessagesTypes
                 };
         }
 

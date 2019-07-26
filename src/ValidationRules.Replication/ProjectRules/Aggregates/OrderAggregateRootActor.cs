@@ -84,21 +84,28 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.AddressAdvertisementNonOnTheMap> GetSource()
-                => (from op in _query.For<Facts::OrderPosition>()
-                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue).Where(x => x.OrderPositionId == op.Id)
+            {
+                var result = 
+                    (
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue)
                     from position in _query.For<Facts::Position>()
-                                           .Where(x => !x.IsDeleted && !Facts::Position.CategoryCodesAllowNotLocatedOnTheMap.Contains(x.CategoryCode))
-                                           .Where(x => x.Id == opa.PositionId)
-                    from firmAddress in _query.For<Facts::FirmAddress>().Where(x => !x.IsLocatedOnTheMap).Where(x => x.Id == opa.FirmAddressId.Value)
+                        .Where(x => !x.IsDeleted &&
+                                    !Facts::Position.CategoryCodesAllowNotLocatedOnTheMap.Contains(x.CategoryCode))
+                        .Where(x => x.Id == opa.PositionId)
+                    from firmAddress in _query.For<Facts::FirmAddress>().Where(x => !x.IsLocatedOnTheMap)
+                        .Where(x => x.Id == opa.FirmAddressId.Value)
                     select new Order.AddressAdvertisementNonOnTheMap
-                        {
-                            OrderId = op.OrderId,
-                            OrderPositionId = op.Id,
-                            PositionId = opa.PositionId,
-                            AddressId = opa.FirmAddressId.Value,
-                        }).Distinct();
+                    {
+                        OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId,
+                        PositionId = opa.PositionId,
+                        AddressId = opa.FirmAddressId.Value,
+                    }).Distinct();
 
-        public FindSpecification<Order.AddressAdvertisementNonOnTheMap> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
+                return result;
+            }
+
+            public FindSpecification<Order.AddressAdvertisementNonOnTheMap> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
                 var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.AddressAdvertisementNonOnTheMap>(x => aggregateIds.Contains(x.OrderId));
@@ -123,20 +130,27 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.CategoryAdvertisement> GetSource()
-                => (from op in _query.For<Facts::OrderPosition>()
-                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
-                    from position in _query.For<Facts::Position>().Where(x => !x.IsDeleted).Where(x => x.Id == opa.PositionId)
-                    from category in _query.For<Facts::Category>().Where(x => x.IsActiveNotDeleted).Where(x => x.Id == opa.CategoryId.Value)
+            {
+                var result = 
+                    (from opa in _query.For<Facts::OrderPositionAdvertisement>()
+                    from position in _query.For<Facts::Position>().Where(x => !x.IsDeleted)
+                        .Where(x => x.Id == opa.PositionId)
+                    from category in _query.For<Facts::Category>().Where(x => x.IsActiveNotDeleted)
+                        .Where(x => x.Id == opa.CategoryId.Value)
                     where opa.CategoryId.HasValue
                     select new Order.CategoryAdvertisement
-                        {
-                            OrderId = op.OrderId,
-                            OrderPositionId = op.Id,
-                            PositionId = opa.PositionId,
-                            CategoryId = opa.CategoryId.Value,
-                            SalesModel = position.SalesModel,
-                            IsSalesModelRestrictionApplicable = category.L3Id != null && position.PositionsGroup != Facts::Position.PositionsGroupMedia
+                    {
+                        OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId,
+                        PositionId = opa.PositionId,
+                        CategoryId = opa.CategoryId.Value,
+                        SalesModel = position.SalesModel,
+                        IsSalesModelRestrictionApplicable =
+                            category.L3Id != null && position.PositionsGroup != Facts::Position.PositionsGroupMedia
                     }).Distinct();
+
+                return result;
+            }
 
             public FindSpecification<Order.CategoryAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

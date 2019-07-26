@@ -33,10 +33,10 @@ namespace NuClear.ValidationRules.OperationsProcessing
             .AddMapping<EntityTypeOrder>(typeof(Facts::Order),
                                          typeof(Facts::UnlimitedOrder))
             .AddMapping<EntityTypeOrderPosition>(typeof(Facts::OrderPosition),
+                                                 typeof(Facts::OrderPositionAdvertisement),
                                                  typeof(Facts::OrderPositionCostPerClick),
                                                  typeof(Facts::ReleaseWithdrawal),
                                                  typeof(Facts::OrderItem))
-            .AddMapping<EntityTypeOrderPositionAdvertisement>(typeof(Facts::OrderPositionAdvertisement))
             .AddMapping<EntityTypeOrderFile>(typeof(Facts::OrderScanFile))
             .AddMapping<EntityTypePosition>(typeof(Facts::Position),
                                             typeof(Facts::PositionChild))

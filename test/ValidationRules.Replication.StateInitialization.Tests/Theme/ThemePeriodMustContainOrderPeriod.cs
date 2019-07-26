@@ -18,8 +18,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Fact(
                     new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb},
 
-                    new Facts::OrderPosition { Id = 4, OrderId = 1, },
-                    new Facts::OrderPositionAdvertisement { OrderPositionId = 4, ThemeId = 5 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 4, ThemeId = 5 },
 
                     new Facts::Theme { Id = 5, BeginDistribution = FirstDayFeb, EndDistribution = FirstDayFeb }
                 )
@@ -50,8 +49,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Fact(
                     new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb },
 
-                    new Facts::OrderPosition { Id = 4, OrderId = 1, },
-                    new Facts::OrderPositionAdvertisement { OrderPositionId = 4, ThemeId = 5 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 4, ThemeId = 5 },
 
                     new Facts::Theme { Id = 5, BeginDistribution = FirstDayJan, EndDistribution = FirstDayFeb }
                 )

@@ -22,8 +22,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
                     new Facts::Position { Id = 100, ContentSales = 2 },
 
-                    new Facts::OrderPosition { Id = 6, OrderId = 1 },
-                    new Facts::OrderPositionAdvertisement { Id = 7, OrderPositionId = 6, AdvertisementId = 8, PositionId = 100  },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 6, AdvertisementId = 8, PositionId = 100  },
                     new Facts::Advertisement { Id = 8, StateCode = 1 }
                 )
                 .Aggregate(

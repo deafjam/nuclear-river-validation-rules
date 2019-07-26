@@ -50,7 +50,7 @@ namespace NuClear.ValidationRules.Replication
 
                 var recalculatePeriodCommands =
                     aggregateCommands.OfType<RecalculatePeriodCommand>()
-                                     .Select(x => new SyncPeriodCommand(x.AggregateRootType, x.PeriodKeys))
+                                     .Select(x => new SyncPeriodCommand(x.PeriodKeys))
                                      .ToList();
                 events.AddRange(_rootToLeafActor.ExecuteCommands(recalculatePeriodCommands));
 

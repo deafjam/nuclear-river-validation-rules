@@ -128,12 +128,11 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                 var addressPositions =
                     from position in _query.For<Facts::Position>().Where(x => x.CategoryCode == Facts::Position.CategoryCodePartnerAdvertisingAddress)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue).Where(x => x.PositionId == position.Id)
-                    from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                     from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value)
                     select new Order.PartnerPosition
                     {
-                        OrderId = op.OrderId,
-                        OrderPositionId = op.Id, 
+                        OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId, 
                         DestinationFirmAddressId = opa.FirmAddressId.Value,
                         DestinationFirmId = fa.FirmId,
                     };
@@ -166,15 +165,14 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             public IQueryable<Order.PremiumPartnerPosition> GetSource()
             {
                 var ordersWithPremium =
-                    from position in _query.For<Facts::Position>().Where(x => Facts::Position.CategoryCodesCategoryCodePremiumPartnerAdvertising.Contains(x.CategoryCode))
+                    (from position in _query.For<Facts::Position>().Where(x => Facts::Position.CategoryCodesCategoryCodePremiumPartnerAdvertising.Contains(x.CategoryCode))
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.PositionId == position.Id)
-                    from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                     select new Order.PremiumPartnerPosition
                     {
-                        OrderId = op.OrderId
-                    };
+                        OrderId = opa.OrderId
+                    }).Distinct();
 
-                return ordersWithPremium.Distinct();
+                return ordersWithPremium;
             }
 
             public FindSpecification<Order.PremiumPartnerPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
@@ -207,10 +205,9 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                                                        || x.CategoryCode == Facts::Position.CategoryCodeMediaContextBanner
                                                        || x.CategoryCode == Facts::Position.CategoryCodeContextBanner)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.PositionId == position.Id)
-                    from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                     select new Order.FmcgCutoutPosition
                         {
-                            OrderId = op.OrderId,
+                            OrderId = opa.OrderId,
                         };
 
                 var pricePositions =
@@ -225,7 +222,8 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                             OrderId = op.OrderId,
                         };
 
-                return opaPositions.Union(pricePositions);
+                var result = opaPositions.Union(pricePositions); 
+                return result;
             }
 
             public FindSpecification<Order.FmcgCutoutPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

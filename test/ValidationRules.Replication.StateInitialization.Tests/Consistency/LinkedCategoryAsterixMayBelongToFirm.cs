@@ -18,31 +18,30 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(InvalidCategory))
                 .Fact(
                     new Facts::Order { Id = 1, FirmId = 1 },
-                    new Facts::OrderPosition { Id = 1, OrderId = 1 },
                     new Facts::Position { Id = 1 },
                     new Facts::Position { Id = 2, BindingObjectType = Facts::Position.BindingObjectTypeCategoryMultipleAsterisk },
                     new Facts::FirmAddress { Id = 1, FirmId = 1 },
 
                     // Активная рубрика принадлежит фирме
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 1, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 1, PositionId = 1 },
                     new Facts::FirmAddressCategory { FirmAddressId = 1, CategoryId = 1 },
                     new Facts::Category { Id = 1, IsActiveNotDeleted = true },
 
                     // Неактивная рубрика принадлежит фирме
-                    new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 1, CategoryId = 2, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 2, PositionId = 1 },
                     new Facts::FirmAddressCategory { FirmAddressId = 2, CategoryId = 2 },
                     new Facts::Category { Id = 2, IsActiveNotDeleted = false },
 
                     // Активная рубрика не принадлежит фирме
-                    new Facts::OrderPositionAdvertisement { Id = 3, OrderPositionId = 1, CategoryId = 3, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 3, PositionId = 1 },
                     new Facts::Category { Id = 3, IsActiveNotDeleted = true },
 
                     // Неактивная рубрика не принадлежит фирме
-                    new Facts::OrderPositionAdvertisement { Id = 4, OrderPositionId = 1, CategoryId = 4, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 4, PositionId = 1 },
                     new Facts::Category { Id = 4, IsActiveNotDeleted = false },
 
                     // Неактивная рубрика не принадлежит фирме, но номенклатурная позиция с особым типом объекта привязки
-                    new Facts::OrderPositionAdvertisement { Id = 5, OrderPositionId = 1, CategoryId = 5, PositionId = 2 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 5, PositionId = 2 },
                     new Facts::Category { Id = 5, IsActiveNotDeleted = false })
                 .Aggregate(
                     new Order.InvalidCategory { OrderId = 1, CategoryId = 2, OrderPositionId = 1, PositionId = 1, State = InvalidCategoryState.Inactive, MayNotBelongToFirm = false },

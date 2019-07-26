@@ -24,12 +24,12 @@ namespace NuClear.ValidationRules.Replication.Accessors
             =>
                 // join тут можно использовать, т.к. OrderPosition\OrderPositionAdvertisement это ValueObjects для Order 
                 from order in _query.For(Specs.Find.Erm.Order)
-                from orderPosition in _query.For(Specs.Find.Erm.OrderPosition).Where(x => x.OrderId == order.Id)
-                from opa in _query.For<Erm::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
+                from op in _query.For(Specs.Find.Erm.OrderPosition).Where(x => x.OrderId == order.Id)
+                from opa in _query.For<Erm::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
                 select new OrderPositionAdvertisement
                 {
-                    Id = opa.Id,
                     OrderPositionId = opa.OrderPositionId,
+                    OrderId = op.OrderId,
                     PositionId = opa.PositionId,
 
                     FirmAddressId = opa.FirmAddressId,
@@ -41,7 +41,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
         public FindSpecification<OrderPositionAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
         {
             var ids = commands.Cast<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
-            return SpecificationFactory<OrderPositionAdvertisement>.Contains(x => x.Id, ids);
+            return SpecificationFactory<OrderPositionAdvertisement>.Contains(x => x.OrderPositionId, ids);
         }
 
         public IReadOnlyCollection<IEvent> HandleCreates(IReadOnlyCollection<OrderPositionAdvertisement> dataObjects)
@@ -55,13 +55,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<OrderPositionAdvertisement> dataObjects)
         {
-            var orderPositionIds = dataObjects.Select(x => x.OrderPositionId).ToHashSet();
+            var orderIds = dataObjects.Select(x => x.OrderId).ToHashSet();
 
-            var orderIds =
-                from op in _query.For<OrderPosition>().Where(x => orderPositionIds.Contains(x.Id))
-                select op.OrderId;
-
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(OrderPositionAdvertisement), typeof(Order), orderIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(OrderPositionAdvertisement), typeof(Order), orderIds)};
         }
     }
 }

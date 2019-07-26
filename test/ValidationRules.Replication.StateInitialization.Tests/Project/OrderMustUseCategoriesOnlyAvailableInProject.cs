@@ -17,8 +17,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(OrderMustUseCategoriesOnlyAvailableInProjectPositive))
                 .Fact(
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
-                    new Facts::OrderPosition { Id = 1, OrderId = 1 },
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
                     new Facts::Position { Id = 4 },
                     new Facts::Category { Id = 12, IsActiveNotDeleted = true })
                 .Aggregate(
@@ -49,7 +48,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Fact(
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
                     new Facts::OrderPosition { Id = 1, OrderId = 1 },
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
+                    new Facts::OrderPositionAdvertisement { OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
                     new Facts::Position { Id = 4 },
                     // category not active
                     new Facts::Category { Id = 12, IsActiveNotDeleted = false })
@@ -64,8 +63,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(OrderMustUseCategoriesOnlyAvailableInProjectNegative))
                 .Fact(
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
-                    new Facts::OrderPosition { Id = 1, OrderId = 1 },
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
                     new Facts::Position { Id = 4 },
                     new Facts::Category { Id = 12, IsActiveNotDeleted = true },
                     new Facts::CategoryOrganizationUnit { CategoryId = 12 },

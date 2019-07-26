@@ -57,26 +57,28 @@ namespace NuClear.ValidationRules.Replication.Accessors
         {
             var positionIds = dataObjects.Select(x => x.Id).ToHashSet();
 
-            var orderIdsFromOpa =
-                from opa in _query.For<OrderPositionAdvertisement>().Where(x => positionIds.Contains(x.PositionId))
-                from orderPosition in _query.For<OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
-                select orderPosition.OrderId;
+            var orderIdsFromOpa = _query.For<OrderPositionAdvertisement>()
+                .Where(x => positionIds.Contains(x.PositionId))
+                .Select(x => x.OrderId)
+                .Distinct();
 
             var orderIdsFromPricePosition =
-                  from pricePosition in _query.For<PricePosition>().Where(x => positionIds.Contains(x.PositionId))
+                  (from pricePosition in _query.For<PricePosition>().Where(x => positionIds.Contains(x.PositionId))
                   from orderPosition in _query.For<OrderPosition>().Where(x => x.PricePositionId == pricePosition.Id)
-                  select orderPosition.OrderId;
+                  select orderPosition.OrderId).Distinct();
 
-            var orderIds = orderIdsFromOpa.Concat(orderIdsFromPricePosition).ToHashSet();
+            var orderIds = orderIdsFromOpa.Concat(orderIdsFromPricePosition).ToList();
 
             var firmIds =
-                from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
-                select order.FirmId;
+                _query.For<Order>()
+                    .Where(x => orderIds.Contains(x.Id))
+                    .Select(x => x.FirmId)
+                    .Distinct();
 
             return new[]
             {
                 new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Order), orderIds),
-                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Firm), firmIds.ToHashSet())
+                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Firm), firmIds.ToList())
             };
         }
     }

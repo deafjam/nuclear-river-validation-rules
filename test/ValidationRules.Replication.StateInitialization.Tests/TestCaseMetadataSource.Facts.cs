@@ -222,8 +222,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Erm(
                     new Erm::Order { Id = 1, IsActive = true, IsDeleted = false, WorkflowStepId = 1 },
                     new Erm::OrderPosition { Id = 1, OrderId = 1, PricePositionId = 2, IsActive = true, IsDeleted = false },
-                    new Erm::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, PositionId = 3, CategoryId = 1 },
-                    new Erm::OrderPositionAdvertisement { Id = 2, OrderPositionId = 1, PositionId = 4, FirmAddressId = 1 },
+                    new Erm::OrderPositionAdvertisement { OrderPositionId = 1, PositionId = 3, CategoryId = 1 },
+                    new Erm::OrderPositionAdvertisement { OrderPositionId = 1, PositionId = 4, FirmAddressId = 1 },
                     new Erm::PricePosition { Id = 2, PositionId = 5},
                     new Erm::PositionChild { MasterPositionId = 5 })
                 .Fact(
@@ -238,9 +238,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Erm(
                     new Erm::Order { Id = 2, IsActive = true },
                     new Erm::OrderPosition { Id = 3, OrderId = 2, IsActive = true },
-                    new Erm::OrderPositionAdvertisement { Id = 1, CategoryId = 1, FirmAddressId = 2, OrderPositionId = 3, PositionId = 4 })
+                    new Erm::OrderPositionAdvertisement { CategoryId = 1, FirmAddressId = 2, OrderPositionId = 3, PositionId = 4 })
                 .Fact(
-                    new OrderPositionAdvertisement { Id = 1, CategoryId = 1, FirmAddressId = 2, OrderPositionId = 3, PositionId = 4 });
+                    new OrderPositionAdvertisement {OrderId = 2, OrderPositionId = 3, PositionId = 4, CategoryId = 1, FirmAddressId = 2, });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement PositionFacts

@@ -22,10 +22,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                .Fact(
                      new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
                      new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
-                     new Facts::OrderPosition { Id = 1, OrderId = 1 },
-                     new Facts::OrderPosition { Id = 2, OrderId = 2 },
-                     new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },
-                     new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 2, FirmAddressId = 2, PositionId = 2 },
+                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },
+                     new Facts::OrderPositionAdvertisement {OrderId = 2, OrderPositionId = 2, FirmAddressId = 2, PositionId = 2 },
                      new Facts::FirmAddress { Id = 1, EntranceCode = 1 },
                      new Facts::FirmAddress { Id = 2, EntranceCode = 2 },
                      new Facts::Position { Id = 1, CategoryCode = Facts::Position.CategoryCodesPoiAddressCheck.First() },

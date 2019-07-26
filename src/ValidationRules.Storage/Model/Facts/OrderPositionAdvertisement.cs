@@ -2,8 +2,8 @@
 {
     public sealed class OrderPositionAdvertisement
     {
-        public long Id { get; set; }
         public long OrderPositionId { get; set; }
+        public long OrderId { get; set; }
 
         public long PositionId { get; set; }
 

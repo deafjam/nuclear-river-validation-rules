@@ -22,30 +22,29 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(LinkedFirmAddressShouldBeValid))
                 .Fact(
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), FirmId = 1 },
-                    new Facts::OrderPosition { Id = 1, OrderId = 1 },
 
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },
                     new Facts::FirmAddress { Id = 1, FirmId = 2 },
 
-                    new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 1, FirmAddressId = 2, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 2, PositionId = 1 },
                     new Facts::FirmAddressInactive { Id = 2, IsDeleted = true},
 
-                    new Facts::OrderPositionAdvertisement { Id = 3, OrderPositionId = 1, FirmAddressId = 3, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 3, PositionId = 1 },
                     new Facts::FirmAddressInactive { Id = 3 },
 
-                    new Facts::OrderPositionAdvertisement { Id = 4, OrderPositionId = 1, FirmAddressId = 4, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 4, PositionId = 1 },
                     new Facts::FirmAddressInactive { Id = 4, IsActive = true, IsClosedForAscertainment = true },
 
-                    new Facts::OrderPositionAdvertisement { Id = 5, OrderPositionId = 1, FirmAddressId = 5, PositionId = 2 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 5, PositionId = 2 },
                     new Facts::FirmAddress { Id = 5, FirmId = 1, EntranceCode = 1, BuildingPurposeCode = 1},
 
-                    new Facts::OrderPositionAdvertisement { Id = 6, OrderPositionId = 1, FirmAddressId = 6, PositionId = 2 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 6, PositionId = 2 },
                     new Facts::FirmAddress { Id = 6, FirmId = 1, EntranceCode = null, BuildingPurposeCode = null },
 
-                    new Facts::OrderPositionAdvertisement { Id = 7, OrderPositionId = 1, FirmAddressId = 7, PositionId = 2 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 7, PositionId = 2 },
                     new Facts::FirmAddress { Id = 7, FirmId = 1, EntranceCode = 1, BuildingPurposeCode = FirmAddress.InvalidBuildingPurposeCodesForPoi.First()},
 
-                    new Facts::OrderPositionAdvertisement {Id = 8, OrderPositionId = 1, FirmAddressId = 8, PositionId = 3},
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 8, PositionId = 3},
                     new Facts::FirmAddressInactive { Id = 8 },
 
                     new Facts::Position { Id = 1 },

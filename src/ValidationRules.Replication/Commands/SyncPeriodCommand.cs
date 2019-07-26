@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using NuClear.Replication.Core.Commands;
+using NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 
 namespace NuClear.ValidationRules.Replication.Commands
 {
     public sealed class SyncPeriodCommand : ISyncDataObjectCommand
     {
-        // TODO: DataObjectType не используется 
-        public Type DataObjectType { get; }
+        public Type DataObjectType => typeof(Period);
         public IEnumerable<PeriodKey> PeriodKeys { get; }
 
-        public SyncPeriodCommand(Type dataObjectType, IEnumerable<PeriodKey> periodKeys) =>
-            (DataObjectType, PeriodKeys) = (dataObjectType, periodKeys);
+        public SyncPeriodCommand(IEnumerable<PeriodKey> periodKeys) =>
+            PeriodKeys = periodKeys;
     }
 }

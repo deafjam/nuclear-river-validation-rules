@@ -17,11 +17,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Fact(
                       new Facts::Order { Id = 1, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndPlanDate = FirstDayFeb },
 
-                      new Facts::OrderPosition { Id = 4, OrderId = 1, PricePositionId = 4 },
+                      new Facts::OrderPosition { Id = 4, PricePositionId = 4 },
                       new Facts::PricePosition { Id = 4, PositionId = 5, IsActiveNotDeleted = true },
                       new Facts::Position { Id = 5, ContentSales = 3 },
 
-                      new Facts::OrderPositionAdvertisement { OrderPositionId = 4, PositionId = 5, AdvertisementId = null }
+                      new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 4, PositionId = 5, AdvertisementId = null }
                      )
                 .Aggregate(
                            new Order { Id = 1, Start = FirstDayJan, End = FirstDayFeb },

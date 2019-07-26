@@ -18,12 +18,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Fact(
                     new Facts::Order { Id = 1, FirmId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
 
-                    new Facts::OrderPosition { Id = 3, OrderId = 1 },
-                    new Facts::OrderPositionAdvertisement { Id = 4, OrderPositionId = 3, AdvertisementId = 5, PositionId = 100 },
+                    new Facts::OrderPositionAdvertisement { OrderId = 1, OrderPositionId = 3, AdvertisementId = 5, PositionId = 100 },
                     new Facts::Advertisement { Id = 5, FirmId = 2 },
 
-                    new Facts::OrderPosition { Id = 6, OrderId = 1 },
-                    new Facts::OrderPositionAdvertisement { Id = 7, OrderPositionId = 6, AdvertisementId = 8, PositionId = 101 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 6, AdvertisementId = 8, PositionId = 101 },
                     new Facts::Advertisement { Id = 8, FirmId = 9 }
                 )
                 .Aggregate(

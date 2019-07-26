@@ -170,14 +170,11 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             public IQueryable<Order.OrderCategoryPosition> GetSource()
             {
                 var result =
-                    from order in _query.For<Facts::Order>()
-                    join orderPosition in _query.For<Facts::OrderPosition>() on order.Id equals orderPosition.OrderId
-                    join opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue) on orderPosition.Id equals opa.OrderPositionId
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue)
                     join position in _query.For<Facts::Position>().Where(x => x.CategoryCode == Facts::Position.CategoryCodeAdvertisementInCategory) on opa.PositionId equals position.Id // join для того, чтобы отбросить неподходящие продажи
                     select new Order.OrderCategoryPosition
                     {
-                        OrderId = order.Id,
-                        OrderPositionAdvertisementId = opa.Id,
+                        OrderId = opa.OrderId,
                         CategoryId = opa.CategoryId.Value,
                     };
 
@@ -209,15 +206,13 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             public IQueryable<Order.OrderThemePosition> GetSource()
             {
                 var result =
-                    from order in _query.For<Facts::Order>()
-                    join orderPosition in _query.For<Facts::OrderPosition>() on order.Id equals orderPosition.OrderId
-                    join opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.ThemeId.HasValue) on orderPosition.Id equals opa.OrderPositionId
-                    select new Order.OrderThemePosition
+                    _query.For<Facts::OrderPositionAdvertisement>()
+                    .Where(x => x.ThemeId.HasValue)
+                    .Select(x => new Order.OrderThemePosition
                     {
-                            OrderId = order.Id,
-                            OrderPositionAdvertisementId = opa.Id,
-                            ThemeId = opa.ThemeId.Value,
-                        };
+                        OrderId = x.OrderId,
+                        ThemeId = x.ThemeId.Value,
+                    });
 
                 return result;
             }
@@ -246,16 +241,20 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.AmountControlledPosition> GetSource()
-                =>  from order in _query.For<Facts::Order>()
-                    join op in _query.For<Facts::OrderPosition>() on order.Id equals op.OrderId
-                    join opa in _query.For<Facts::OrderPositionAdvertisement>() on op.Id equals opa.OrderPositionId
-                    join position in _query.For<Facts::Position>().Where(x => !x.IsDeleted && x.IsControlledByAmount) on opa.PositionId equals position.Id
+            {
+                var result =
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>()
+                    join position in _query.For<Facts::Position>().Where(x => !x.IsDeleted && x.IsControlledByAmount) on
+                        opa.PositionId equals position.Id
                     select new Order.AmountControlledPosition
                     {
-                        OrderId = op.OrderId,
-                        OrderPositionId = op.Id,
+                        OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId,
                         CategoryCode = position.CategoryCode,
                     };
+                
+                return result;
+            }
 
             public FindSpecification<Order.AmountControlledPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -280,17 +279,24 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.EntranceControlledPosition> GetSource()
-                => (
-                    from op in _query.For<Facts::OrderPosition>()
-                    join opa in _query.For<Facts::OrderPositionAdvertisement>() on op.Id equals opa.OrderPositionId
-                    join position in _query.For<Facts::Position>().Where(x => Facts.Position.CategoryCodesPoiAddressCheck.Contains(x.CategoryCode)) on opa.PositionId equals position.Id
-                    join address in _query.For<Facts::FirmAddress>().Where(x => x.EntranceCode != null) on opa.FirmAddressId equals address.Id
+            {
+                var result = 
+                    (from opa in _query.For<Facts::OrderPositionAdvertisement>()
+                    join position in _query.For<Facts::Position>().Where(x =>
+                            Facts.Position.CategoryCodesPoiAddressCheck.Contains(x.CategoryCode)) on opa.PositionId
+                        equals
+                        position.Id
+                    join address in _query.For<Facts::FirmAddress>().Where(x => x.EntranceCode != null) on opa
+                        .FirmAddressId equals address.Id
                     select new Order.EntranceControlledPosition
                     {
-                        OrderId = op.OrderId,
+                        OrderId = opa.OrderId,
                         EntranceCode = address.EntranceCode.Value,
                         FirmAddressId = address.Id,
                     }).Distinct();
+
+                return result;
+            }
 
             public FindSpecification<Order.EntranceControlledPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

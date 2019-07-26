@@ -80,19 +80,19 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
             var orderAndFirmIds =
                 (from opa in _query.For<OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue && categoryIds.Contains(x.CategoryId.Value))
-                from orderPosition in _query.For<OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
-                from order in _query.For<Order>().Where(x => x.Id == orderPosition.OrderId)
-                select new { OrderId = order.Id, order.FirmId }).ToList();
+                from order in _query.For<Order>().Where(x => x.Id == opa.OrderId)
+                select new { OrderId = order.Id, order.FirmId }).Distinct().ToList();
 
-            var themeIds =
-                from themeCategory in _query.For<ThemeCategory>().Where(x => categoryIds.Contains(x.CategoryId))
-                select themeCategory.ThemeId;
+            var themeIds = _query.For<ThemeCategory>()
+                .Where(x => categoryIds.Contains(x.CategoryId))
+                .Select(x => x.ThemeId)
+                .Distinct();
 
             return new[]
             {
-                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Order), orderAndFirmIds.Select(x => x.OrderId).ToHashSet()),
-                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Firm), orderAndFirmIds.Select(x => x.FirmId).ToHashSet()),
-                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Theme), themeIds.ToHashSet()),
+                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Order), orderAndFirmIds.Select(x => x.OrderId).ToList()),
+                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Firm), orderAndFirmIds.Select(x => x.FirmId).ToList()),
+                new RelatedDataObjectOutdatedEvent(typeof(Category), typeof(Theme), themeIds.ToList()),
             };
         }
     }

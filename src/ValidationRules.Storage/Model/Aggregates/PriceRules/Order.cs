@@ -30,7 +30,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
         public sealed class OrderCategoryPosition
         {
             public long OrderId { get; set; }
-            public long OrderPositionAdvertisementId { get; set; }
             public long CategoryId { get; set; }
         }
 
@@ -40,7 +39,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
         public sealed class OrderThemePosition
         {
             public long OrderId { get; set; }
-            public long OrderPositionAdvertisementId { get; set; }
             public long ThemeId { get; set; }
         }
 
