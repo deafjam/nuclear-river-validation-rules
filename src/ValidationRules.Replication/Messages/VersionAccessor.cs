@@ -25,7 +25,7 @@ namespace NuClear.ValidationRules.Replication.Messages
     }
 
     // stateinit-only accessor
-    public sealed class ErmStateAccessor : IStorageBasedDataObjectAccessor<Version.ErmState>
+    public sealed partial class ErmStateAccessor : IStorageBasedDataObjectAccessor<Version.ErmState>
     {
         private readonly IQuery _query;
 
