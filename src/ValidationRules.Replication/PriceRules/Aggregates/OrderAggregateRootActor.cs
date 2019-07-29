@@ -47,15 +47,13 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
             
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects) =>
-                dataObjects.Select(x => x.Id);
-
             public IQueryable<Order> GetSource()
                 =>
                     _query.For<Facts::Order>()
                         .Select(x => new Order
                         {
                             Id = x.Id,
+                            FirmId = x.FirmId,
                             Start = x.AgileDistributionStartDate,
                             End = x.AgileDistributionEndPlanDate,
                             IsCommitted = Facts::Order.State.Committed.Contains(x.WorkflowStep)
@@ -128,9 +126,6 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
 
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.OrderPricePosition> dataObjects) =>
-                dataObjects.Select(x => x.OrderId);
-            
             public IQueryable<Order.OrderPricePosition> GetSource()
                 =>
                     from orderPosition in _query.For<Facts::OrderPosition>()
@@ -314,9 +309,6 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
 
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.ActualPrice> dataObjects) =>
-                dataObjects.Select(x => x.OrderId);
-            
             public IQueryable<Order.ActualPrice> GetSource()
             {
                 var result =

@@ -45,7 +45,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm> dataObjects)
             {
                 var firmIds = dataObjects.Select(x => x.Id).ToHashSet();
-                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id);
+                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id).Distinct();
             }
 
             public IQueryable<Firm> GetSource()
@@ -76,7 +76,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.CategoryPurchase> dataObjects)
             {
                 var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
-                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id);
+                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id).Distinct();
             }
 
             public IQueryable<Firm.CategoryPurchase> GetSource()

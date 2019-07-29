@@ -133,7 +133,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.FirmAssociatedPosition> dataObjects)
             {
                 var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
-                return query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).Distinct();
+                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id).Distinct();
             }
 
             public IQueryable<Firm.FirmAssociatedPosition> GetSource()
@@ -189,7 +189,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.FirmDeniedPosition> dataObjects)
             {
                 var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
-                return query.For<Firm.FirmPosition>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.OrderId).Distinct();
+                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id).Distinct();
             }
 
             public IQueryable<Firm.FirmDeniedPosition> GetSource()

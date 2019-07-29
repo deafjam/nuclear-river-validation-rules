@@ -65,7 +65,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Account.AccountPeriod> dataObjects)
             {
                 var accountIds = dataObjects.Select(x => x.AccountId).ToHashSet();
-                return query.For<Order>().Where(x => accountIds.Contains(x.AccountId.Value)).Select(x => x.Id);
+                return query.For<Order>().Where(x => accountIds.Contains(x.AccountId.Value)).Select(x => x.Id).Distinct();
             }
 
             public IQueryable<Account.AccountPeriod> GetSource()
