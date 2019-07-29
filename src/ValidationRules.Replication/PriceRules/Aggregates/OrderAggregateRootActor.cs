@@ -51,14 +51,15 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 dataObjects.Select(x => x.Id);
 
             public IQueryable<Order> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   select new Order
-                       {
-                           Id = order.Id,
-                           BeginDistribution = order.AgileDistributionStartDate,
-                           EndDistributionPlan = order.AgileDistributionEndPlanDate,
-                           IsCommitted = Facts::Order.State.Committed.Contains(order.WorkflowStep)
-                       };
+                =>
+                    _query.For<Facts::Order>()
+                        .Select(x => new Order
+                        {
+                            Id = x.Id,
+                            Start = x.AgileDistributionStartDate,
+                            End = x.AgileDistributionEndPlanDate,
+                            IsCommitted = Facts::Order.State.Committed.Contains(x.WorkflowStep)
+                        });
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

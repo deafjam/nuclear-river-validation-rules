@@ -8,8 +8,8 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
     public sealed class Order
     {
         public long Id { get; set; }
-        public DateTime BeginDistribution { get; set; }
-        public DateTime EndDistributionPlan { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
         public bool IsCommitted { get; set; }
 
         /// <summary>
