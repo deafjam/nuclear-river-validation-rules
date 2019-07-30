@@ -55,19 +55,22 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public FirmPositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
-
-            private static IRuleInvalidator CreateInvalidator()
+            public  FirmPositionAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(query, x))) => _query = query;
+            
+            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Firm.FirmPosition>, IEnumerable<long>> func)
                 => new RuleInvalidator
                     {
-                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipal, GetRelatedOrders },
-                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithDifferentBindingObject, GetRelatedOrders },
-                        { MessageTypeCode.FirmPositionMustNotHaveDeniedPositions, GetRelatedOrders },
-                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithMatchedBindingObject, GetRelatedOrders },
+                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipal, func },
+                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithDifferentBindingObject, func },
+                        { MessageTypeCode.FirmPositionMustNotHaveDeniedPositions, func },
+                        { MessageTypeCode.FirmAssociatedPositionMustHavePrincipalWithMatchedBindingObject, func },
                     };
 
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Firm.FirmPosition> dataObjects) =>
-                dataObjects.Select(x => x.OrderId);
+            private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.FirmPosition> dataObjects)
+            {
+                var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
+                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id).Distinct();
+            }
 
             public IQueryable<Firm.FirmPosition> GetSource()
             {

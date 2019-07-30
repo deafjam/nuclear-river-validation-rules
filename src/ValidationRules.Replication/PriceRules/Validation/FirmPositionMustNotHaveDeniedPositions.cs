@@ -30,7 +30,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
             var firmDeniedPositions = query.For<Firm.FirmDeniedPosition>();
             
             var errors =
-                     firmPositions                
+                     firmPositions
                      .SelectMany(Specs.Join.Aggs.DeniedPositions(firmDeniedPositions, firmPositions), (position, denied) => new { position, denied })
                      .Where(dto => dto.denied.IsBindingObjectConditionSatisfied)
                      .Where(dto => dto.position.OrderPositionId != dto.denied.Position.OrderPositionId)
