@@ -30,9 +30,8 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules
     public sealed class Order
     {
         public long Id { get; set; }
-        public DateTime BeginDistribution { get; set; }
-        public DateTime EndDistributionFact { get; set; }
-        public DateTime EndDistributionPlan { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
 
         public sealed class InactiveReference
         {
@@ -71,16 +70,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules
             public long PositionId { get; set; }
             public InvalidCategoryState State { get; set; }
             public bool MayNotBelongToFirm { get; set; }
-        }
-
-        public sealed class InvalidBeginDistributionDate
-        {
-            public long OrderId { get; set; }
-        }
-
-        public sealed class InvalidEndDistributionDate
-        {
-            public long OrderId { get; set; }
         }
 
         public sealed class LegalPersonProfileBargainExpired

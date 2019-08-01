@@ -37,43 +37,56 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited,
                         MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited,
                         MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions,
                         MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass,
                         MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
                     };
 
             public IQueryable<Period> GetSource()
             {
-                var dates =
-                    _query.For<Facts::Order>().Select(x => new { Date = x.BeginDistribution })
-                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.EndDistributionFact }))
-                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.EndDistributionPlan }))
-                          .Union(_query.For<Facts::Price>().Select(x => new { Date = x.BeginDate }));
+                var orderDates =
+                    _query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionStartDate})
+                        .Union(_query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionEndFactDate}))
+                        .Union(_query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionEndPlanDate}));
+               
+                var priceDates = _query.For<Facts::Price>().Select(x => new {x.ProjectId, Date = x.BeginDate});
+
+                var dates = orderDates.Union(priceDates);
 
                 var result =
                     from date in dates
-                    from next in dates.Where(x => x.Date > date.Date).OrderBy(x => x.Date).Take(1).DefaultIfEmpty()
-                    select new Period { Start = date.Date, End = next != null ? next.Date : DateTime.MaxValue };
+                    from next in dates.Where(x => x.ProjectId == date.ProjectId && x.Date > date.Date).OrderBy(x => x.Date).Take(1).DefaultIfEmpty()
+                    select new Period
+                    {
+                        ProjectId = date.ProjectId,
+                        Start = date.Date,
+                        End = next != null ? next.Date : DateTime.MaxValue
+                    };
 
                 return result;
             }
 
             public FindSpecification<Period> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var dates = commands.Cast<SyncPeriodCommand>().SelectMany(c => c.Dates).ToHashSet();
-                return Periods(dates);
+                var ids = commands.Cast<SyncPeriodCommand>()
+                    .SelectMany(x => x.PeriodKeys)
+                    .ToHashSet();
+
+                return Periods(ids);
             }
 
-            public static FindSpecification<Period> Periods(IEnumerable<DateTime> aggregateIds)
+            private static FindSpecification<Period> Periods(IEnumerable<PeriodKey> periodKeys)
             {
-                var result = new FindSpecification<Period>(x => false);
-
-                return aggregateIds.Select(PeriodSpecificationForSingleKey)
-                                   .Aggregate(result, (current, spec) => current | spec);
+                var projectSpecs = periodKeys.GroupBy(x => x.ProjectId).Select(x =>
+                {
+                    var beginEndSpecs = x.Select(BeginEndSpec).Aggregate(new FindSpecification<Period>(y => false), (current, spec) => current | spec);
+                    return new FindSpecification<Period>(y => y.ProjectId == x.Key) & beginEndSpecs;
+                });
+                
+                return projectSpecs.Aggregate(new FindSpecification<Period>(x => false), (current, spec) => current | spec);
             }
 
-            private static FindSpecification<Period> PeriodSpecificationForSingleKey(DateTime date)
-                => new FindSpecification<Period>(x => x.Start <= date && date <= x.End);
+            private static FindSpecification<Period> BeginEndSpec(PeriodKey periodKey)
+                => new FindSpecification<Period>(x => x.Start <= periodKey.Date && periodKey.Date <= x.End);
 
         }
     }

@@ -24,9 +24,9 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
             var salePeriods = from period in query.For<Period>()
-                              from orderPeriod in query.For<Order.OrderPeriod>().Where(x => x.Begin <= period.Start && period.End <= x.End)
+                              from orderPeriod in query.For<Order.OrderPeriod>().Where(x => x.ProjectId == period.ProjectId && x.Start <= period.Start && period.End <= x.End)
                               from position in query.For<Order.EntranceControlledPosition>().Where(x => orderPeriod.OrderId == x.OrderId)
-                              select new { period.Start, period.End, orderPeriod.Scope, position.OrderId, position.EntranceCode, position.FirmAddressId };
+                              select new { period.Start, period.End, orderPeriod.Scope, orderPeriod.OrderId, position.EntranceCode, position.FirmAddressId };
 
             var violations = from salePeriod in salePeriods
                              from conflictingSalePeriod in salePeriods.Where(x => x.EntranceCode == salePeriod.EntranceCode &&
@@ -53,7 +53,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                            MessageParams =
                                new MessageParams(new Dictionary<string, object>
                                                      {
-                                                         { "begin", violation.Start },
+                                                         { "start", violation.Start },
                                                          { "end", violation.End },
                                                          { "maxCount", MaxSalesOnEntrance },
                                                          { "entranceCode", violation.EntranceCode }

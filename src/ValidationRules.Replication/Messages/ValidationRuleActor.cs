@@ -31,7 +31,7 @@ namespace NuClear.ValidationRules.Replication.Messages
     {
         private readonly IQuery _query;
         private readonly IRepository<Version> _versionRepository;
-        private readonly IBulkRepository<Version.ErmState> _ermStatesRepository;
+        private readonly ReplaceDataObjectsActor<Version.ErmState> _replaceErmStates;
         private readonly IRepository<Version.AmsState> _amsStatesRepository;
         private readonly IBulkRepository<Version.ValidationResult> _validationResultRepository;
         private readonly Dictionary<MessageTypeCode, IValidationResultAccessor> _accessors;
@@ -41,7 +41,7 @@ namespace NuClear.ValidationRules.Replication.Messages
 
         public ValidationRuleActor(IQuery query,
                                    IRepository<Version> versionRepository,
-                                   IBulkRepository<Version.ErmState> ermStatesRepository,
+                                   ReplaceDataObjectsActor<Version.ErmState> replaceErmStates,
                                    IRepository<Version.AmsState> amsStatesRepository,
                                    IBulkRepository<Version.ValidationResult> validationResultRepository,
                                    IEqualityComparerFactory equalityComparerFactory,
@@ -49,7 +49,7 @@ namespace NuClear.ValidationRules.Replication.Messages
         {
             _query = query;
             _versionRepository = versionRepository;
-            _ermStatesRepository = ermStatesRepository;
+            _replaceErmStates = replaceErmStates;
             _validationResultRepository = validationResultRepository;
             _amsStatesRepository = amsStatesRepository;
             _accessors = new ValidationRuleRegistry(query).CreateAccessors().ToDictionary(x => (MessageTypeCode)x.MessageTypeId, x => x);
@@ -217,7 +217,8 @@ namespace NuClear.ValidationRules.Replication.Messages
 
             if (ermStates.Count != 0)
             {
-                _ermStatesRepository.Create(ermStates.Select(x => new Version.ErmState { VersionId = id, Token = x.Token, UtcDateTime = x.UtcDateTime }));
+                var versionErmStates = ermStates.Select(x => new Version.ErmState {VersionId = id, Token = x.Token, UtcDateTime = x.UtcDateTime});
+                _replaceErmStates.ExecuteCommands(new[] {new ReplaceDataObjectCommand(typeof(Version.ErmState), versionErmStates)});
             }
 
             if (amsStates.Count != 0)
@@ -235,7 +236,8 @@ namespace NuClear.ValidationRules.Replication.Messages
 
             if (ermStates.Count != 0)
             {
-                _ermStatesRepository.Create(ermStates.Select(x => new Version.ErmState { VersionId = id, Token = x.Token, UtcDateTime = x.UtcDateTime }));
+                var versionErmStates = ermStates.Select(x => new Version.ErmState {VersionId = id, Token = x.Token, UtcDateTime = x.UtcDateTime});
+                _replaceErmStates.ExecuteCommands(new[] {new ReplaceDataObjectCommand(typeof(Version.ErmState), versionErmStates)});
             }
 
             if (amsStates.Count != 0)
@@ -271,8 +273,6 @@ namespace NuClear.ValidationRules.Replication.Messages
                     new LinkedFirmShouldBeValid(_query),
                     new BillsSumShouldMatchOrder(_query),
                     new BillsShouldBeCreated(_query),
-                    new OrderBeginDistrubutionShouldBeFirstDayOfMonth(_query),
-                    new OrderEndDistrubutionShouldBeLastSecondOfMonth(_query),
                     new OrderMustHaveActiveDeal(_query),
                     new OrderMustHaveActiveLegalEntities(_query),
                     new OrderRequiredFieldsShouldBeSpecified(_query),

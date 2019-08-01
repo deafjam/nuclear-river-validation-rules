@@ -20,12 +20,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                .Config
                .Name(nameof(PoiAmountForEntranceShouldMeetMaximumRestrictionsF2A))
                .Fact(
-                     new Facts::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                     new Facts::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                     new Facts::OrderPosition { Id = 1, OrderId = 1 },
-                     new Facts::OrderPosition { Id = 2, OrderId = 2 },
-                     new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },
-                     new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 2, FirmAddressId = 2, PositionId = 2 },
+                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
+                     new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
+                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },
+                     new Facts::OrderPositionAdvertisement {OrderId = 2, OrderPositionId = 2, FirmAddressId = 2, PositionId = 2 },
                      new Facts::FirmAddress { Id = 1, EntranceCode = 1 },
                      new Facts::FirmAddress { Id = 2, EntranceCode = 2 },
                      new Facts::Position { Id = 1, CategoryCode = Facts::Position.CategoryCodesPoiAddressCheck.First() },
@@ -41,23 +39,23 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                .Aggregate(
                           new Order { Id = 1 },
                           new Order.EntranceControlledPosition { OrderId = 1, EntranceCode = 1, FirmAddressId = 1 },
-                          new Order.OrderPeriod { OrderId = 1, Begin = MonthStart(1), End = MonthStart(3), Scope = 0 },
+                          new Order.OrderPeriod { OrderId = 1, Start = MonthStart(1), End = MonthStart(3), Scope = 0 },
 
                           new Order { Id = 2 },
                           new Order.EntranceControlledPosition { OrderId = 2, EntranceCode = 1, FirmAddressId = 1 },
-                          new Order.OrderPeriod { OrderId = 2, Begin = MonthStart(1), End = MonthStart(3), Scope = 0 },
+                          new Order.OrderPeriod { OrderId = 2, Start = MonthStart(1), End = MonthStart(3), Scope = 0 },
 
                           new Order { Id = 3 },
                           new Order.EntranceControlledPosition { OrderId = 3, EntranceCode = 1, FirmAddressId = 1 },
-                          new Order.OrderPeriod { OrderId = 3, Begin = MonthStart(1), End = MonthStart(2), Scope = -1 },
+                          new Order.OrderPeriod { OrderId = 3, Start = MonthStart(1), End = MonthStart(2), Scope = -1 },
 
                           new Order { Id = 4 },
                           new Order.EntranceControlledPosition { OrderId = 4, EntranceCode = 2, FirmAddressId = 2 },
-                          new Order.OrderPeriod { OrderId = 4, Begin = MonthStart(1), End = MonthStart(2), Scope = 4 },
+                          new Order.OrderPeriod { OrderId = 4, Start = MonthStart(1), End = MonthStart(2), Scope = 4 },
 
                           new Order { Id = 5 },
                           new Order.EntranceControlledPosition { OrderId = 5, EntranceCode = 1, FirmAddressId = 1 },
-                          new Order.OrderPeriod { OrderId = 5, Begin = MonthStart(2), End = MonthStart(3), Scope = 5 },
+                          new Order.OrderPeriod { OrderId = 5, Start = MonthStart(2), End = MonthStart(3), Scope = 5 },
 
                           new Period { Start = MonthStart(1), End = MonthStart(2) },
                           new Period { Start = MonthStart(2), End = MonthStart(3) })
@@ -66,7 +64,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             {
                                 MessageParams =
                                     new MessageParams(
-                                                      new Dictionary<string, object> { { "begin", MonthStart(1) }, { "end", MonthStart(2) }, { "maxCount", 1 }, { "entranceCode", 1 } },
+                                                      new Dictionary<string, object> { { "start", MonthStart(1) }, { "end", MonthStart(2) }, { "maxCount", 1 }, { "entranceCode", 1 } },
                                                       new Reference<EntityTypeOrder>(2),
                                                       new Reference<EntityTypeFirmAddress>(1)).ToXDocument(),
                                 MessageType = (int)MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
@@ -78,7 +76,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             {
                                 MessageParams =
                                     new MessageParams(
-                                                      new Dictionary<string, object> { { "begin", MonthStart(2) }, { "end", MonthStart(3) }, { "maxCount", 1 }, { "entranceCode", 1 } },
+                                                      new Dictionary<string, object> { { "start", MonthStart(2) }, { "end", MonthStart(3) }, { "maxCount", 1 }, { "entranceCode", 1 } },
                                                       new Reference<EntityTypeOrder>(2),
                                                       new Reference<EntityTypeFirmAddress>(1)).ToXDocument(),
                                 MessageType = (int)MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
@@ -90,7 +88,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             {
                                 MessageParams =
                                     new MessageParams(
-                                                      new Dictionary<string, object> { { "begin", MonthStart(1) }, { "end", MonthStart(2) }, { "maxCount", 1 }, { "entranceCode", 1 } },
+                                                      new Dictionary<string, object> { { "start", MonthStart(1) }, { "end", MonthStart(2) }, { "maxCount", 1 }, { "entranceCode", 1 } },
                                                       new Reference<EntityTypeOrder>(1),
                                                       new Reference<EntityTypeFirmAddress>(1)).ToXDocument(),
                                 MessageType = (int)MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
@@ -102,7 +100,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             {
                                 MessageParams =
                                     new MessageParams(
-                                                      new Dictionary<string, object> { { "begin", MonthStart(2) }, { "end", MonthStart(3) }, { "maxCount", 1 }, { "entranceCode", 1 } },
+                                                      new Dictionary<string, object> { { "start", MonthStart(2) }, { "end", MonthStart(3) }, { "maxCount", 1 }, { "entranceCode", 1 } },
                                                       new Reference<EntityTypeOrder>(1),
                                                       new Reference<EntityTypeFirmAddress>(1)).ToXDocument(),
                                 MessageType = (int)MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
@@ -114,7 +112,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             {
                                 MessageParams =
                                     new MessageParams(
-                                                      new Dictionary<string, object> { { "begin", MonthStart(1) }, { "end", MonthStart(2) }, { "maxCount", 1 }, { "entranceCode", 1 } },
+                                                      new Dictionary<string, object> { { "start", MonthStart(1) }, { "end", MonthStart(2) }, { "maxCount", 1 }, { "entranceCode", 1 } },
                                                       new Reference<EntityTypeOrder>(1),
                                                       new Reference<EntityTypeFirmAddress>(1)).ToXDocument(),
                                 MessageType = (int)MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
@@ -126,7 +124,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             {
                                 MessageParams =
                                     new MessageParams(
-                                                      new Dictionary<string, object> { { "begin", MonthStart(1) }, { "end", MonthStart(2) }, { "maxCount", 1 }, { "entranceCode", 1 } },
+                                                      new Dictionary<string, object> { { "start", MonthStart(1) }, { "end", MonthStart(2) }, { "maxCount", 1 }, { "entranceCode", 1 } },
                                                       new Reference<EntityTypeOrder>(2),
                                                       new Reference<EntityTypeFirmAddress>(1)).ToXDocument(),
                                 MessageType = (int)MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
@@ -138,7 +136,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             {
                                 MessageParams =
                                     new MessageParams(
-                                                      new Dictionary<string, object> { { "begin", MonthStart(2) }, { "end", MonthStart(3) }, { "maxCount", 1 }, { "entranceCode", 1 } },
+                                                      new Dictionary<string, object> { { "start", MonthStart(2) }, { "end", MonthStart(3) }, { "maxCount", 1 }, { "entranceCode", 1 } },
                                                       new Reference<EntityTypeOrder>(1),
                                                       new Reference<EntityTypeFirmAddress>(1)).ToXDocument(),
                                 MessageType = (int)MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
@@ -150,7 +148,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             {
                                 MessageParams =
                                     new MessageParams(
-                                                      new Dictionary<string, object> { { "begin", MonthStart(2) }, { "end", MonthStart(3) }, { "maxCount", 1 }, { "entranceCode", 1 } },
+                                                      new Dictionary<string, object> { { "start", MonthStart(2) }, { "end", MonthStart(3) }, { "maxCount", 1 }, { "entranceCode", 1 } },
                                                       new Reference<EntityTypeOrder>(2),
                                                       new Reference<EntityTypeFirmAddress>(1)).ToXDocument(),
                                 MessageType = (int)MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,

@@ -16,11 +16,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustNotIncludeReleasedPeriodPositive))
                 .Fact(
-                    new Facts::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(3), WorkflowStep = 1 },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3), WorkflowStep = 1 },
                     new Facts::ReleaseInfo { PeriodEndDate = MonthStart(2) },
                     new Facts::Project())
                 .Aggregate(
-                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3), IsDraft = true },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3), IsDraft = true },
                     new Project.NextRelease { Date = MonthStart(2) })
                 .Message(
                     new Messages::Version.ValidationResult
@@ -38,13 +38,13 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustNotIncludeReleasedPeriodNegative))
                 .Fact(
-                    new Facts::Order { Id = 1, BeginDistribution = MonthStart(2), EndDistributionPlan = MonthStart(3), WorkflowStep = 1 },
-                    new Facts::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(3), WorkflowStep = 5 },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(3), WorkflowStep = 1 },
+                    new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3), WorkflowStep = 5 },
                     new Facts::ReleaseInfo { PeriodEndDate = MonthStart(2) },
                     new Facts::Project())
                 .Aggregate(
-                    new Order { Id = 1, Begin = MonthStart(2), End = MonthStart(3), IsDraft = true },
-                    new Order { Id = 2, Begin = MonthStart(1), End = MonthStart(3), IsDraft = false },
+                    new Order { Id = 1, Start = MonthStart(2), End = MonthStart(3), IsDraft = true },
+                    new Order { Id = 2, Start = MonthStart(1), End = MonthStart(3), IsDraft = false },
                     new Project.NextRelease { Date = MonthStart(2) })
                 .Message();
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NuClear.ValidationRules.Querying.Host.Properties;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
@@ -13,17 +12,12 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
 
         public MessageComposerResult Compose(NamedReference[] references, IReadOnlyDictionary<string, string> extra)
         {
-            var begin = DateTime.Parse(extra["begin"]);
-            var end = DateTime.Parse(extra["end"]);
             var maxCount = extra["maxCount"];
             var entranceCode = extra["entranceCode"];
+            var period = extra.ExtractPeriod();
 
             var orders = references.GetMany<EntityTypeOrder>().ToList();
             var firmAddress = references.Get<EntityTypeFirmAddress>();
-
-            var period = begin.AddMonths(1) == end
-                             ? begin.ToString("MMMM")
-                             : $"{begin:MMMM} - {end:MMMM}";
 
             var currentOrder = orders[0];
             var conflictingOrders = orders.Skip(1).ToList();
@@ -42,28 +36,20 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
             return messages.GroupBy(x => new
                                         {
                                             x.OrderId,
-                                            x.MessageType,
-                                            x.ProjectId,
-                                            Begin = x.Extra["begin"],
-                                            End = x.Extra["end"],
+                                            FirmAddressId = x.References.Get<EntityTypeFirmAddress>().Id,
                                             MaxCount = x.Extra["maxCount"],
-                                            EntranceCode = x.Extra["entranceCode"],
-                                            FirmAddressId = x.References.Get<EntityTypeFirmAddress>().Id
-                                        },
-                                    x => x.References)
+                                            EntranceCode = x.Extra["entranceCode"]
+                                        })
                            .Select(x => new Message
                                {
+                                   MessageType = MessageType,
                                    OrderId = x.Key.OrderId,
-                                   MessageType = x.Key.MessageType,
-                                   ProjectId = x.Key.ProjectId,
-                                   Extra = new Dictionary<string, string>
-                                       {
-                                           ["begin"] = x.Key.Begin,
-                                           ["end"] = x.Key.End,
-                                           ["maxCount"] = x.Key.MaxCount,
-                                           ["entranceCode"] = x.Key.EntranceCode
-                                       },
-                                   References = new[] { new Reference<EntityTypeOrder>(x.Key.OrderId.Value) }.Concat(x.SelectMany(y => y)).ToList()
+                                   Extra = x.UnionPeriod(new Dictionary<string, string>
+                                   {
+                                       ["maxCount"] = x.Key.MaxCount,
+                                       ["entranceCode"] = x.Key.EntranceCode
+                                   }),
+                                   References = new[] { new Reference<EntityTypeOrder>(x.Key.OrderId.Value) }.Concat(x.SelectMany(y => y.References)).ToHashSet(Reference.Comparer)
                                });
         }
     }

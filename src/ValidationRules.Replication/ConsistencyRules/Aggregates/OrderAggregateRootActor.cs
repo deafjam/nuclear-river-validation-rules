@@ -28,8 +28,6 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             IBulkRepository<Order.HasNoAnyLegalPersonProfile> orderHasNoAnyLegalPersonProfileRepository,
             IBulkRepository<Order.HasNoAnyPosition> orderHasNoAnyPositionRepository,
             IBulkRepository<Order.InactiveReference> inactiveReferenceRepository,
-            IBulkRepository<Order.InvalidBeginDistributionDate> orderInvalidBeginDistributionDateRepository,
-            IBulkRepository<Order.InvalidEndDistributionDate> orderInvalidEndDistributionDateRepository,
             IBulkRepository<Order.InvalidBillsTotal> orderInvalidBillsTotalRepository,
             IBulkRepository<Order.LegalPersonProfileBargainExpired> orderLegalPersonProfileBargainEndDateIsEarlierThanOrderSignupDateRepository,
             IBulkRepository<Order.LegalPersonProfileWarrantyExpired> orderLegalPersonProfileWarrantyEndDateIsEarlierThanOrderSignupDateRepository,
@@ -48,8 +46,6 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 HasValueObject(new OrderHasNoAnyLegalPersonProfileAccessor(query), orderHasNoAnyLegalPersonProfileRepository),
                 HasValueObject(new OrderHasNoAnyPositionAccessor(query), orderHasNoAnyPositionRepository),
                 HasValueObject(new InactiveReferenceAccessor(query), inactiveReferenceRepository),
-                HasValueObject(new OrderInvalidBeginDistributionDateAccessor(query), orderInvalidBeginDistributionDateRepository),
-                HasValueObject(new OrderInvalidEndDistributionDateAccessor(query), orderInvalidEndDistributionDateRepository),
                 HasValueObject(new OrderInvalidBillsTotalAccessor(query), orderInvalidBillsTotalRepository),
                 HasValueObject(new LegalPersonProfileBargainExpiredAccessor(query), orderLegalPersonProfileBargainEndDateIsEarlierThanOrderSignupDateRepository),
                 HasValueObject(new LegalPersonProfileWarrantyExpiredAccessor(query), orderLegalPersonProfileWarrantyEndDateIsEarlierThanOrderSignupDateRepository),
@@ -69,25 +65,14 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        {MessageTypeCode.BargainScanShouldPresent, GetRelatedOrders},
-                        {MessageTypeCode.BillsShouldBeCreated, GetRelatedOrders},
-                        {MessageTypeCode.BillsSumShouldMatchOrder, GetRelatedOrders},
-                        {MessageTypeCode.LegalPersonProfileBargainShouldNotBeExpired, GetRelatedOrders},
-                        {MessageTypeCode.LegalPersonProfileWarrantyShouldNotBeExpired, GetRelatedOrders},
-                        {MessageTypeCode.LegalPersonShouldHaveAtLeastOneProfile, GetRelatedOrders},
                         {MessageTypeCode.LinkedCategoryAsteriskMayBelongToFirm, GetRelatedOrders},
                         {MessageTypeCode.LinkedCategoryFirmAddressShouldBeValid, GetRelatedOrders},
                         {MessageTypeCode.LinkedCategoryShouldBeActive, GetRelatedOrders},
                         {MessageTypeCode.LinkedCategoryShouldBelongToFirm, GetRelatedOrders},
                         {MessageTypeCode.LinkedFirmAddressShouldBeValid, GetRelatedOrders},
-                        {MessageTypeCode.OrderBeginDistrubutionShouldBeFirstDayOfMonth, GetRelatedOrders},
-                        {MessageTypeCode.OrderEndDistrubutionShouldBeLastSecondOfMonth, GetRelatedOrders},
                         {MessageTypeCode.OrderMustHaveActiveDeal, GetRelatedOrders},
-                        {MessageTypeCode.OrderMustHaveActiveLegalEntities, GetRelatedOrders},
                         {MessageTypeCode.OrderRequiredFieldsShouldBeSpecified, GetRelatedOrders},
-                        {MessageTypeCode.OrderScanShouldPresent, GetRelatedOrders},
                         {MessageTypeCode.OrderShouldHaveAtLeastOnePosition, GetRelatedOrders},
-                        {MessageTypeCode.OrderShouldNotBeSignedBeforeBargain, GetRelatedOrders},
                     };
 
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects) =>
@@ -98,9 +83,8 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                    select new Order
                        {
                            Id = order.Id,
-                           BeginDistribution = order.BeginDistribution,
-                           EndDistributionFact = order.EndDistributionFact,
-                           EndDistributionPlan = order.EndDistributionPlan,
+                           Start = order.AgileDistributionStartDate,
+                           End = order.AgileDistributionEndPlanDate,
                        };
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
@@ -127,37 +111,49 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.InvalidFirmAddress> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
-                   from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
-                   from position in _query.For<Facts::Position>().Where(x => x.Id == opa.PositionId)
-                   let isPartnerAddress = Facts::Position.CategoryCodesAllowFirmMismatch.Contains(position.CategoryCode) && position.BindingObjectType == Facts::Position.BindingObjectTypeAddressMultiple
-                   let checkPoi = Facts::Position.CategoryCodesPoiAddressCheck.Contains(position.CategoryCode)
+            {
+                var result =
+                    from order in _query.For<Facts::Order>()
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>()
+                        .Where(x => x.OrderId == order.Id)
+                    from position in _query.For<Facts::Position>().Where(x => x.Id == opa.PositionId)
+                    let isPartnerAddress =
+                        Facts::Position.CategoryCodesAllowFirmMismatch.Contains(position.CategoryCode) &&
+                        position.BindingObjectType == Facts::Position.BindingObjectTypeAddressMultiple
+                    let checkPoi = Facts::Position.CategoryCodesPoiAddressCheck.Contains(position.CategoryCode)
+                    from faInactive in _query.For<Facts::FirmAddressInactive>()
+                        .Where(x => x.Id == opa.FirmAddressId.Value).DefaultIfEmpty()
+                    let state = faInactive == default ? InvalidFirmAddressState.NotSet
+                        : faInactive.IsDeleted ? InvalidFirmAddressState.Deleted
+                        : !faInactive.IsActive ? InvalidFirmAddressState.NotActive
+                        : faInactive.IsClosedForAscertainment ? InvalidFirmAddressState.ClosedForAscertainment
+                        : InvalidFirmAddressState.NotSet
+                    from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value)
+                        .DefaultIfEmpty()
+                    let state2 = fa == default
+                        ? InvalidFirmAddressState.NotSet
+                        : fa.FirmId != order.FirmId && !isPartnerAddress
+                            ? InvalidFirmAddressState.NotBelongToFirm
+                            : checkPoi && fa.BuildingPurposeCode.HasValue &&
+                              Facts::FirmAddress.InvalidBuildingPurposeCodesForPoi.Contains(
+                                  fa.BuildingPurposeCode.Value)
+                                ? InvalidFirmAddressState.InvalidBuildingPurpose
+                                : checkPoi && fa.EntranceCode == null
+                                    ? InvalidFirmAddressState.MissingEntrance
+                                    : InvalidFirmAddressState.NotSet
+                    where state != InvalidFirmAddressState.NotSet || state2 != InvalidFirmAddressState.NotSet
+                    select new Order.InvalidFirmAddress
+                    {
+                        OrderId = opa.OrderId,
+                        FirmAddressId = opa.FirmAddressId.Value,
+                        OrderPositionId = opa.OrderPositionId,
+                        PositionId = opa.PositionId,
+                        State = state != InvalidFirmAddressState.NotSet ? state : state2,
+                        IsPartnerAddress = isPartnerAddress
+                    };
 
-                   from faInactive in _query.For<Facts::FirmAddressInactive>().Where(x => x.Id == opa.FirmAddressId.Value).DefaultIfEmpty()
-                   let state = faInactive == default ? InvalidFirmAddressState.NotSet
-                       : faInactive.IsDeleted ? InvalidFirmAddressState.Deleted
-                       : !faInactive.IsActive ? InvalidFirmAddressState.NotActive
-                       : faInactive.IsClosedForAscertainment ? InvalidFirmAddressState.ClosedForAscertainment
-                       : InvalidFirmAddressState.NotSet
-
-                   from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value).DefaultIfEmpty()
-                   let state2 = fa == default ? InvalidFirmAddressState.NotSet
-                                : fa.FirmId != order.FirmId && !isPartnerAddress ? InvalidFirmAddressState.NotBelongToFirm
-                                : checkPoi && fa.BuildingPurposeCode.HasValue && Facts::FirmAddress.InvalidBuildingPurposeCodesForPoi.Contains(fa.BuildingPurposeCode.Value) ? InvalidFirmAddressState.InvalidBuildingPurpose
-                                : checkPoi && fa.EntranceCode == null ? InvalidFirmAddressState.MissingEntrance
-                                : InvalidFirmAddressState.NotSet
-
-                   where state != InvalidFirmAddressState.NotSet || state2 != InvalidFirmAddressState.NotSet
-                   select new Order.InvalidFirmAddress
-                       {
-                           OrderId = order.Id,
-                           FirmAddressId = opa.FirmAddressId.Value,
-                           OrderPositionId = orderPosition.Id,
-                           PositionId = opa.PositionId,
-                           State = state != InvalidFirmAddressState.NotSet ? state: state2,
-                           IsPartnerAddress = isPartnerAddress
-                       };
+                return result;
+            }
 
             public FindSpecification<Order.InvalidFirmAddress> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -182,20 +178,25 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.CategoryNotBelongsToAddress> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
-                   from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue).Where(x => x.OrderPositionId == orderPosition.Id)
-                   from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value)
-                   from cfa in _query.For<Facts::FirmAddressCategory>().Where(x => x.FirmAddressId == opa.FirmAddressId.Value && x.CategoryId == opa.CategoryId.Value).DefaultIfEmpty()
-                   where cfa == null
-                   select new Order.CategoryNotBelongsToAddress
-                   {
-                       OrderId = order.Id,
-                       FirmAddressId = opa.FirmAddressId.Value,
-                       CategoryId = opa.CategoryId.Value,
-                       OrderPositionId = orderPosition.Id,
-                       PositionId = opa.PositionId,
-                   };
+            {
+                var result =
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>()
+                        .Where(x => x.FirmAddressId != null && x.CategoryId != null)
+                    from cfa in _query.For<Facts::FirmAddressCategory>().Where(x =>
+                            x.FirmAddressId == opa.FirmAddressId.Value && x.CategoryId == opa.CategoryId.Value)
+                        .DefaultIfEmpty()
+                    where cfa == null
+                    select new Order.CategoryNotBelongsToAddress
+                    {
+                        OrderId = opa.OrderId,
+                        FirmAddressId = opa.FirmAddressId.Value,
+                        CategoryId = opa.CategoryId.Value,
+                        OrderPositionId = opa.OrderPositionId,
+                        PositionId = opa.PositionId,
+                    };
+
+                return result;
+            }
 
             public FindSpecification<Order.CategoryNotBelongsToAddress> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -225,8 +226,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             {
                 var result = 
                     from order in _query.For<Facts::Order>()
-                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
-                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue).Where(x => x.OrderPositionId == orderPosition.Id)
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue).Where(x => x.OrderId == order.Id)
                     from category in _query.For<Facts::Category>().Where(x => x.Id == opa.CategoryId.Value)
                     from position in _query.For<Facts::Position>().Where(x => !x.IsDeleted).Where(x => x.Id == opa.PositionId)
                     let categoryBelongToFirm = (from fa in _query.For<Facts::FirmAddress>().Where(x => x.FirmId == order.FirmId)
@@ -238,9 +238,9 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                     where state != InvalidCategoryState.NotSet
                     select new Order.InvalidCategory
                         {
-                            OrderId = order.Id,
+                            OrderId = opa.OrderId,
                             CategoryId = opa.CategoryId.Value,
-                            OrderPositionId = orderPosition.Id,
+                            OrderPositionId = opa.OrderPositionId,
                             PositionId = opa.PositionId,
                             MayNotBelongToFirm = position.BindingObjectType == Facts::Position.BindingObjectTypeCategoryMultipleAsterisk,
                             State = state,
@@ -262,11 +262,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public OrderBargainSignedLaterThanOrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.OrderShouldNotBeSignedBeforeBargain, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
             
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.BargainSignedLaterThanOrder> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);
@@ -293,11 +289,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public OrderHasNoAnyLegalPersonProfileAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.LegalPersonShouldHaveAtLeastOneProfile, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
             
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.HasNoAnyLegalPersonProfile> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);
@@ -358,8 +350,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        {MessageTypeCode.OrderMustHaveActiveDeal, GetRelatedOrders},
-                        {MessageTypeCode.OrderMustHaveActiveLegalEntities, GetRelatedOrders},
+                        {MessageTypeCode.OrderMustHaveActiveDeal, GetRelatedOrders}
                     };
 
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InactiveReference> dataObjects) =>
@@ -391,77 +382,13 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             }
         }
 
-        public sealed class OrderInvalidBeginDistributionDateAccessor : DataChangesHandler<Order.InvalidBeginDistributionDate>, IStorageBasedDataObjectAccessor<Order.InvalidBeginDistributionDate>
-        {
-            private readonly IQuery _query;
-
-            public OrderInvalidBeginDistributionDateAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
-
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.OrderBeginDistrubutionShouldBeFirstDayOfMonth, GetRelatedOrders},
-                    };
-            
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidBeginDistributionDate> dataObjects) =>
-                dataObjects.Select(x => x.OrderId);
-
-            public IQueryable<Order.InvalidBeginDistributionDate> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   where order.BeginDistribution.Day != 1 || order.BeginDistribution.TimeOfDay != TimeSpan.Zero
-                   select new Order.InvalidBeginDistributionDate
-                   {
-                       OrderId = order.Id,
-                   };
-
-            public FindSpecification<Order.InvalidBeginDistributionDate> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
-            {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
-                return new FindSpecification<Order.InvalidBeginDistributionDate>(x => aggregateIds.Contains(x.OrderId));
-            }
-        }
-
-        public sealed class OrderInvalidEndDistributionDateAccessor : DataChangesHandler<Order.InvalidEndDistributionDate>, IStorageBasedDataObjectAccessor<Order.InvalidEndDistributionDate>
-        {
-            private readonly IQuery _query;
-
-            public OrderInvalidEndDistributionDateAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
-
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.OrderEndDistrubutionShouldBeLastSecondOfMonth, GetRelatedOrders},
-                    };
-
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidEndDistributionDate> dataObjects) =>
-                dataObjects.Select(x => x.OrderId);
-            
-            public IQueryable<Order.InvalidEndDistributionDate> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   where order.EndDistributionPlan.Day != 1 || order.EndDistributionPlan.TimeOfDay != TimeSpan.Zero
-                   select new Order.InvalidEndDistributionDate
-                       {
-                           OrderId = order.Id,
-                       };
-
-        public FindSpecification<Order.InvalidEndDistributionDate> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
-            {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
-                return new FindSpecification<Order.InvalidEndDistributionDate>(x => aggregateIds.Contains(x.OrderId));
-            }
-        }
-
         public sealed class OrderInvalidBillsTotalAccessor : DataChangesHandler<Order.InvalidBillsTotal>, IStorageBasedDataObjectAccessor<Order.InvalidBillsTotal>
         {
             private readonly IQuery _query;
 
             public OrderInvalidBillsTotalAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.BillsSumShouldMatchOrder, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
             
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidBillsTotal> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);
@@ -491,11 +418,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public LegalPersonProfileBargainExpiredAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.LegalPersonProfileBargainShouldNotBeExpired, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
 
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.LegalPersonProfileBargainExpired> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);
@@ -523,11 +446,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public LegalPersonProfileWarrantyExpiredAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.LegalPersonProfileWarrantyShouldNotBeExpired, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
             
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.LegalPersonProfileWarrantyExpired> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);
@@ -555,11 +474,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public OrderMissingBargainScanAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.BargainScanShouldPresent, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
             
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingBargainScan> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);
@@ -586,11 +501,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public OrderMissingBillsAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.BillsShouldBeCreated, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
 
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingBills> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);
@@ -668,25 +579,23 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             public IQueryable<Order.MissingValidPartnerFirmAddresses> GetSource()
             {
                 var query =
-                    from o in _query.For<Facts::Order>()
-                    from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == o.Id)
-
+                    from op in _query.For<Facts::OrderPosition>()
+                    from pp in _query.For<Facts::PricePosition>().Where(x => x.Id == op.PricePositionId)
                     let hasPartnerPosition =
                         (from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
                         from p in _query.For<Facts::Position>().Where(x => x.CategoryCode == Facts::Position.CategoryCodePartnerAdvertisingAddress).Where(x => x.Id == opa.PositionId)
-                        select opa.Id).Any()
+                        select opa.OrderPositionId).Any()
 
                     let hasValidAddress =
                         (from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == op.Id)
                         from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId)
-                        select opa.Id).Any()
+                        select opa.OrderPositionId).Any()
 
                     where hasPartnerPosition && !hasValidAddress
 
-                    from pp in _query.For<Facts::PricePosition>().Where(x => x.Id == op.PricePositionId)
                     select new Order.MissingValidPartnerFirmAddresses
                     {
-                        OrderId = o.Id,
+                        OrderId = op.OrderId,
                         OrderPositionId = op.Id,
                         PositionId = pp.PositionId
                     };
@@ -707,11 +616,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
 
             public OrderMissingOrderScanAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.OrderScanShouldPresent, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
 
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.MissingOrderScan> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);

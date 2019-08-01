@@ -17,24 +17,24 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Aggregate(
                     // Когда основная позиция - ровно одна и находится в другом заказе, должно быть сообщение
                     new Firm { Id = 1 },
-                    new Firm.FirmPosition { FirmId = 1, OrderId = 1, OrderPositionId = 1, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
-                    new Firm.FirmPosition { FirmId = 1, OrderId = 2, OrderPositionId = 2, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm.FirmPosition { FirmId = 1, OrderId = 1, OrderPositionId = 1, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
+                    new Firm.FirmPosition { FirmId = 1, OrderId = 2, OrderPositionId = 2, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
 
                     new Firm.FirmAssociatedPosition { FirmId = 1, OrderPositionId = 1, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 },
 
                     // Когда основных несколько в разных заказах - сообщения нет
                     new Firm { Id = 2 },
-                    new Firm.FirmPosition { FirmId = 2, OrderId = 3, OrderPositionId = 3, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
-                    new Firm.FirmPosition { FirmId = 2, OrderId = 4, OrderPositionId = 4, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
-                    new Firm.FirmPosition { FirmId = 2, OrderId = 5, OrderPositionId = 5, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm.FirmPosition { FirmId = 2, OrderId = 3, OrderPositionId = 3, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
+                    new Firm.FirmPosition { FirmId = 2, OrderId = 4, OrderPositionId = 4, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm.FirmPosition { FirmId = 2, OrderId = 5, OrderPositionId = 5, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
 
                     new Firm.FirmAssociatedPosition { FirmId = 2, OrderPositionId = 3, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 },
 
                     // Когда основных несколько в одном заказе заказе - сообщение есть
                     new Firm { Id = 3 },
-                    new Firm.FirmPosition { FirmId = 3, OrderId = 6, OrderPositionId = 6, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
-                    new Firm.FirmPosition { FirmId = 3, OrderId = 7, OrderPositionId = 7, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
-                    new Firm.FirmPosition { FirmId = 3, OrderId = 7, OrderPositionId = 8, Begin = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm.FirmPosition { FirmId = 3, OrderId = 6, OrderPositionId = 6, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 2, ItemPositionId = 2 },
+                    new Firm.FirmPosition { FirmId = 3, OrderId = 7, OrderPositionId = 7, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
+                    new Firm.FirmPosition { FirmId = 3, OrderId = 7, OrderPositionId = 8, Start = MonthStart(1), End = MonthStart(2), PackagePositionId = 3, ItemPositionId = 3 },
 
                     new Firm.FirmAssociatedPosition { FirmId = 3, OrderPositionId = 6, BindingType = 2, PackagePositionId = 2, ItemPositionId = 2, PrincipalPositionId = 3 })
                 .Message(

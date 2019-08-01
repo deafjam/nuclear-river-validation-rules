@@ -78,9 +78,9 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts
                     break;
                 }
 
-                case PeriodKeyOutdatedEvent periodKeyOutdatedEvent:
+                case PeriodKeysOutdatedEvent periodKeysOutdatedEvent:
                 {
-                    _relatedPeriodKeyEvents.UnionWith(periodKeyOutdatedEvent.PeriodKeys);
+                    _relatedPeriodKeyEvents.UnionWith(periodKeysOutdatedEvent.PeriodKeys);
                     break;
                 }
                 
@@ -95,6 +95,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts
                 .Concat(_updatedEvents.SelectMany(x => x.Value.CreateBatches(BatchSize).Select(y => new DataObjectUpdatedEvent(x.Key, y))))
                 .Concat(_deletedEvents.SelectMany(x => x.Value.CreateBatches(BatchSize).Select(y => new DataObjectDeletedEvent(x.Key, y))))
                 .Concat(_relatedEvents.SelectMany(x => x.Value.CreateBatches(BatchSize).Select(y => new RelatedDataObjectOutdatedEvent(x.Key.Item1, x.Key.Item2, y))))
-                .Concat(_relatedPeriodKeyEvents.CreateBatches(BatchSize).Select(y => new PeriodKeyOutdatedEvent(y)));
+                .Concat(_relatedPeriodKeyEvents.CreateBatches(BatchSize).Select(y => new PeriodKeysOutdatedEvent(y)));
     }
 }

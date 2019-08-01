@@ -84,10 +84,8 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             => messages.GroupBy(x => x.MessageType)
                        .SelectMany(x => DistinctorForMessageType(x.Key).Distinct(x));
 
-        private IDistinctor DistinctorForMessageType(MessageTypeCode messageType)
-        {
-            return _distinctors.TryGetValue(messageType, out var distinctor) ? distinctor : Default;
-        }
+        private IDistinctor DistinctorForMessageType(MessageTypeCode messageType) =>
+            _distinctors.TryGetValue(messageType, out var distinctor) ? distinctor : Default;
 
         private static Message ToMessage(Version.ValidationResult x)
             => new Message
@@ -113,18 +111,28 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             public MessageTypeCode MessageType => 0;
 
             public IEnumerable<Message> Distinct(IEnumerable<Message> messages)
-                => messages.GroupBy(x => new { x.OrderId, x.ProjectId })
-                           .SelectMany(x => x.ToHashSet(this));
+                => messages.ToHashSet(this);
 
             bool IEqualityComparer<Message>.Equals(Message x, Message y)
-                => x.References.Count == y.References.Count
-                   && x.References.SequenceEqual(y.References, Reference.Comparer)
-                   && x.Extra.Count == y.Extra.Count
-                   && x.Extra.All(pair => y.Extra.TryGetValue(pair.Key, out var value) && pair.Value == value);
+                =>
+                    x.OrderId == y.OrderId &&
+                    x.ProjectId == y.ProjectId &&
+                    x.References.Count == y.References.Count &&
+                    x.References.SequenceEqual(y.References, Reference.Comparer) &&
+                    x.Extra.Count == y.Extra.Count &&
+                    x.Extra.All(pair => y.Extra.TryGetValue(pair.Key, out var value) && pair.Value == value);
 
             int IEqualityComparer<Message>.GetHashCode(Message obj)
-                => obj.References.Aggregate(0, (accum, reference) => (accum * 397) ^ Reference.Comparer.GetHashCode(reference)) ^
-                   obj.Extra.Aggregate(0, (accum, pair) => (accum * 397) ^ (pair.Key.GetHashCode() * 397) ^ pair.Value.GetHashCode());
+            {
+                unchecked
+                {
+                    var hashCode = obj.OrderId.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.ProjectId.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.References.Aggregate(0, (accum, reference) => (accum * 397) ^ Reference.Comparer.GetHashCode(reference));
+                    hashCode = (hashCode * 397) ^ obj.Extra.Aggregate(0, (accum, pair) => (accum * 397) ^ (pair.Key.GetHashCode() * 397) ^ pair.Value.GetHashCode());
+                    return hashCode;
+                }
+            }
         }
     }
 }

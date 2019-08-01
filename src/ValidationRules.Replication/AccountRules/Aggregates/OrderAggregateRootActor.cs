@@ -52,8 +52,8 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
                            Id = order.Id,
                            AccountId = account.Id,
                            IsFreeOfCharge = order.IsFreeOfCharge,
-                           BeginDistributionDate = order.BeginDistribution,
-                           EndDistributionDate = order.EndDistributionFact,
+                           Start = order.AgileDistributionStartDate,
+                           End = order.AgileDistributionEndFactDate,
                        };
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

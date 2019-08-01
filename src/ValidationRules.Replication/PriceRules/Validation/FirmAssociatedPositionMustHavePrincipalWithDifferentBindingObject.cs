@@ -45,9 +45,12 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
 
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
+            var firmPositions = query.For<Firm.FirmPosition>();
+            var firmAssociatedPositions = query.For<Firm.FirmAssociatedPosition>();
+
             var errors =
-                query.For<Firm.FirmPosition>()
-                     .SelectMany(Specs.Join.Aggs.PrincipalPositions(query.For<Firm.FirmAssociatedPosition>(), query.For<Firm.FirmPosition>()), (associated, principal) => new { associated, principal })
+                firmPositions
+                     .SelectMany(Specs.Join.Aggs.PrincipalPositions(firmAssociatedPositions, firmPositions), (associated, principal) => new { associated, principal })
                      .Where(dto => dto.principal.RequiredDifferent && !dto.principal.IsBindingObjectConditionSatisfied)
                      .Select(dto => new { dto.associated, principal = dto.principal.Position });
 
@@ -68,7 +71,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                                         new Reference<EntityTypePosition>(error.principal.ItemPositionId)))
                                 .ToXDocument(),
 
-                    PeriodStart = error.associated.Begin,
+                    PeriodStart = error.associated.Start,
                     PeriodEnd = error.associated.End,
                     OrderId = error.associated.OrderId,
                 };

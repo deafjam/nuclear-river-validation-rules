@@ -34,12 +34,12 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             var commands = new List<ICommand>();
 
-            if (args.Contains("-facts"))
+            if (args.Any(x => x.Contains("-facts")))
             {
                 commands.Add(BulkReplicationCommands.ErmToFacts);
-                // Надо подумать о лишней обёртке
                 commands.Add(new KafkaReplicationCommand(AmsFactsFlow.Instance, BulkReplicationCommands.AmsToFacts));
                 commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts));
+                // TODO: отдельный schema init для erm\ams\ruleset facts
                 commands.Add(SchemaInitializationCommands.Facts);
             }
 
@@ -51,6 +51,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             if (args.Contains("-messages"))
             {
+                commands.Add(BulkReplicationCommands.ErmToMessages);
                 commands.Add(BulkReplicationCommands.AggregatesToMessages);
                 commands.Add(SchemaInitializationCommands.Messages);
             }

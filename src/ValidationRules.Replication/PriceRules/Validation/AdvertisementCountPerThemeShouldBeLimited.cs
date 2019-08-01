@@ -27,10 +27,10 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
         {
             // todo: Тематики больше не продаются, проверка не оттестирована тщательно, вероятно скоро можно будет удалить совсем.
             var sales =
-                from orderPosition in query.For<Order.OrderThemePosition>()
-                from orderPeriod in query.For<Order.OrderPeriod>().Where(x => x.OrderId == orderPosition.OrderId)
-                from period in query.For<Period>().Where(x => orderPeriod.Begin <= x.Start && x.End <= orderPeriod.End)
-                select new { orderPosition.ThemeId, orderPosition.ProjectId, orderPeriod.OrderId, orderPeriod.Scope, period.Start, period.End };
+                from period in query.For<Period>()
+                from orderPeriod in query.For<Order.OrderPeriod>().Where(x => x.ProjectId == period.ProjectId && x.Start <= period.Start && period.End <= x.End)
+                from orderPosition in query.For<Order.OrderThemePosition>().Where(x => x.OrderId == orderPeriod.OrderId)
+                select new { orderPosition.ThemeId, orderPeriod.ProjectId, orderPeriod.OrderId, orderPeriod.Scope, period.Start, period.End };
 
             var oversales =
                 from sale in sales

@@ -49,10 +49,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustHaveActiveLegalEntitiesMessage))
                 .Aggregate(
-                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InactiveReference { OrderId = 1, BranchOffice = true, BranchOfficeOrganizationUnit = true, LegalPerson = false, LegalPersonProfile = false },
 
-                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 2, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InactiveReference { OrderId = 2, BranchOffice = false, BranchOfficeOrganizationUnit = false, LegalPerson = true, LegalPersonProfile = true })
                 .Message(
                     new Messages::Version.ValidationResult

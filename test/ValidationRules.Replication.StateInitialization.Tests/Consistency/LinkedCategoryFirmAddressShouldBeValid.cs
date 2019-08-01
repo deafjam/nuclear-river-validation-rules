@@ -16,17 +16,16 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedCategoryFirmAddressShouldBeValid))
                 .Fact(
-                    new Facts::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
-                    new Facts::OrderPosition { Id = 1, OrderId = 1 },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
 
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 2, FirmAddressId = 2 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 2, FirmAddressId = 2 },
                     new Facts::FirmAddress { Id = 2 },
                     new Facts::FirmAddressCategory { FirmAddressId = 2, CategoryId = 2 },
 
-                    new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 1, CategoryId = 3, FirmAddressId = 3 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 3, FirmAddressId = 3 },
                     new Facts::FirmAddress { Id = 3 })
                 .Aggregate(
-                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.CategoryNotBelongsToAddress { OrderId = 1, CategoryId = 3, FirmAddressId = 3, OrderPositionId = 1 })
                 .Message(
                     new Messages::Version.ValidationResult

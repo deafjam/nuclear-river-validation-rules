@@ -86,7 +86,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
                               .Where(op => op.IsActive && !op.IsDeleted)
                               .Where(x => firmIds.Contains(x.FirmId))
                               .Where(x => new[] { 1, 2, 4, 5 }.Contains(x.WorkflowStepId))
-                              .Where(x => x.BeginDistributionDate < order.EndDistributionDatePlan && order.BeginDistributionDate < x.EndDistributionDatePlan)
+                              .Where(x => x.AgileDistributionStartDate < order.AgileDistributionEndPlanDate && order.AgileDistributionStartDate < x.AgileDistributionEndPlanDate)
                               .Execute();
             store.AddRange(orders);
             var orderIds = orders.Select(x => x.Id).ToList();
@@ -140,7 +140,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
             //
             var actualPrice = query.GetTable<Price>()
                                    .Where(x => !x.IsDeleted && x.IsPublished)
-                                   .Where(x => x.ProjectId == project.Id && x.BeginDate <= order.BeginDistributionDate)
+                                   .Where(x => x.ProjectId == project.Id && x.BeginDate <= order.AgileDistributionStartDate)
                                    .OrderByDescending(x => x.BeginDate)
                                    .Take(1)
                                    .Execute()
@@ -155,7 +155,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
                                           .Execute();
             store.AddRange(usedPricePositions);
             var monthlyUsedPrices = query.GetTable<Price>()
-                                         .Where(x => x.ProjectId == project.Id && x.BeginDate >= order.BeginDistributionDate && x.BeginDate <= order.EndDistributionDatePlan)
+                                         .Where(x => x.ProjectId == project.Id && x.BeginDate >= order.AgileDistributionStartDate && x.BeginDate <= order.AgileDistributionEndPlanDate)
                                          .Execute();
             store.AddRange(monthlyUsedPrices);
             var usedPriceIds = usedPricePositions.Select(x => x.PriceId).Union(actualPrice != null ? new[] { actualPrice.Id } : Array.Empty<long>()).Union(monthlyUsedPrices.Select(x => x.Id)).ToList();
@@ -248,8 +248,8 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
 
             orderSummary = new ResolvedOrderSummary
             {
-                BeginDate = order.BeginDistributionDate,
-                EndDate = order.EndDistributionDatePlan,
+                BeginDate = order.AgileDistributionStartDate,
+                EndDate = order.AgileDistributionEndPlanDate,
 
                 ProjectId = project.Id,
 
@@ -286,7 +286,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
             var orders =
                 query.GetTable<Order>()
                      .Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
-                     .Where(x => x.BeginDistributionDate < order.EndDistributionDatePlan && order.BeginDistributionDate < x.EndDistributionDateFact)
+                     .Where(x => x.AgileDistributionStartDate < order.AgileDistributionEndPlanDate && order.AgileDistributionStartDate < x.AgileDistributionEndFactDate)
                      .Execute();
             var orderIds = orders.Select(x => x.Id);
             store.AddRange(orders);
@@ -319,7 +319,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
 
             var orders =
                  from interferringOrder in query.GetTable<Order>().Where(x => x.IsActive && !x.IsDeleted && new[] { 1, 2, 4, 5 }.Contains(x.WorkflowStepId))
-                                                .Where(x => x.DestOrganizationUnitId == order.DestOrganizationUnitId && x.BeginDistributionDate < order.EndDistributionDatePlan && order.BeginDistributionDate < x.EndDistributionDatePlan)
+                                                .Where(x => x.DestOrganizationUnitId == order.DestOrganizationUnitId && x.AgileDistributionStartDate < order.AgileDistributionEndPlanDate && order.AgileDistributionStartDate < x.AgileDistributionEndPlanDate)
                  from orderPosition in query.GetTable<OrderPosition>().Where(x => x.IsActive && !x.IsDeleted).Where(x => x.OrderId == interferringOrder.Id)
                  from opa in query.GetTable<OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
                  from position in query.GetTable<Position>().Where(x => (x.IsControlledByAmount || x.CategoryCode == TargetCategoryCode) && x.Id == opa.PositionId && categoryCodes.Contains(x.CategoryCode))

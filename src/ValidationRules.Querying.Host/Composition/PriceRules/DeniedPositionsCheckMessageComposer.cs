@@ -40,7 +40,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
         public IEnumerable<Message> Distinct(IEnumerable<Message> messages)
             => messages.ToHashSet(RuleMessageEqualityComparer.Instance);
 
-        internal sealed class RuleMessageEqualityComparer : IEqualityComparer<Message>
+        private sealed class RuleMessageEqualityComparer : IEqualityComparer<Message>
         {
             public static readonly IEqualityComparer<Message> Instance = new RuleMessageEqualityComparer();
 

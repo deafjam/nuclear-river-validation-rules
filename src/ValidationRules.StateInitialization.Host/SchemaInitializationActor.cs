@@ -27,8 +27,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
         public IReadOnlyCollection<IEvent> ExecuteCommands(IReadOnlyCollection<ICommand> commands)
         {
-            var schemaInitializationCommands = commands.OfType<SchemaInitializationCommand>().ToHashSet();
-
+            var schemaInitializationCommands = commands.OfType<SchemaInitializationCommand>();
             foreach (var cmd in schemaInitializationCommands)
             {
                 ExecuteCommand(cmd);
@@ -85,20 +84,28 @@ namespace NuClear.ValidationRules.StateInitialization.Host
     {
         public static SchemaInitializationCommand Facts { get; }
             = new SchemaInitializationCommand(Schema.Facts,
-                                              DataObjectTypesProviderFactory.AllSourcesFactTypes,
-                                              ValidationRulesConnectionStringIdentity.Instance,
-                                              new[] { "Facts" });
+                DataObjectTypesProviderFactory.AllSourcesFactTypes,
+                ValidationRulesConnectionStringIdentity.Instance,
+                new[] {"Facts"});
 
         public static SchemaInitializationCommand Aggregates { get; }
-			= new SchemaInitializationCommand(Schema.Aggregates, DataObjectTypesProviderFactory.AggregateTypes, ValidationRulesConnectionStringIdentity.Instance,
-				new[] { "AccountAggregates", "AdvertisementAggregates", "ConsistencyAggregates", "FirmAggregates", "PriceAggregates", "ProjectAggregates", "ThemeAggregates", "SystemAggregates" });
+            = new SchemaInitializationCommand(Schema.Aggregates, DataObjectTypesProviderFactory.AggregateTypes,
+                ValidationRulesConnectionStringIdentity.Instance,
+                new[]
+                {
+                    "AccountAggregates", "AdvertisementAggregates", "ConsistencyAggregates", "FirmAggregates",
+                    "PriceAggregates", "ProjectAggregates", "ThemeAggregates", "SystemAggregates"
+                });
 
         public static SchemaInitializationCommand Messages { get; }
-            = new SchemaInitializationCommand(Schema.Messages, DataObjectTypesProviderFactory.MessagesTypes, ValidationRulesConnectionStringIdentity.Instance,
-                new[] { "Messages", "MessagesCache" });
+            = new SchemaInitializationCommand(Schema.Messages, DataObjectTypesProviderFactory.AllMessagesTypes,
+                ValidationRulesConnectionStringIdentity.Instance,
+                new[] {"Messages", "MessagesCache"});
 
         public static SchemaInitializationCommand WebApp { get; }
-            = new SchemaInitializationCommand(WebAppMappingSchemaHelper.GetWebAppMappingSchema(new VersionHelper().Version), WebAppMappingSchemaHelper.DataObjectTypes, ValidationRulesConnectionStringIdentity.Instance,
-                new[] { "WebApp" });
+            = new SchemaInitializationCommand(
+                WebAppMappingSchemaHelper.GetWebAppMappingSchema(new VersionHelper().Version),
+                WebAppMappingSchemaHelper.DataObjectTypes, ValidationRulesConnectionStringIdentity.Instance,
+                new[] {"WebApp"});
     }
 }

@@ -29,17 +29,17 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Order.OrderThemePosition { OrderId = 1, ThemeId = 3 },
                     new Order.OrderThemePosition { OrderId = 1, ThemeId = 3 },
                     new Order.OrderThemePosition { OrderId = 1, ThemeId = 3 },
-                    new Order.OrderPeriod { OrderId = 1, Begin = MonthStart(1), End = MonthStart(4), Scope = 0 },
+                    new Order.OrderPeriod { OrderId = 1, Start = MonthStart(1), End = MonthStart(4), Scope = 0 },
 
                     // Другой одобренный заказ с продажей (пересекается только в одном месяце)
                     new Order { Id = 2 },
                     new Order.OrderThemePosition { OrderId = 2, ThemeId = 3 },
-                    new Order.OrderPeriod { OrderId = 2, Begin = MonthStart(3), End = MonthStart(6), Scope = 0 },
+                    new Order.OrderPeriod { OrderId = 2, Start = MonthStart(3), End = MonthStart(6), Scope = 0 },
 
                     // Заказ "на утверждении", размещается, когда есть две одобренных продажи и получает ошибку
                     new Order { Id = 3 },
                     new Order.OrderThemePosition { OrderId = 3, ThemeId = 3 },
-                    new Order.OrderPeriod { OrderId = 3, Begin = MonthStart(3), End = MonthStart(5), Scope = -1 },
+                    new Order.OrderPeriod { OrderId = 3, Start = MonthStart(3), End = MonthStart(5), Scope = -1 },
 
                     // Заказ "на оформлении", размещается, когда есть одна одобренная продажа и один заказ на оформлении и тоже получает ошибку
                     new Order { Id = 4 },
@@ -52,7 +52,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Order.OrderThemePosition { OrderId = 4, ThemeId = 3 },
                     new Order.OrderThemePosition { OrderId = 4, ThemeId = 3 },
                     new Order.OrderThemePosition { OrderId = 4, ThemeId = 3 },
-                    new Order.OrderPeriod { OrderId = 4, Begin = MonthStart(4), End = MonthStart(6), Scope = 4 },
+                    new Order.OrderPeriod { OrderId = 4, Start = MonthStart(4), End = MonthStart(6), Scope = 4 },
 
                     new Period { Start = MonthStart(1), End = MonthStart(2) },
                     new Period { Start = MonthStart(2), End = MonthStart(3) },

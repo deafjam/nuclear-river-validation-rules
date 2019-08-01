@@ -30,7 +30,8 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<Advertisement>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id);
+                   .HasPrimaryKey(x => x.Id)
+                   .HasIndex(x => x.StateCode);
 
             builder.Entity<Bargain>()
                    .HasSchemaName(FactsSchema)
@@ -64,7 +65,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<CostPerClickCategoryRestriction>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, x.Begin });
+                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, Begin = x.Start });
 
             builder.Entity<Deal>()
                    .HasSchemaName(FactsSchema)
@@ -114,19 +115,21 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<Order>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => x.DestOrganizationUnitId, x => new { x.Id, x.FirmId, x.BeginDistribution, x.EndDistributionFact, x.EndDistributionPlan, x.WorkflowStep, x.IsSelfAds })
                    .HasIndex(x => new { x.LegalPersonId, x.SignupDate }, x => x.Id)
                    .HasIndex(x => x.BargainId, x => x.Id)
                    .HasIndex(x => new { x.BargainId, x.SignupDate }, x => x.Id)
-                   .HasIndex(x => new { x.BeginDistribution, x.DestOrganizationUnitId }, x => x.FirmId)
-                   .HasIndex(x => x.EndDistributionFact)
-                   .HasIndex(x => x.EndDistributionPlan)
-                   .HasIndex(x => x.FirmId, x => new { x.DestOrganizationUnitId, x.BeginDistribution });
+                   .HasIndex(x => x.DealId)
+                   .HasIndex(x => x.FirmId, x => new { x.DestProjectId, x.AgileDistributionStartDate })
+                   // подумать, может быть индекс по DestProjectId можно объединить с каким-нибудь другим  
+                   .HasIndex(x => x.DestProjectId, x => new { x.FirmId, x.AgileDistributionStartDate, x.AgileDistributionEndFactDate, x.IsSelfAds, x.AgileDistributionEndPlanDate, x.WorkflowStep })
+                   .HasIndex(x => new { x.AgileDistributionStartDate, x.DestProjectId }, x => x.FirmId)
+                   .HasIndex(x => x.AgileDistributionEndPlanDate)
+                   .HasIndex(x => x.AgileDistributionEndFactDate);
 
             builder.Entity<OrderItem>()
                    .HasSchemaName(FactsSchema)
                    // PK не получается создать, т.к. PricePositionId, FirmAddressId, CategoryId nullable
-                   .HasIndex(x => new { x.OrderPositionId, x.PackagePositionId, x.ItemPositionId, x.PricePositionId, x.FirmAddressId, x.CategoryId}, clustered: true, unique: true, name: "PK_Analog")
+                   .HasIndex(x => new { x.OrderPositionId, x.PackagePositionId, x.ItemPositionId, x.FirmAddressId, x.CategoryId}, clustered: true, unique: true, name: "PK_Analog")
                    .HasIndex(x => x.OrderId);
 
             builder.Entity<OrderPosition>()
@@ -137,13 +140,9 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<OrderPositionAdvertisement>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => x.AdvertisementId, x => new { x.OrderPositionId, x.PositionId })
-                   .HasIndex(x => x.OrderPositionId, x => new { x.FirmAddressId, x.PositionId })
-                   .HasIndex(x => new {x.PositionId, x.FirmAddressId}, x => x.OrderPositionId)
-                   .HasIndex(x => new { x.FirmAddressId, x.CategoryId }, x => new { x.OrderPositionId, x.PositionId })
-                   .HasIndex(x => x.CategoryId, x => new { x.OrderPositionId, x.PositionId, x.FirmAddressId })
-                   .HasIndex(x => x.ThemeId, x => x.OrderPositionId);
+                   // PK не получается создать, т.к. FirmAddressId, CategoryId, AdvertisementId, ThemeId nullable
+                   .HasIndex(x => new {x.OrderPositionId, x.PositionId, x.FirmAddressId, x.CategoryId, x.AdvertisementId, x.ThemeId}, clustered: true, unique: true, name: "PK_Analog")
+                   .HasIndex(x => x.OrderId);
 
             builder.Entity<OrderPositionCostPerClick>()
                    .HasSchemaName(FactsSchema)
@@ -188,7 +187,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<SalesModelCategoryRestriction>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, x.Begin });
+                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, Begin = x.Start });
 
             builder.Entity<SystemStatus>()
                    .HasSchemaName(FactsSchema)
@@ -229,7 +228,8 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<Ruleset.RulesetProject>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => new { x.ProjectId, x.RulesetId });
+                   .HasPrimaryKey(x => new { x.RulesetId, x.ProjectId })
+                   .HasIndex(x => x.ProjectId);
 
             return builder;
         }

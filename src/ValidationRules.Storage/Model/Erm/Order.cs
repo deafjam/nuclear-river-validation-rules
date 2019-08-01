@@ -39,9 +39,9 @@ namespace NuClear.ValidationRules.Storage.Model.Erm
         public long? DealId { get; set; }
         public long OwnerCode { get; set; }
         public DateTime SignupDate { get; set; }
-        public DateTime BeginDistributionDate { get; set; }
-        public DateTime EndDistributionDateFact { get; set; }
-        public DateTime EndDistributionDatePlan { get; set; }
+        public DateTime AgileDistributionStartDate { get; set; }
+        public DateTime AgileDistributionEndPlanDate { get; set; }
+        public DateTime AgileDistributionEndFactDate { get; set; }
         public int WorkflowStepId { get; set; }
         public int OrderType { get; set; }
         public int SaleType { get; set; }

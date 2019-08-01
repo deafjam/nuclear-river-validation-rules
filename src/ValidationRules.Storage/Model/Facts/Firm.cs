@@ -8,7 +8,7 @@
     public sealed class Firm
     {
         public long Id { get; set; }
-        public long OrganizationUnitId { get; set; }
+        public long ProjectId { get; set; }
     }
 
     public sealed class FirmInactive

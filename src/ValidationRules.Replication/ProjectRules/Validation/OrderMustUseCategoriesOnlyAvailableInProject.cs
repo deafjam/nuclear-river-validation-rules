@@ -38,7 +38,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
                                     new Reference<EntityTypeCategory>(opa.CategoryId))
                                 .ToXDocument(),
 
-                        PeriodStart = order.Begin,
+                        PeriodStart = order.Start,
                         PeriodEnd = order.End,
                         OrderId = order.Id,
                     };

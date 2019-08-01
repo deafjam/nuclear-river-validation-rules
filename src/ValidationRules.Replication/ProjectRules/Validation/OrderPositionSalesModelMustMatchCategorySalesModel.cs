@@ -24,15 +24,15 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
         {
             var ruleResults =
                 from order in query.For<Order>()
-                from restriction in query.For<Project.SalesModelRestriction>().Where(x => x.End > order.Begin && order.End > x.Begin && x.ProjectId == order.ProjectId)
+                from restriction in query.For<Project.SalesModelRestriction>().Where(x => x.End > order.Start && order.End > x.Start && x.ProjectId == order.ProjectId)
                 from adv in query.For<Order.CategoryAdvertisement>().Where(x => x.IsSalesModelRestrictionApplicable).Where(x => x.OrderId == order.Id && x.CategoryId == restriction.CategoryId)
                 where restriction.SalesModel != adv.SalesModel
-                let begin = order.Begin > restriction.Begin ? order.Begin : restriction.Begin
+                let start = order.Start > restriction.Start ? order.Start : restriction.Start
                 select new Version.ValidationResult
                     {
                         MessageParams =
                             new MessageParams(
-                                    new Dictionary<string, object> { { "begin", begin } },
+                                    new Dictionary<string, object> { { "start", start } },
                                     new Reference<EntityTypeCategory>(adv.CategoryId),
                                     new Reference<EntityTypeOrderPositionAdvertisement>(0,
                                         new Reference<EntityTypeOrderPosition>(adv.OrderPositionId),
@@ -41,7 +41,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
                                     new Reference<EntityTypeProject>(order.ProjectId))
                                 .ToXDocument(),
 
-                        PeriodStart = begin,
+                        PeriodStart = start,
                         PeriodEnd = order.End < restriction.End ? order.End : restriction.End,
                         OrderId = order.Id,
                     };

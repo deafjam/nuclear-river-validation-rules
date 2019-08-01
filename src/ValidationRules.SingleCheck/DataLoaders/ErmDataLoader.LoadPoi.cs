@@ -39,8 +39,8 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
                 from o in query.GetTable<Order>()
                                .Where(x => new[] { 2, 4, 5 }.Contains(x.WorkflowStepId))
                                .Where(x => x.IsActive && !x.IsDeleted)
-                               .Where(x => x.BeginDistributionDate < order.EndDistributionDatePlan &&
-                                           order.BeginDistributionDate < x.EndDistributionDatePlan &&
+                               .Where(x => x.AgileDistributionStartDate < order.AgileDistributionEndPlanDate &&
+                                           order.AgileDistributionStartDate < x.AgileDistributionEndPlanDate &&
                                            x.DestOrganizationUnitId == order.DestOrganizationUnitId)
                                .Where(x => x.Id == op.OrderId)
                 select new { Order = o, OrderPosition = op, OrderPositionAdvertisement = opa, FirmAddress = opaAddress };

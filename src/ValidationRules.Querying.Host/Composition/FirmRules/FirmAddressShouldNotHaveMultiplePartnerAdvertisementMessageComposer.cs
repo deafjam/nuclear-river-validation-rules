@@ -13,8 +13,8 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.FirmRules
         public MessageComposerResult Compose(NamedReference[] references, IReadOnlyDictionary<string, string> extra)
         {
             var orderReference = references.Get<EntityTypeOrder>();
-            var firmReference = references.Get<EntityTypeFirm>();
             var addressReference = references.Get<EntityTypeFirmAddress>();
+            var firmReference = references.Get<EntityTypeFirm>();
             var periods = extra.ExtractPeriods();
 
             return new MessageComposerResult(
@@ -22,27 +22,25 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.FirmRules
                 Resources.FirmAddressShouldNotHaveMultiplePartnerAdvertisement,
                 addressReference,
                 firmReference,
-                string.Join(", ", periods.OrderBy(x => x).Select(x => x.ToString("MMMM yyyy"))));
+                periods);
         }
 
         public IEnumerable<Message> Distinct(IEnumerable<Message> messages)
             => messages
-                .GroupBy(x => new { x.OrderId, FirmAddressId = x.References.Get<EntityTypeFirmAddress>().Id, FirmId = x.References.Get<EntityTypeFirm>().Id },
-                         x => x)
-                .Select(group => Merge(group.Key.OrderId.Value, group.ToList()));
+                .GroupBy(x => new
+                    {
+                        x.OrderId,
+                        FirmAddressId = x.References.Get<EntityTypeFirmAddress>().Id,
+                        FirmId = x.References.Get<EntityTypeFirm>().Id
+                    })
+                .Select(group => Merge(group.ToList()));
 
-        private static Message Merge(long orderId, IReadOnlyCollection<Message> messages)
+        private static Message Merge(IReadOnlyCollection<Message> messages)
         {
-            var any = messages.First();
+            var first = messages.First();
+            first.Extra = messages.UnionPeriods(first.Extra); 
 
-            return new Message
-            {
-                OrderId = orderId,
-                MessageType = any.MessageType,
-                ProjectId = any.ProjectId,
-                References = any.References,
-                Extra = messages.StorePeriods(new Dictionary<string, string>())
-            };
+            return first;
         }
     }
 
@@ -54,8 +52,8 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.FirmRules
         public MessageComposerResult Compose(NamedReference[] references, IReadOnlyDictionary<string, string> extra)
         {
             var orderReference = references.Get<EntityTypeOrder>();
-            var firmReference = references.Get<EntityTypeFirm>();
             var addressReference = references.Get<EntityTypeFirmAddress>();
+            var firmReference = references.Get<EntityTypeFirm>();
             var periods = extra.ExtractPeriods();
 
             return new MessageComposerResult(
@@ -63,27 +61,25 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.FirmRules
                 Resources.FirmAddressMustNotHaveMultipleCallToAction,
                 addressReference,
                 firmReference,
-                string.Join(", ", periods.OrderBy(x => x).Select(x => x.ToString("MMMM yyyy"))));
+                periods);
         }
 
         public IEnumerable<Message> Distinct(IEnumerable<Message> messages)
             => messages
-                .GroupBy(x => new { x.OrderId, FirmAddressId = x.References.Get<EntityTypeFirmAddress>().Id, FirmId = x.References.Get<EntityTypeFirm>().Id },
-                         x => x)
-                .Select(group => Merge(group.Key.OrderId.Value, group.ToList()));
+                .GroupBy(x => new
+                    {
+                        x.OrderId,
+                        FirmAddressId = x.References.Get<EntityTypeFirmAddress>().Id,
+                        FirmId = x.References.Get<EntityTypeFirm>().Id,
+                    })
+                .Select(group => Merge(group.ToList()));
 
-        private static Message Merge(long orderId, IReadOnlyCollection<Message> messages)
+        private static Message Merge(IReadOnlyCollection<Message> messages)
         {
-            var any = messages.First();
+            var first = messages.First();
+            first.Extra = messages.UnionPeriods(first.Extra); 
 
-            return new Message
-            {
-                OrderId = orderId,
-                MessageType = any.MessageType,
-                ProjectId = any.ProjectId,
-                References = any.References,
-                Extra = messages.StorePeriods(new Dictionary<string, string>())
-            };
+            return first;
         }
     }
 }

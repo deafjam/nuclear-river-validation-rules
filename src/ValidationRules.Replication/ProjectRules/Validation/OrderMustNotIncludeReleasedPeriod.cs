@@ -26,7 +26,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
             var ruleResults =
                 from order in query.For<Order>().Where(x => x.IsDraft)
                 from project in query.For<Project.NextRelease>().Where(x => x.ProjectId == order.ProjectId)
-                where project.Date > order.Begin
+                where project.Date > order.Start
                 select new Version.ValidationResult
                     {
                         MessageParams =
@@ -34,7 +34,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
                                     new Reference<EntityTypeOrder>(order.Id))
                                 .ToXDocument(),
 
-                        PeriodStart = order.Begin,
+                        PeriodStart = order.Start,
                         PeriodEnd = order.End,
                         OrderId = order.Id,
                     };

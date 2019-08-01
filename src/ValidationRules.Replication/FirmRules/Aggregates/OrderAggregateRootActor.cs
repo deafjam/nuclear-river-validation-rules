@@ -65,8 +65,8 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                        {
                            Id = order.Id,
                            FirmId = order.FirmId,
-                           Begin = order.BeginDistribution,
-                           End = order.EndDistributionFact,
+                           Start = order.AgileDistributionStartDate,
+                           End = order.AgileDistributionEndFactDate,
                            Scope = Scope.Compute(order.WorkflowStep, order.Id),
                        };
 
@@ -95,7 +95,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             public IQueryable<Order.FirmOrganizationUnitMismatch> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from firm in _query.For<Facts::Firm>().Where(x => x.Id == order.FirmId)
-                   where order.DestOrganizationUnitId != firm.OrganizationUnitId
+                   where order.DestProjectId != firm.ProjectId
                    select new Order.FirmOrganizationUnitMismatch { OrderId = order.Id };
 
             public FindSpecification<Order.FirmOrganizationUnitMismatch> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
@@ -128,11 +128,11 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                 var addressPositions =
                     from position in _query.For<Facts::Position>().Where(x => x.CategoryCode == Facts::Position.CategoryCodePartnerAdvertisingAddress)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue).Where(x => x.PositionId == position.Id)
-                    from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                     from fa in _query.For<Facts::FirmAddress>().Where(x => x.Id == opa.FirmAddressId.Value)
                     select new Order.PartnerPosition
                     {
-                        OrderId = op.OrderId,
+                        OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId, 
                         DestinationFirmAddressId = opa.FirmAddressId.Value,
                         DestinationFirmId = fa.FirmId,
                     };
@@ -165,13 +165,12 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             public IQueryable<Order.PremiumPartnerPosition> GetSource()
             {
                 var ordersWithPremium =
-                    from position in _query.For<Facts::Position>().Where(x => Facts::Position.CategoryCodesCategoryCodePremiumPartnerAdvertising.Contains(x.CategoryCode))
+                    (from position in _query.For<Facts::Position>().Where(x => Facts::Position.CategoryCodesCategoryCodePremiumPartnerAdvertising.Contains(x.CategoryCode))
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.PositionId == position.Id)
-                    from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                     select new Order.PremiumPartnerPosition
                     {
-                        OrderId = op.OrderId
-                    };
+                        OrderId = opa.OrderId
+                    }).Distinct();
 
                 return ordersWithPremium;
             }
@@ -206,10 +205,9 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                                                        || x.CategoryCode == Facts::Position.CategoryCodeMediaContextBanner
                                                        || x.CategoryCode == Facts::Position.CategoryCodeContextBanner)
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.PositionId == position.Id)
-                    from op in _query.For<Facts::OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
                     select new Order.FmcgCutoutPosition
                         {
-                            OrderId = op.OrderId,
+                            OrderId = opa.OrderId,
                         };
 
                 var pricePositions =
@@ -224,7 +222,8 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                             OrderId = op.OrderId,
                         };
 
-                return opaPositions.Union(pricePositions);
+                var result = opaPositions.Union(pricePositions); 
+                return result;
             }
 
             public FindSpecification<Order.FmcgCutoutPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
@@ -249,28 +248,27 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.InvalidFirm> dataObjects) =>
                 dataObjects.Select(x => x.OrderId);
             
-            public IQueryable<Order.InvalidFirm> GetSource()
-                => from order in _query.For<Facts::Order>()
+            public IQueryable<Order.InvalidFirm> GetSource() =>
+                from order in _query.For<Facts::Order>()
+                from fInactive in _query.For<Facts::FirmInactive>().Where(x => x.Id == order.FirmId).DefaultIfEmpty()
+                
+                let state = fInactive == default ? InvalidFirmState.NotSet
+                   : fInactive.IsDeleted ? InvalidFirmState.Deleted
+                   : !fInactive.IsActive ? InvalidFirmState.ClosedForever
+                   : fInactive.IsClosedForAscertainment ? InvalidFirmState.ClosedForAscertainment
+                   : InvalidFirmState.NotSet
 
-                   from fInactive in _query.For<Facts::FirmInactive>().Where(x => x.Id == order.FirmId).DefaultIfEmpty()
-                   let state = fInactive == default ? InvalidFirmState.NotSet
-                       : fInactive.IsDeleted ? InvalidFirmState.Deleted
-                       : !fInactive.IsActive ? InvalidFirmState.ClosedForever
-                       : fInactive.IsClosedForAscertainment ? InvalidFirmState.ClosedForAscertainment
-                       : InvalidFirmState.NotSet
+                from fa in _query.For<Facts::FirmAddress>().Where(x => x.FirmId == order.FirmId).DefaultIfEmpty()
+                let state2 = fa == default ? InvalidFirmState.HasNoAddresses
+                            : InvalidFirmState.NotSet
 
-
-                   from fa in _query.For<Facts::FirmAddress>().Where(x => x.FirmId == order.FirmId).DefaultIfEmpty()
-                   let state2 = fa == default ? InvalidFirmState.HasNoAddresses
-                                : InvalidFirmState.NotSet
-
-                   where state != InvalidFirmState.NotSet || state2 != InvalidFirmState.NotSet
-                   select new Order.InvalidFirm
-                   {
-                       OrderId = order.Id,
-                       FirmId = order.FirmId,
-                       State = state != InvalidFirmState.NotSet ? state : state2,
-                   };
+                where state != InvalidFirmState.NotSet || state2 != InvalidFirmState.NotSet
+                select new Order.InvalidFirm
+                {
+                   OrderId = order.Id,
+                   FirmId = order.FirmId,
+                   State = state != InvalidFirmState.NotSet ? state : state2,
+                };
 
             public FindSpecification<Order.InvalidFirm> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

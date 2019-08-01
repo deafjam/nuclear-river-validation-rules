@@ -44,16 +44,16 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
                 dataObjects.Select(x => x.Id);
 
             public IQueryable<Order> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
-                   select new Order
-                   {
-                       Id = order.Id,
-                       BeginDistributionDate = order.BeginDistribution,
-                       EndDistributionDateFact = order.EndDistributionFact,
-                       ProjectId = project.Id,
-                       IsSelfAds = order.IsSelfAds,
-                   };
+                =>
+                    _query.For<Facts::Order>()
+                        .Select(order => new Order
+                        {
+                            Id = order.Id,
+                            Start = order.AgileDistributionStartDate,
+                            End = order.AgileDistributionEndFactDate,
+                            ProjectId = order.DestProjectId,
+                            IsSelfAds = order.IsSelfAds,
+                        });
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -81,16 +81,17 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
             
             public IQueryable<Order.OrderTheme> GetSource()
             {
-                var orderThemes = from order in _query.For<Facts::Order>()
-                                  from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
-                                  from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.ThemeId != null).Where(x => x.OrderPositionId == op.Id)
-                                  select new Order.OrderTheme
-                                  {
-                                      OrderId = order.Id,
-                                      ThemeId = opa.ThemeId.Value
-                                  };
+                var orderThemes =
+                    _query.For<Facts::OrderPositionAdvertisement>()
+                    .Where(x => x.ThemeId != null)
+                    .Select(x => new Order.OrderTheme
+                    {
+                        OrderId = x.OrderId,
+                        ThemeId = x.ThemeId.Value
+                    })
+                    .Distinct();
 
-                return orderThemes.Distinct();
+                return orderThemes;
             }
 
             public FindSpecification<Order.OrderTheme> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

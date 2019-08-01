@@ -13,14 +13,14 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.ProjectRules
         {
             var categoryReference = references.Get<EntityTypeCategory>();
             var projectReference = references.Get<EntityTypeProject>();
-            var begin = extra.ReadBeginDate();
+            var start = extra.ReadStartDate();
 
             return new MessageComposerResult(
                 projectReference,
                 Resources.ProjectMustContainCostPerClickMinimumRestriction,
                 categoryReference,
                 projectReference,
-                begin);
+                start);
         }
     }
 }

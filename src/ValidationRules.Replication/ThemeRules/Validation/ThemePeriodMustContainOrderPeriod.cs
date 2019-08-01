@@ -25,8 +25,8 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Validation
                 from order in query.For<Order>()
                 from orderTheme in query.For<Order.OrderTheme>().Where(x => x.OrderId == order.Id)
                 from theme in query.For<Theme>().Where(x => x.Id == orderTheme.ThemeId)
-                where theme.BeginDistribution > order.BeginDistributionDate || // тематика начинает размещаться позже заказа
-                      order.EndDistributionDateFact > theme.EndDistribution // тематика оканчивает размещаться раньше заказа
+                where theme.BeginDistribution > order.Start || // тематика начинает размещаться позже заказа
+                      order.End > theme.EndDistribution // тематика оканчивает размещаться раньше заказа
                 select new Version.ValidationResult
                     {
                         MessageParams =
@@ -35,8 +35,8 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Validation
                                     new Reference<EntityTypeTheme>(orderTheme.ThemeId))
                                 .ToXDocument(),
 
-                        PeriodStart = order.BeginDistributionDate,
-                        PeriodEnd = order.EndDistributionDateFact,
+                        PeriodStart = order.Start,
+                        PeriodEnd = order.End,
                         OrderId = order.Id,
                     };
 

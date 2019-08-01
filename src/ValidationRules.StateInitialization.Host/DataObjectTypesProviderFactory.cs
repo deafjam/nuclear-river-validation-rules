@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.StateInitialization.Core.Commands;
@@ -27,9 +26,9 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 {
     public sealed class DataObjectTypesProviderFactory : IDataObjectTypesProviderFactory
     {
-        public static IReadOnlyCollection<Type> AllSourcesFactTypes => ErmFactTypes.Union(AmsFactTypes).Union(RulesetFactTypes).ToList();
+        public static IReadOnlyCollection<Type> AllSourcesFactTypes => ErmFactTypes.Concat(AmsFactTypes).Concat(RulesetFactTypes).ToHashSet();
 
-        public static readonly Type[] ErmFactTypes =
+        internal static readonly Type[] ErmFactTypes =
             {
                 typeof(Facts::Account),
                 typeof(Facts::AccountDetail),
@@ -72,13 +71,13 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(Facts::UnlimitedOrder),
             };
 
-        public static readonly Type[] AmsFactTypes =
+        internal static readonly Type[] AmsFactTypes =
             {
                 typeof(Facts::Advertisement),
                 typeof(Facts::EntityName)
             };
 
-        public static readonly Type[] RulesetFactTypes =
+        internal static readonly Type[] RulesetFactTypes =
             {
                 typeof(Facts::Ruleset),
                 typeof(Facts::Ruleset.AssociatedRule),
@@ -124,9 +123,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(ConsistencyAggregates::Order.HasNoAnyLegalPersonProfile),
                 typeof(ConsistencyAggregates::Order.HasNoAnyPosition),
                 typeof(ConsistencyAggregates::Order.InactiveReference),
-                typeof(ConsistencyAggregates::Order.InvalidBeginDistributionDate),
                 typeof(ConsistencyAggregates::Order.InvalidBillsTotal),
-                typeof(ConsistencyAggregates::Order.InvalidEndDistributionDate),
                 typeof(ConsistencyAggregates::Order.LegalPersonProfileBargainExpired),
                 typeof(ConsistencyAggregates::Order.LegalPersonProfileWarrantyExpired),
                 typeof(ConsistencyAggregates::Order.MissingBargainScan),
@@ -164,14 +161,21 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(SystemAggregates::SystemStatus),
             };
 
-        public static readonly Type[] MessagesTypes =
+        
+        internal static readonly Type[] MessagesTypes =
             {
                 typeof(Messages::Version),
                 typeof(Messages::Version.ValidationResult),
-                typeof(Messages::Version.ErmState),
                 typeof(Messages::Version.AmsState),
                 typeof(Messages::Cache.ValidationResult),
             };
+
+        internal static readonly Type[] ErmMessagesTypes =
+        {
+            typeof(Messages::Version.ErmState),
+        };
+
+        public static readonly IReadOnlyCollection<Type> AllMessagesTypes = MessagesTypes.Concat(ErmMessagesTypes).ToList();
 
         public IDataObjectTypesProvider Create(ReplicateInBulkCommand command)
         {
@@ -197,6 +201,11 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             if (command.TargetStorageDescriptor.MappingSchema == Schema.Messages)
             {
+                if (command.SourceStorageDescriptor.MappingSchema == Schema.Erm)
+                {
+                    return new CommandRegardlessDataObjectTypesProvider(ErmMessagesTypes);    
+                }
+                
                 return new CommandRegardlessDataObjectTypesProvider(MessagesTypes);
             }
 

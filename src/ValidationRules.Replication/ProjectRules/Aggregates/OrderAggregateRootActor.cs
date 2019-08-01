@@ -40,7 +40,6 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                 => new RuleInvalidator
                     {
                         {MessageTypeCode.FirmAddressMustBeLocatedOnTheMap, GetRelatedOrders},
-                        {MessageTypeCode.OrderMustNotIncludeReleasedPeriod, GetRelatedOrders},
                         {MessageTypeCode.OrderMustUseCategoriesOnlyAvailableInProject, GetRelatedOrders},
                         {MessageTypeCode.OrderPositionCostPerClickMustBeSpecified, GetRelatedOrders},
                         {MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum, GetRelatedOrders},
@@ -53,13 +52,12 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>()
-                   from project in _query.For<Facts::Project>().Where(x => x.OrganizationUnitId == order.DestOrganizationUnitId)
                    select new Order
                        {
                            Id = order.Id,
-                           Begin = order.BeginDistribution,
-                           End = order.EndDistributionPlan, // ?
-                           ProjectId = project.Id,
+                           Start = order.AgileDistributionStartDate,
+                           End = order.AgileDistributionEndPlanDate, // ?
+                           ProjectId = order.DestProjectId,
                            IsDraft = order.WorkflowStep == Facts::Order.State.OnRegistration,
                        };
 
@@ -86,22 +84,28 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.AddressAdvertisementNonOnTheMap> GetSource()
-                => (from order in _query.For<Facts::Order>()
-                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
-                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue).Where(x => x.OrderPositionId == orderPosition.Id)
+            {
+                var result = 
+                    (
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue)
                     from position in _query.For<Facts::Position>()
-                                           .Where(x => !x.IsDeleted && !Facts::Position.CategoryCodesAllowNotLocatedOnTheMap.Contains(x.CategoryCode))
-                                           .Where(x => x.Id == opa.PositionId)
-                    from firmAddress in _query.For<Facts::FirmAddress>().Where(x => !x.IsLocatedOnTheMap).Where(x => x.Id == opa.FirmAddressId.Value)
+                        .Where(x => !x.IsDeleted &&
+                                    !Facts::Position.CategoryCodesAllowNotLocatedOnTheMap.Contains(x.CategoryCode))
+                        .Where(x => x.Id == opa.PositionId)
+                    from firmAddress in _query.For<Facts::FirmAddress>().Where(x => !x.IsLocatedOnTheMap)
+                        .Where(x => x.Id == opa.FirmAddressId.Value)
                     select new Order.AddressAdvertisementNonOnTheMap
-                        {
-                            OrderId = order.Id,
-                            OrderPositionId = orderPosition.Id,
-                            PositionId = opa.PositionId,
-                            AddressId = opa.FirmAddressId.Value,
-                        }).Distinct();
+                    {
+                        OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId,
+                        PositionId = opa.PositionId,
+                        AddressId = opa.FirmAddressId.Value,
+                    }).Distinct();
 
-        public FindSpecification<Order.AddressAdvertisementNonOnTheMap> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
+                return result;
+            }
+
+            public FindSpecification<Order.AddressAdvertisementNonOnTheMap> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
                 var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
                 return new FindSpecification<Order.AddressAdvertisementNonOnTheMap>(x => aggregateIds.Contains(x.OrderId));
@@ -126,21 +130,27 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.CategoryAdvertisement> GetSource()
-                => (from order in _query.For<Facts::Order>()
-                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
-                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
-                    from position in _query.For<Facts::Position>().Where(x => !x.IsDeleted).Where(x => x.Id == opa.PositionId)
-                    from category in _query.For<Facts::Category>().Where(x => x.IsActiveNotDeleted).Where(x => x.Id == opa.CategoryId.Value)
+            {
+                var result = 
+                    (from opa in _query.For<Facts::OrderPositionAdvertisement>()
+                    from position in _query.For<Facts::Position>().Where(x => !x.IsDeleted)
+                        .Where(x => x.Id == opa.PositionId)
+                    from category in _query.For<Facts::Category>().Where(x => x.IsActiveNotDeleted)
+                        .Where(x => x.Id == opa.CategoryId.Value)
                     where opa.CategoryId.HasValue
                     select new Order.CategoryAdvertisement
-                        {
-                            OrderId = order.Id,
-                            OrderPositionId = orderPosition.Id,
-                            PositionId = opa.PositionId,
-                            CategoryId = opa.CategoryId.Value,
-                            SalesModel = position.SalesModel,
-                            IsSalesModelRestrictionApplicable = category.L3Id != null && position.PositionsGroup != Facts::Position.PositionsGroupMedia
+                    {
+                        OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId,
+                        PositionId = opa.PositionId,
+                        CategoryId = opa.CategoryId.Value,
+                        SalesModel = position.SalesModel,
+                        IsSalesModelRestrictionApplicable =
+                            category.L3Id != null && position.PositionsGroup != Facts::Position.PositionsGroupMedia
                     }).Distinct();
+
+                return result;
+            }
 
             public FindSpecification<Order.CategoryAdvertisement> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -167,14 +177,13 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.CostPerClickAdvertisement> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
-                   from pricePosition in _query.For<Facts::PricePosition>().Where(x => x.Id == orderPosition.PricePositionId)
-                   from cpc in _query.For<Facts::OrderPositionCostPerClick>().Where(x => x.OrderPositionId == orderPosition.Id)
+                => from op in _query.For<Facts::OrderPosition>()
+                   from pricePosition in _query.For<Facts::PricePosition>().Where(x => x.Id == op.PricePositionId)
+                   from cpc in _query.For<Facts::OrderPositionCostPerClick>().Where(x => x.OrderPositionId == op.Id)
                    select new Order.CostPerClickAdvertisement
                        {
-                           OrderId = order.Id,
-                           OrderPositionId = orderPosition.Id,
+                           OrderId = op.OrderId,
+                           OrderPositionId = op.Id,
                            PositionId = pricePosition.PositionId,
                            CategoryId = cpc.CategoryId,
                            Bid = cpc.Amount,

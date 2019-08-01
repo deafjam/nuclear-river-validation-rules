@@ -47,8 +47,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var projectIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var orderIds =
-                from project in _query.For<Project>().Where(x => projectIds.Contains(x.Id))
-                from order in _query.For<Order>().Where(x => x.DestOrganizationUnitId == project.OrganizationUnitId)
+                from order in _query.For<Order>().Where(x => projectIds.Contains(x.DestProjectId))
                 select order.Id;
 
             return new[] {new RelatedDataObjectOutdatedEvent(typeof(Project), typeof(Order), orderIds.ToHashSet())};

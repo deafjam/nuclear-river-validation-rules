@@ -16,11 +16,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ActualPrice))
                 .Fact(
-                    new Facts::Order { Id = 1, DestOrganizationUnitId = 1, BeginDistribution = MonthStart(2) },
+                    new Facts::Order { Id = 1, DestProjectId = 123, AgileDistributionStartDate = MonthStart(2) },
                     new Facts::Price { Id = 1, ProjectId = 123, BeginDate = MonthStart(1) },
                     new Facts::Price { Id = 2, ProjectId = 123, BeginDate = MonthStart(2) },
-                    new Facts::Price { Id = 3, ProjectId = 123, BeginDate = MonthStart(3) },
-                    new Facts::Project { Id = 123, OrganizationUnitId = 1 })
+                    new Facts::Price { Id = 3, ProjectId = 123, BeginDate = MonthStart(3) })
                 .Aggregate(
                     new Order.ActualPrice { OrderId = 1, PriceId = 2 });
 
@@ -31,10 +30,10 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(OrderMustHaveActualPrice))
                 .Aggregate(
 
-                    new Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.ActualPrice { OrderId = 1, PriceId = 1 },
 
-                    new Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(2) },
+                    new Order { Id = 2, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.ActualPrice { OrderId = 2, PriceId = null }
                     )
                 .Message(

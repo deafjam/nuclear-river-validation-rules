@@ -45,7 +45,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm> dataObjects)
             {
                 var firmIds = dataObjects.Select(x => x.Id).ToHashSet();
-                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id);
+                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id).Distinct();
             }
 
             public IQueryable<Firm> GetSource()
@@ -76,16 +76,16 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Firm.CategoryPurchase> dataObjects)
             {
                 var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
-                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id);
+                return query.For<Order>().Where(x => firmIds.Contains(x.FirmId)).Select(x => x.Id).Distinct();
             }
 
             public IQueryable<Firm.CategoryPurchase> GetSource()
             {
                 var dates =
                     _query.For<Facts::Order>()
-                          .Select(x => new { Date = x.BeginDistribution, x.FirmId })
-                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.EndDistributionFact, x.FirmId }))
-                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.EndDistributionPlan, x.FirmId }));
+                          .Select(x => new { Date = x.AgileDistributionStartDate, x.FirmId })
+                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.AgileDistributionEndFactDate, x.FirmId }))
+                          .Union(_query.For<Facts::Order>().Select(x => new { Date = x.AgileDistributionEndPlanDate, x.FirmId }));
 
                 var cats =
                     _query.For<Facts::OrderItem>()
@@ -97,14 +97,14 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                     from order in _query.For<Facts::Order>()
                     from firm in _query.For<Facts::Firm>().Where(x => x.Id == order.FirmId)
                     from cat in cats.Where(x => x.OrderId == order.Id)
-                    from date in dates.Where(x => x.FirmId == order.FirmId && order.BeginDistribution <= x.Date && x.Date < order.EndDistributionPlan)
+                    from date in dates.Where(x => x.FirmId == order.FirmId && order.AgileDistributionStartDate <= x.Date && x.Date < order.AgileDistributionEndPlanDate)
                     from nextDate in dates.Where(x => x.FirmId == order.FirmId && x.Date > date.Date).OrderBy(x => x.Date).Take(1)
                     select new Firm.CategoryPurchase
                         {
                             FirmId = order.FirmId,
-                            Begin = date.Date,
+                            Start = date.Date,
                             End = nextDate.Date,
-                            Scope = order.EndDistributionFact > date.Date ? Scope.Compute(order.WorkflowStep, order.Id) : order.Id,
+                            Scope = order.AgileDistributionEndFactDate > date.Date ? Scope.Compute(order.WorkflowStep, order.Id) : order.Id,
                             CategoryId = cat.CategoryId,
                     };
 

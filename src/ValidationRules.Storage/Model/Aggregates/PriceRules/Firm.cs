@@ -6,7 +6,10 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
     {
         public long Id { get; set; }
 
-        public class FirmPosition : IBindingObject
+        // бизнес смысл: период времени размещения фирмы
+        // на котором могут возникнуть ошибки сопутствия\запрещения
+        // ключевой объект для проверок
+        public sealed class FirmPosition : IBindingObject
         {
             public long FirmId { get; set; }
             public long OrderId { get; set; }
@@ -18,11 +21,11 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
             public long? Category3Id { get; set; }
             public long? FirmAddressId { get; set; }
             public long Scope { get; set; }
-            public DateTime Begin { get; set; }
+            public DateTime Start { get; set; }
             public DateTime End { get; set; }
         }
 
-        public class FirmAssociatedPosition
+        public sealed class FirmAssociatedPosition
         {
             public long FirmId { get; set; }
             public long OrderId { get; set; }
@@ -33,7 +36,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
             public int BindingType { get; set; }
         }
 
-        public class FirmDeniedPosition
+        public sealed class FirmDeniedPosition
         {
             public long FirmId { get; set; }
             public long OrderId { get; set; }

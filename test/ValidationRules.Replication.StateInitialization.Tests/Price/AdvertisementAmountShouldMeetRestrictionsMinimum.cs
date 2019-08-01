@@ -22,28 +22,28 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         CategoryCode = 1, Min = 2, Max = 9 },
 
                     // Одобренный заказ на два месяца, поскольку он всего один - будет предупреждение, единичное для этого заказа и массовое.
-                    new Order.AmountControlledPosition { OrderId = 1, CategoryCode = 1, ProjectId = 13 },
-                    new Order.OrderPeriod { OrderId = 1, Begin = MonthStart(1), End = MonthStart(2), Scope = 0 },
-                    new Order.OrderPeriod { OrderId = 1, Begin = MonthStart(2), End = MonthStart(3), Scope = 0 },
+                    new Order.AmountControlledPosition { OrderId = 1, CategoryCode = 1 },
+                    new Order.OrderPeriod { OrderId = 1, ProjectId = 13, Start = MonthStart(1), End = MonthStart(2), Scope = 0 },
+                    new Order.OrderPeriod { OrderId = 1, ProjectId = 13, Start = MonthStart(2), End = MonthStart(3), Scope = 0 },
 
                     // Заказ на утверждении - второй в этом периоде, единичное предупреждение для него не возникает.
-                    new Order.AmountControlledPosition { OrderId = 2, CategoryCode = 1, ProjectId = 13 },
-                    new Order.OrderPeriod { OrderId = 2, Begin = MonthStart(1), End = MonthStart(2), Scope = -1 },
+                    new Order.AmountControlledPosition { OrderId = 2, CategoryCode = 1 },
+                    new Order.OrderPeriod { OrderId = 2, ProjectId = 13, Start = MonthStart(1), End = MonthStart(2), Scope = -1 },
 
                     // Черновик - второй в этом периоде, единичное предупреждение для него не возникает.
-                    new Order.AmountControlledPosition { OrderId = 3, CategoryCode = 1, ProjectId = 13 },
-                    new Order.OrderPeriod { OrderId = 3, Begin = MonthStart(2), End = MonthStart(3), Scope = 4 },
+                    new Order.AmountControlledPosition { OrderId = 3, CategoryCode = 1 },
+                    new Order.OrderPeriod { OrderId = 3, ProjectId = 13, Start = MonthStart(2), End = MonthStart(3), Scope = 4 },
 
-                    new Period { Start = MonthStart(1), End = MonthStart(2) },
-                    new Period { Start = MonthStart(2), End = MonthStart(3) },
-                    new Period { Start = MonthStart(3), End = DateTime.MaxValue })
+                    new Period { ProjectId = 13, Start = MonthStart(1), End = MonthStart(2) },
+                    new Period { ProjectId = 13, Start = MonthStart(2), End = MonthStart(3) },
+                    new Period { ProjectId = 13, Start = MonthStart(3), End = DateTime.MaxValue })
                 .Message(
                     // Единичные предупреждения - только для опубликованного заказа (он не "видит" остальные)
                     new Messages::Version.ValidationResult
                         {
                             MessageParams =
                                         new MessageParams(
-                                            new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 1 }, { "begin", MonthStart(1) }, { "end", MonthStart(2) } },
+                                            new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 1 }, { "start", MonthStart(1) }, { "end", MonthStart(2) } },
                                             new Reference<EntityTypeOrder>(1),
                                             new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions,
@@ -55,7 +55,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                                  new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 1 }, { "begin", MonthStart(2) }, { "end", MonthStart(3) } },
+                                                  new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 1 }, { "start", MonthStart(2) }, { "end", MonthStart(3) } },
                                                   new Reference<EntityTypeOrder>(1),
                                                   new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions,
@@ -69,7 +69,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                                  new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 1 }, { "begin", MonthStart(1) }, { "end", MonthStart(2) } },
+                                                  new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 1 }, { "start", MonthStart(1) }, { "end", MonthStart(2) } },
                                                   new Reference<EntityTypeProject>(13),
                                                   new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass,
@@ -81,7 +81,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                                  new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 1 }, { "begin", MonthStart(2) }, { "end", MonthStart(3) } },
+                                                  new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 1 }, { "start", MonthStart(2) }, { "end", MonthStart(3) } },
                                                   new Reference<EntityTypeProject>(13),
                                                   new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass,
@@ -93,7 +93,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         {
                             MessageParams =
                                 new MessageParams(
-                                                  new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 0 }, { "begin", MonthStart(3) }, { "end", DateTime.MaxValue } },
+                                                  new Dictionary<string, object> { { "min", 2 }, { "max", 9 }, { "count", 0 }, { "start", MonthStart(3) }, { "end", DateTime.MaxValue } },
                                                   new Reference<EntityTypeProject>(13),
                                                   new Reference<EntityTypeNomenclatureCategory>(1)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass,

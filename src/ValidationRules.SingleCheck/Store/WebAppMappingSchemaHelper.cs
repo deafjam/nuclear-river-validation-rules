@@ -31,12 +31,15 @@ namespace NuClear.ValidationRules.SingleCheck.Store
             // нет смысла считать EntityName в single-check режиме
             // он всё равно не будет использоваться
             typeof(Storage.Model.Facts.EntityName),
+
+            // понятие версии не определено для single-check режима
+            typeof(Storage.Model.Messages.Version),
+            typeof(Storage.Model.Messages.Version.ErmState),
         };
 
         // нет смысла создавать эти таблицы в схеме WebApp, т.к. выборка делается inmemory
         private static readonly Type[] ExcludeDataObjectTypes =
         {
-            typeof(Storage.Model.Messages.Version),
             typeof(Storage.Model.Messages.Version.ValidationResult)
         };
 

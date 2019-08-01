@@ -22,6 +22,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Transports
         private const string EventHappenedTime = "time";
         private const string RuleCode = "rule";
         private const string OrderId = "orderId";
+        private const string ProjectId = "projectId";
         
         private const string Date = "date";
 
@@ -67,10 +68,11 @@ namespace NuClear.ValidationRules.OperationsProcessing.Transports
                     relatedDataObjectIds.Select(x => (long)x).ToList());
             }
 
-            if (IsEventOfType(@event, typeof(PeriodKeyOutdatedEvent)))
+            if (IsEventOfType(@event, typeof(PeriodKeysOutdatedEvent)))
             {
                 var relatedDataObjectIds = @event.Elements(RelatedDataObjectId);
-                return new PeriodKeyOutdatedEvent(relatedDataObjectIds.Select(x => new PeriodKey((DateTime)x)).ToList());
+                return new PeriodKeysOutdatedEvent(relatedDataObjectIds
+                    .Select(x => new PeriodKey((long)x.Attribute(ProjectId), (DateTime)x)).ToList());
             }
 
             if (IsEventOfType(@event, typeof(AmsStateIncrementedEvent)))
@@ -139,8 +141,8 @@ namespace NuClear.ValidationRules.OperationsProcessing.Transports
                         new XElement(RelatedDataObjectType, outdatedEvent.RelatedDataObjectType.FullName),
                     }.Concat(outdatedEvent.RelatedDataObjectIds.Select(x => new XElement(RelatedDataObjectId, x))).ToArray());
 
-                case PeriodKeyOutdatedEvent periodKeyOutdatedEvent:
-                    return CreateRecord(periodKeyOutdatedEvent, periodKeyOutdatedEvent.PeriodKeys.Select(x => new XElement(RelatedDataObjectId, x.Date)).ToArray());
+                case PeriodKeysOutdatedEvent periodKeysOutdatedEvent:
+                    return CreateRecord(periodKeysOutdatedEvent, periodKeysOutdatedEvent.PeriodKeys.Select(x => new XElement(RelatedDataObjectId, new XAttribute(ProjectId, x.ProjectId), x.Date)).ToArray());
 
                 case AmsStateIncrementedEvent amsStateIncrementedEvent:
                     return CreateRecord(amsStateIncrementedEvent,

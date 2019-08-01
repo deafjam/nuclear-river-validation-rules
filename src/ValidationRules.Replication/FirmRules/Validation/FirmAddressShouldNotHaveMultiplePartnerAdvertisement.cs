@@ -27,18 +27,18 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                 from order in query.For<Order>()
                 from fa in query.For<Order.PartnerPosition>().Where(x => x.OrderId == order.Id)
                 from premium in query.For<Order.PremiumPartnerPosition>().Where(x => x.OrderId == order.Id).DefaultIfEmpty()
-                select new { fa.OrderId, FirmAddressId = fa.DestinationFirmAddressId, FirmId = fa.DestinationFirmId, IsPremium = premium != null, order.Scope, order.Begin, order.End };
+                select new { fa.OrderId, fa.OrderPositionId, FirmAddressId = fa.DestinationFirmAddressId, FirmId = fa.DestinationFirmId, IsPremium = premium != null, order.Scope, order.Start, order.End };
 
             var multipleSales =
                 from sale in sales
-                from conflict in sales.Where(x => x.FirmAddressId == sale.FirmAddressId && x.OrderId != sale.OrderId)
-                where sale.Begin < conflict.End && conflict.Begin < sale.End && Scope.CanSee(sale.Scope, conflict.Scope)
+                from conflict in sales.Where(x => x.FirmAddressId == sale.FirmAddressId && x.OrderPositionId != sale.OrderPositionId)
+                where sale.Start < conflict.End && conflict.Start < sale.End && Scope.CanSee(sale.Scope, conflict.Scope)
                     && (!sale.IsPremium || !conflict.IsPremium) // Если обе премиум-позиции - то это уже ответственность другой проверки
-                select new { sale.OrderId, sale.FirmAddressId, sale.FirmId, Begin = sale.Begin < conflict.Begin ? conflict.Begin : sale.Begin, End = sale.End < conflict.End ? sale.End : conflict.End };
+                select new { sale.OrderId, sale.FirmAddressId, sale.FirmId, Start = sale.Start < conflict.Start ? conflict.Start : sale.Start, End = sale.End < conflict.End ? sale.End : conflict.End };
 
             multipleSales =
                 multipleSales.GroupBy(x => new { x.OrderId, x.FirmAddressId, x.FirmId })
-                             .Select(x => new { x.Key.OrderId, x.Key.FirmAddressId, x.Key.FirmId, Begin = x.Min(y => y.Begin), End = x.Max(y => y.End) });
+                             .Select(x => new { x.Key.OrderId, x.Key.FirmAddressId, x.Key.FirmId, Start = x.Min(y => y.Start), End = x.Max(y => y.End) });
 
             var messages =
                 from sale in multipleSales
@@ -46,13 +46,13 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                 {
                     MessageParams =
                             new MessageParams(
-                                    new Dictionary<string, object> { { "begin", sale.Begin }, { "end", sale.End } },
+                                    new Dictionary<string, object> { { "start", sale.Start }, { "end", sale.End } },
                                     new Reference<EntityTypeOrder>(sale.OrderId),
                                     new Reference<EntityTypeFirm>(sale.FirmId),
                                     new Reference<EntityTypeFirmAddress>(sale.FirmAddressId))
                                 .ToXDocument(),
 
-                    PeriodStart = sale.Begin,
+                    PeriodStart = sale.Start,
                     PeriodEnd = sale.End,
                     OrderId = sale.OrderId,
                 };

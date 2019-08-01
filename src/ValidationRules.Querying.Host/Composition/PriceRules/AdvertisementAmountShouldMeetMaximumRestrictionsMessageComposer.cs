@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NuClear.ValidationRules.Querying.Host.Properties;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
 using NuClear.ValidationRules.Storage.Model.Messages;
@@ -15,9 +16,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
             var nomenclatureCategoryReference = references.Get<EntityTypeNomenclatureCategory>();
 
             var dto = extra.ReadAdvertisementCountMessage();
-            var period = dto.Begin.AddMonths(1) == dto.End
-                ? dto.Begin.ToString("MMMM")
-                : $"{dto.Begin:MMMM} - {dto.End:MMMM}";
+            var period = extra.ExtractPeriod();
 
             return new MessageComposerResult(
                 orderReference,
@@ -30,6 +29,18 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
         }
 
         public IEnumerable<Message> Distinct(IEnumerable<Message> messages)
-            => messages;
+            => messages.GroupBy(x => new
+            {
+                x.OrderId,
+                NomenclatureCategoryId = x.References.Get<EntityTypeNomenclatureCategory>().Id,
+            }).Select(x => Merge(x.ToList()));
+
+        private static Message Merge(IReadOnlyCollection<Message> messages)
+        {
+            var first = messages.First();
+            first.Extra = messages.UnionPeriod(first.Extra);
+
+            return first;
+        }
     }
 }

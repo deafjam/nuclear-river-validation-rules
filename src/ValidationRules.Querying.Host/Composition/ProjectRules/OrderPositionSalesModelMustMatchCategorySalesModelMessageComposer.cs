@@ -15,7 +15,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.ProjectRules
             var orderPositionReference = references.Get<EntityTypeOrderPosition>();
             var categoryReference = references.Get<EntityTypeCategory>();
             var projectReference = references.Get<EntityTypeProject>();
-            var begin = extra.ReadBeginDate();
+            var start = extra.ReadStartDate();
 
             return new MessageComposerResult(
                 orderReference,
@@ -23,7 +23,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.ProjectRules
                 orderPositionReference,
                 categoryReference,
                 projectReference,
-                begin);
+                start);
         }
     }
 }

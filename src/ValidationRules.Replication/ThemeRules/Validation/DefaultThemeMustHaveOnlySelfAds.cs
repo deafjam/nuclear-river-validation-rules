@@ -35,8 +35,8 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Validation
                                     new Reference<EntityTypeTheme>(orderTheme.ThemeId))
                                 .ToXDocument(),
 
-                        PeriodStart = order.BeginDistributionDate,
-                        PeriodEnd = order.EndDistributionDateFact,
+                        PeriodStart = order.Start,
+                        PeriodEnd = order.End,
                         OrderId = order.Id,
                     };
 

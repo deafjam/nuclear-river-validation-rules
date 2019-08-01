@@ -44,7 +44,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
             var firmOrders = query.GetTable<Order>()
                 .Where(x => firmIds.Contains(x.FirmId))
                 .Where(x => new[] { 2, 4, 5 }.Contains(x.WorkflowStepId))
-                .Where(x => x.BeginDistributionDate < order.EndDistributionDatePlan && order.BeginDistributionDate < x.EndDistributionDatePlan)
+                .Where(x => x.AgileDistributionStartDate < order.AgileDistributionEndPlanDate && order.AgileDistributionStartDate < x.AgileDistributionEndPlanDate)
                 .Execute();
             store.AddRange(firmOrders);
 
@@ -61,7 +61,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
                 from o in query.GetTable<Order>()
                     .Where(x => new[] { 2, 4, 5 }.Contains(x.WorkflowStepId)) // заказы "на оформлении" не нужны - проверяемый их в любом лучае не видит
                     .Where(x => x.IsActive && !x.IsDeleted)
-                    .Where(x => x.BeginDistributionDate < order.EndDistributionDatePlan && order.BeginDistributionDate < x.EndDistributionDatePlan && x.DestOrganizationUnitId == order.DestOrganizationUnitId)
+                    .Where(x => x.AgileDistributionStartDate < order.AgileDistributionEndPlanDate && order.AgileDistributionStartDate < x.AgileDistributionEndPlanDate && x.DestOrganizationUnitId == order.DestOrganizationUnitId)
                     .Where(x => x.Id == op.OrderId)
                 select new { Order = o, OrderPosition = op, OrderPositionAdvertisement = opa };
 

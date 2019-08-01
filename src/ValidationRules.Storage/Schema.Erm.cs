@@ -10,6 +10,7 @@ namespace NuClear.ValidationRules.Storage
         private const string BillingSchema = "Billing";
         private const string BusinessDirectorySchema = "BusinessDirectory";
         private const string OrderValidationSchema = "OrderValidation";
+        private const string SharedSchema = "Shared";
 
         public static MappingSchema Erm { get; } =
             new MappingSchema(nameof(Erm), new SqlServerMappingSchema())
@@ -19,6 +20,7 @@ namespace NuClear.ValidationRules.Storage
 
         private static FluentMappingBuilder RegisterErm(this FluentMappingBuilder builder)
         {
+            // метаданные .HasPrimaryKey используются потом при сравнении сущностей (IdenititComparer) 
             builder.Entity<Account>().HasSchemaName(BillingSchema).HasTableName("Accounts").HasPrimaryKey(x => x.Id);
             builder.Entity<AccountDetail>().HasSchemaName(BillingSchema).HasTableName("AccountDetails").HasPrimaryKey(x => x.Id);
             builder.Entity<BranchOffice>().HasSchemaName(BillingSchema).HasTableName("BranchOffices").HasPrimaryKey(x => x.Id);
@@ -29,7 +31,7 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<Order>().HasSchemaName(BillingSchema).HasTableName("Orders").HasPrimaryKey(x => x.Id);
             builder.Entity<OrderPosition>().HasSchemaName(BillingSchema).HasTableName("OrderPositions").HasPrimaryKey(x => x.Id);
             builder.Entity<OrderPositionCostPerClick>().HasSchemaName(BillingSchema).HasTableName("OrderPositionCostPerClicks");
-            builder.Entity<OrderPositionAdvertisement>().HasSchemaName(BillingSchema).HasTableName("OrderPositionAdvertisement").HasPrimaryKey(x => x.Id);
+            builder.Entity<OrderPositionAdvertisement>().HasSchemaName(BillingSchema).HasTableName("OrderPositionAdvertisement");
             builder.Entity<Price>().HasSchemaName(BillingSchema).HasTableName("Prices").HasPrimaryKey(x => x.Id);
             builder.Entity<PricePosition>().HasSchemaName(BillingSchema).HasTableName("PricePositions").HasPrimaryKey(x => x.Id);
             builder.Entity<Project>().HasSchemaName(BillingSchema).HasTableName("Projects").HasPrimaryKey(x => x.Id);
@@ -52,11 +54,11 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<LegalPerson>().HasSchemaName(BillingSchema).HasTableName("LegalPersons").HasPrimaryKey(x => x.Id);
             builder.Entity<LegalPersonProfile>().HasSchemaName(BillingSchema).HasTableName("LegalPersonProfiles").HasPrimaryKey(x => x.Id);
             builder.Entity<OrderFile>().HasSchemaName(BillingSchema).HasTableName("OrderFiles").HasPrimaryKey(x => x.Id);
-            
+           
             builder.Entity<UnlimitedOrder>().HasSchemaName(OrderValidationSchema).HasTableName("UnlimitedOrders");
-            
             builder.Entity<NomenclatureCategory>().HasSchemaName(BillingSchema).HasTableName("NomenclatureCategories");
-
+            builder.Entity<UseCaseTrackingEvent>().HasSchemaName(SharedSchema).HasTableName("UseCaseTrackingEvents");
+            
             return builder;
         }
     }

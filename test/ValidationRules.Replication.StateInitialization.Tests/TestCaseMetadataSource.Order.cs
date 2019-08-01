@@ -22,8 +22,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 new Facts::OrderPosition { Id = 20, OrderId = 2, PricePositionId = 20 },
                 new Facts::OrderPosition { Id = 21, OrderId = 2, PricePositionId = 21 },
                 new Facts::PricePosition { Id = 20, PriceId = 3, PositionId = 20, IsActiveNotDeleted = true },
-                new Facts::PricePosition { Id = 21, PriceId = 3, PositionId = 20, IsActiveNotDeleted = true },
-                new Facts::Position {Id = 20, }
+                new Facts::PricePosition { Id = 21, PriceId = 3, PositionId = 21, IsActiveNotDeleted = true },
+                new Facts::Position {Id = 20},
+                new Facts::Position {Id = 21}
                 )
             .Aggregate(
                 // 1 order, 1 price position
@@ -32,7 +33,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
                 // 1 order, 2 price positions
                 new Order.OrderPricePosition { OrderId = 2, OrderPositionId = 20, PositionId = 20, PriceId = 3, IsActive = true },
-                new Order.OrderPricePosition { OrderId = 2, OrderPositionId = 21, PositionId = 20, PriceId = 3, IsActive = true },
+                new Order.OrderPricePosition { OrderId = 2, OrderPositionId = 21, PositionId = 21, PriceId = 3, IsActive = true },
                 new Order { Id = 2 });
 
         // ReSharper disable once UnusedMember.Local
@@ -42,13 +43,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Fact(
                     new Facts::Order { Id = 1 },
                     new Facts::OrderPosition { Id = 1, OrderId = 1, PricePositionId = 1 },
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, PositionId = 1 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, PositionId = 1 },
                     new Facts::PricePosition { Id = 1, PriceId = 1, PositionId = 1, IsActiveNotDeleted = true },
-                    new Facts::Position { Id = 1, IsControlledByAmount = true, CategoryCode = 10 },
-                    new Facts::Project { Id = 123 })
+                    new Facts::Position { Id = 1, IsControlledByAmount = true, CategoryCode = 10 })
                 .Aggregate(
                     new Order { Id = 1 },
-                    new Order.AmountControlledPosition { OrderId = 1, OrderPositionId = 1, CategoryCode = 10, ProjectId = 123 },
+                    new Order.AmountControlledPosition { OrderId = 1, OrderPositionId = 1, CategoryCode = 10 },
                     new Order.OrderPricePosition { OrderId = 1, OrderPositionId = 1, PositionId = 1, PriceId = 1, IsActive = true });
     }
 }

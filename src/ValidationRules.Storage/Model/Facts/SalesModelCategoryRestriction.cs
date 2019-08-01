@@ -6,7 +6,7 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
     {
         public long ProjectId { get; set; }
         public long CategoryId { get; set; }
-        public DateTime Begin { get; set; }
+        public DateTime Start { get; set; }
         public int SalesModel { get; set; }
     }
 }

@@ -26,12 +26,15 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
 
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
+            var firmPositions = query.For<Firm.FirmPosition>();
+            var firmDeniedPositions = query.For<Firm.FirmDeniedPosition>();
+            
             var errors =
-                query.For<Firm.FirmPosition>()
-                     .SelectMany(Specs.Join.Aggs.DeniedPositions(query.For<Firm.FirmDeniedPosition>(), query.For<Firm.FirmPosition>()), (position, denied) => new { position, denied })
+                     firmPositions
+                     .SelectMany(Specs.Join.Aggs.DeniedPositions(firmDeniedPositions, firmPositions), (position, denied) => new { position, denied })
                      .Where(dto => dto.denied.IsBindingObjectConditionSatisfied)
                      .Where(dto => dto.position.OrderPositionId != dto.denied.Position.OrderPositionId)
-                     .Select(dto => new { position = dto.position, denied = dto.denied.Position });
+                     .Select(dto => new { dto.position, denied = dto.denied.Position });
 
             var messages =
                 from conflict in errors
@@ -50,7 +53,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                                         new Reference<EntityTypePosition>(conflict.denied.ItemPositionId)))
                                 .ToXDocument(),
 
-                    PeriodStart = conflict.position.Begin,
+                    PeriodStart = conflict.position.Start,
                     PeriodEnd = conflict.position.End,
                     OrderId = conflict.position.OrderId,
                 };

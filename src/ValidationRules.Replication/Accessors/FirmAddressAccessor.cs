@@ -20,8 +20,8 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public FirmAddressAccessor(IQuery query) => _query = query;
 
-        public IQueryable<FirmAddress> GetSource() => _query
-            .For(Specs.Find.Erm.FirmAddress.Active)
+        public IQueryable<FirmAddress> GetSource() =>
+            _query.For(Specs.Find.Erm.FirmAddress.Active)
             .Select(x => new FirmAddress
             {
                 Id = x.Id,
@@ -52,14 +52,17 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var firmIds = dataObjects.Select(x => x.FirmId).ToHashSet();
             
             var orderIdsByFirm =
-                from order in _query.For<Order>().Where(x => firmIds.Contains(x.FirmId))
-                select order.Id;
+                _query.For<Order>()
+                .Where(x => firmIds.Contains(x.FirmId))
+                .Select(x => x.Id)
+                .Distinct();
 
             var firmAddressIds = dataObjects.Select(x => x.Id).ToHashSet();
             var orderIdsByUsage =
-                from opa in _query.For<OrderPositionAdvertisement>().Where(x => firmAddressIds.Contains(x.FirmAddressId.Value))
-                from op in _query.For<OrderPosition>().Where(x => x.Id == opa.OrderPositionId)
-                select op.OrderId;
+                _query.For<OrderPositionAdvertisement>()
+                .Where(x => firmAddressIds.Contains(x.FirmAddressId.Value))
+                .Select(x => x.OrderId)
+                .Distinct();
             
             var orderIds = orderIdsByFirm.Concat(orderIdsByUsage);
             

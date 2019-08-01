@@ -23,7 +23,7 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Validation
         {
             var ruleResults =
                 from order in query.For<Order>()
-                where !order.AccountId.HasValue
+                where order.AccountId == null
                 select new Version.ValidationResult
                     {
                         MessageParams =
@@ -31,8 +31,8 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Validation
                                     new Reference<EntityTypeOrder>(order.Id))
                                 .ToXDocument(),
 
-                        PeriodStart = order.BeginDistributionDate,
-                        PeriodEnd = order.EndDistributionDate,
+                        PeriodStart = order.Start,
+                        PeriodEnd = order.End,
                         OrderId = order.Id,
                     };
 

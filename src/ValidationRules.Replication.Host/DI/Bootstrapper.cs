@@ -112,6 +112,7 @@ using ValidationRules.Hosting.Common;
 using ValidationRules.Hosting.Common.Settings.Kafka;
 
 using Schema = NuClear.ValidationRules.Storage.Schema;
+using Version = NuClear.ValidationRules.Storage.Model.Messages.Version;
 
 namespace NuClear.ValidationRules.Replication.Host.DI
 {
@@ -394,12 +395,17 @@ namespace NuClear.ValidationRules.Replication.Host.DI
                    .RegisterAccessor<ThemeCategory, ThemeCategoryAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<ThemeOrganizationUnit, ThemeOrganizationUnitAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<UnlimitedOrder, UnlimitedOrderAccessor>(entryPointSpecificLifetimeManagerFactory)
+                   
+                   // TODO: все эти сущности обладают Id, поэтому вместо тупого delete all\insert all
+                   // тут можно использовать интеллектуальный SyncDataObjectsActor, но проблема в том что нужен рефакторинг
+                   // т.к. SyncDataObjectsActor не может работать с объектами, прилетевшими чисто по шине
                    .RegisterMemoryAccessor<Advertisement, AdvertisementAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterMemoryAccessor<Ruleset, RulesetAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterMemoryAccessor<Ruleset.AssociatedRule, RulesetAssociatedRuleAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterMemoryAccessor<Ruleset.DeniedRule, RulesetDeniedRuleAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterMemoryAccessor<Ruleset.QuantitativeRule, RulesetQuantitativeRuleAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterMemoryAccessor<Ruleset.RulesetProject, RulesetProjectAccessor>(entryPointSpecificLifetimeManagerFactory)
+                   .RegisterMemoryAccessor<Version.ErmState, Messages.ErmStateAccessor>(entryPointSpecificLifetimeManagerFactory)
 
                    .RegisterType<IDataObjectsActorFactoryRefactored, UnityDataObjectsActorFactory>(entryPointSpecificLifetimeManagerFactory())
                    .RegisterType<IAggregateActorFactory, UnityAggregateActorFactory>(entryPointSpecificLifetimeManagerFactory());

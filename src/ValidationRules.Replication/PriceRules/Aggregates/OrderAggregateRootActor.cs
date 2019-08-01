@@ -45,27 +45,19 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public OrderAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.OrderPositionCorrespontToInactivePosition, GetRelatedOrders},
-                        {MessageTypeCode.OrderPositionMayCorrespontToActualPrice, GetRelatedOrders},
-                        {MessageTypeCode.OrderPositionMustCorrespontToActualPrice, GetRelatedOrders},
-                        {MessageTypeCode.OrderMustHaveActualPrice, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
             
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order> dataObjects) =>
-                dataObjects.Select(x => x.Id);
-
             public IQueryable<Order> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   select new Order
-                       {
-                           Id = order.Id,
-                           BeginDistribution = order.BeginDistribution,
-                           EndDistributionPlan = order.EndDistributionPlan,
-                           IsCommitted = Facts::Order.State.Committed.Contains(order.WorkflowStep)
-                       };
+                =>
+                    _query.For<Facts::Order>()
+                        .Select(x => new Order
+                        {
+                            Id = x.Id,
+                            FirmId = x.FirmId,
+                            Start = x.AgileDistributionStartDate,
+                            End = x.AgileDistributionEndPlanDate,
+                            IsCommitted = Facts::Order.State.Committed.Contains(x.WorkflowStep)
+                        });
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -86,7 +78,6 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         {MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited, GetRelatedOrders},
                         {MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited, GetRelatedOrders},
                         {MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions, GetRelatedOrders},
-                        {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions, GetRelatedOrders},
                         {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass, GetRelatedOrders},
                         {MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions, GetRelatedOrders}
                     };
@@ -102,19 +93,21 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         .Select(x => new Order.OrderPeriod
                         {
                             OrderId = x.Id,
-                            Begin = x.BeginDistribution,
-                            End = x.EndDistributionFact,
+                            ProjectId = x.DestProjectId,
+                            Start = x.AgileDistributionStartDate,
+                            End = x.AgileDistributionEndFactDate,
                             Scope = Scope.Compute(x.WorkflowStep, x.Id)
                         });
 
             public IQueryable<Order.OrderPeriod> GetSource2()
                 => _query.For<Facts::Order>()
-                        .Where(x => x.EndDistributionFact != x.EndDistributionPlan)
+                        .Where(x => x.AgileDistributionEndFactDate != x.AgileDistributionEndPlanDate)
                         .Select(x => new Order.OrderPeriod
                         {
                             OrderId = x.Id,
-                            Begin = x.EndDistributionFact,
-                            End = x.EndDistributionPlan,
+                            ProjectId = x.DestProjectId,
+                            Start = x.AgileDistributionEndFactDate,
+                            End = x.AgileDistributionEndPlanDate,
                             Scope = x.Id
                         });
 
@@ -131,21 +124,11 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public OrderPricePositionAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.OrderPositionCorrespontToInactivePosition, GetRelatedOrders},
-                        {MessageTypeCode.OrderPositionMayCorrespontToActualPrice, GetRelatedOrders},
-                        {MessageTypeCode.OrderPositionMustCorrespontToActualPrice, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
 
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.OrderPricePosition> dataObjects) =>
-                dataObjects.Select(x => x.OrderId);
-            
             public IQueryable<Order.OrderPricePosition> GetSource()
                 =>
-                    from order in _query.For<Facts::Order>() // Чтобы сократить число позиций
-                    join orderPosition in _query.For<Facts::OrderPosition>() on order.Id equals orderPosition.OrderId
+                    from orderPosition in _query.For<Facts::OrderPosition>()
                     join pricePosition in _query.For<Facts::PricePosition>() on orderPosition.PricePositionId equals pricePosition.Id
                     select new Order.OrderPricePosition
                        {
@@ -183,16 +166,11 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             public IQueryable<Order.OrderCategoryPosition> GetSource()
             {
                 var result =
-                    from order in _query.For<Facts::Order>()
-                    join orderPosition in _query.For<Facts::OrderPosition>() on order.Id equals orderPosition.OrderId
-                    join opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue) on orderPosition.Id equals opa.OrderPositionId
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue)
                     join position in _query.For<Facts::Position>().Where(x => x.CategoryCode == Facts::Position.CategoryCodeAdvertisementInCategory) on opa.PositionId equals position.Id // join для того, чтобы отбросить неподходящие продажи
-                    join project in _query.For<Facts::Project>() on order.DestOrganizationUnitId equals project.OrganizationUnitId
                     select new Order.OrderCategoryPosition
                     {
-                        OrderId = order.Id,
-                        ProjectId = project.Id,
-                        OrderPositionAdvertisementId = opa.Id,
+                        OrderId = opa.OrderId,
                         CategoryId = opa.CategoryId.Value,
                     };
 
@@ -224,17 +202,13 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             public IQueryable<Order.OrderThemePosition> GetSource()
             {
                 var result =
-                    from order in _query.For<Facts::Order>()
-                    join orderPosition in _query.For<Facts::OrderPosition>() on order.Id equals orderPosition.OrderId
-                    join opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.ThemeId.HasValue) on orderPosition.Id equals opa.OrderPositionId
-                    join project in _query.For<Facts::Project>() on order.DestOrganizationUnitId equals project.OrganizationUnitId
-                    select new Order.OrderThemePosition
+                    _query.For<Facts::OrderPositionAdvertisement>()
+                    .Where(x => x.ThemeId.HasValue)
+                    .Select(x => new Order.OrderThemePosition
                     {
-                            OrderId = order.Id,
-                            ProjectId = project.Id,
-                            OrderPositionAdvertisementId = opa.Id,
-                            ThemeId = opa.ThemeId.Value,
-                        };
+                        OrderId = x.OrderId,
+                        ThemeId = x.ThemeId.Value,
+                    });
 
                 return result;
             }
@@ -256,7 +230,6 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 => new RuleInvalidator
                     {
                         {MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions, GetRelatedOrders},
-                        {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictions, GetRelatedOrders},
                         {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass, GetRelatedOrders},
                     };
 
@@ -264,18 +237,20 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.AmountControlledPosition> GetSource()
-                =>  from order in _query.For<Facts::Order>() // Чтобы сократить число позиций
-                    join orderPosition in _query.For<Facts::OrderPosition>() on order.Id equals orderPosition.OrderId
-                    join adv in _query.For<Facts::OrderPositionAdvertisement>() on orderPosition.Id equals adv.OrderPositionId
-                    join position in _query.For<Facts::Position>().Where(x => !x.IsDeleted && x.IsControlledByAmount) on adv.PositionId equals position.Id
-                    join project in _query.For<Facts::Project>() on order.DestOrganizationUnitId equals project.OrganizationUnitId
+            {
+                var result =
+                    from opa in _query.For<Facts::OrderPositionAdvertisement>()
+                    join position in _query.For<Facts::Position>().Where(x => !x.IsDeleted && x.IsControlledByAmount) on
+                        opa.PositionId equals position.Id
                     select new Order.AmountControlledPosition
                     {
-                        OrderId = orderPosition.OrderId,
-                        OrderPositionId = orderPosition.Id,
+                        OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId,
                         CategoryCode = position.CategoryCode,
-                        ProjectId = project.Id,
                     };
+                
+                return result;
+            }
 
             public FindSpecification<Order.AmountControlledPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -300,17 +275,24 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.EntranceControlledPosition> GetSource()
-                => (from order in _query.For<Facts::Order>()
-                    join orderPosition in _query.For<Facts::OrderPosition>() on order.Id equals orderPosition.OrderId
-                    join adv in _query.For<Facts::OrderPositionAdvertisement>() on orderPosition.Id equals adv.OrderPositionId
-                    join position in _query.For<Facts::Position>().Where(x => Facts.Position.CategoryCodesPoiAddressCheck.Contains(x.CategoryCode)) on adv.PositionId equals position.Id
-                    join address in _query.For<Facts::FirmAddress>().Where(x => x.EntranceCode != null) on adv.FirmAddressId equals address.Id
+            {
+                var result = 
+                    (from opa in _query.For<Facts::OrderPositionAdvertisement>()
+                    join position in _query.For<Facts::Position>().Where(x =>
+                            Facts.Position.CategoryCodesPoiAddressCheck.Contains(x.CategoryCode)) on opa.PositionId
+                        equals
+                        position.Id
+                    join address in _query.For<Facts::FirmAddress>().Where(x => x.EntranceCode != null) on opa
+                        .FirmAddressId equals address.Id
                     select new Order.EntranceControlledPosition
                     {
-                        OrderId = orderPosition.OrderId,
+                        OrderId = opa.OrderId,
                         EntranceCode = address.EntranceCode.Value,
                         FirmAddressId = address.Id,
                     }).Distinct();
+
+                return result;
+            }
 
             public FindSpecification<Order.EntranceControlledPosition> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -325,25 +307,15 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public ActualPriceAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.OrderPositionMayCorrespontToActualPrice, GetRelatedOrders},
-                        {MessageTypeCode.OrderPositionMustCorrespontToActualPrice, GetRelatedOrders},
-                        {MessageTypeCode.OrderMustHaveActualPrice, GetRelatedOrders},
-                    };
+            private static IRuleInvalidator CreateInvalidator() => new RuleInvalidator ();
 
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.ActualPrice> dataObjects) =>
-                dataObjects.Select(x => x.OrderId);
-            
             public IQueryable<Order.ActualPrice> GetSource()
             {
                 var result =
                     from order in _query.For<Facts::Order>()
-                    join destProject in _query.For<Facts::Project>() on order.DestOrganizationUnitId equals destProject.OrganizationUnitId
                     let price = _query.For<Facts::Price>()
-                                .Where(x => x.ProjectId == destProject.Id)
-                                .Where(x => x.BeginDate <= order.BeginDistribution)
+                                .Where(x => x.ProjectId == order.DestProjectId)
+                                .Where(x => x.BeginDate <= order.AgileDistributionStartDate)
                                 .OrderByDescending(x => x.BeginDate)
                                 .FirstOrDefault()
                     select new Order.ActualPrice

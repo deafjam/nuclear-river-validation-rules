@@ -29,7 +29,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.FirmRules
             // todo: Пересмотреть основной объект привязки, сделать фирму.
             // Сейчас объект привязки - заказ, но Erm при массовой проверке выводит только первое сообщение для фирмы (даже если заказов несколько).
             // Этот distinct сделан только для соответствия поведению erm, от него можно будет отказаться.
-            return messages.GroupBy(x => x.References.Get<EntityTypeFirm>().Id, x => x).Select(x => x.OrderBy(y => y.OrderId).First());
+            return messages.GroupBy(x => x.References.Get<EntityTypeFirm>().Id).Select(x => x.OrderBy(y => y.OrderId).First());
         }
 
         private static string GetFormat(InvalidFirmState firmState)

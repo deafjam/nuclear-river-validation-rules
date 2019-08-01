@@ -19,19 +19,19 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(OrderPositionCostPerClickMustBeSpecifiedPositive))
                 .Fact(
                     // Заказ с позицией с покликовой моделью, но без ставки - есть ошибка
-                    new Facts::Order { Id = 1, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(3) },
-                    new Facts::OrderPosition { Id = 1, OrderId = 1, PricePositionId = 5 },
-                    new Facts::OrderPositionAdvertisement { Id = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::OrderPosition { Id = 1, OrderId = 2, PricePositionId = 5 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
 
                     // Заказ с позицией с обычной моделью - нет ошибки
-                    new Facts::Order { Id = 2, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(3) },
+                    new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
                     new Facts::OrderPosition { Id = 2, OrderId = 2, PricePositionId = 5 },
-                    new Facts::OrderPositionAdvertisement { Id = 2, OrderPositionId = 2, CategoryId = 12, PositionId = 5 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 2, OrderPositionId = 2, CategoryId = 12, PositionId = 5 },
 
                     // Заказ с позицией с покликовой моделью, со ставкой - нет ошибки
-                    new Facts::Order { Id = 3, BeginDistribution = MonthStart(1), EndDistributionPlan = MonthStart(3) },
+                    new Facts::Order { Id = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
                     new Facts::OrderPosition { Id = 3, OrderId = 3, PricePositionId = 4 },
-                    new Facts::OrderPositionAdvertisement { Id = 3, OrderPositionId = 3, CategoryId = 12, PositionId = 4 },
+                    new Facts::OrderPositionAdvertisement {OrderId = 3, OrderPositionId = 3, CategoryId = 12, PositionId = 4 },
                     new Facts::OrderPositionCostPerClick { OrderPositionId = 3, CategoryId = 12 },
 
                     new Facts::PricePosition { Id = 4, PositionId = 4 },
@@ -40,24 +40,24 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Position { Id = 5, SalesModel = 11 },
                     new Facts::Category { Id = 12, IsActiveNotDeleted = true },
                     new Facts::CategoryOrganizationUnit { CategoryId = 12 },
-                    new Facts::Project(),
-                    new Facts::CostPerClickCategoryRestriction { Begin = MonthStart(1), CategoryId = 12 })
+                    new Facts::CostPerClickCategoryRestriction { Start = MonthStart(1), CategoryId = 12 },
+                    new Facts::Project())
                 .Aggregate(
                     // Заказ с позицией с покликовой моделью, но без ставки - есть ошибка
-                    new Order { Id = 1, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(3) },
                     new Order.CategoryAdvertisement { OrderId = 1, OrderPositionId = 1, PositionId = 4, CategoryId = 12, SalesModel = 12 },
 
                     // Заказ с позицией с обычной моделью - нет ошибки
-                    new Order { Id = 2, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order { Id = 2, Start = MonthStart(1), End = MonthStart(3) },
                     new Order.CategoryAdvertisement { OrderId = 2, OrderPositionId = 2, PositionId = 5, CategoryId = 12, SalesModel = 11 },
 
                     // Заказ с позицией с покликовой моделью, со ставкой - нет ошибки
-                    new Order { Id = 3, Begin = MonthStart(1), End = MonthStart(3) },
+                    new Order { Id = 3, Start = MonthStart(1), End = MonthStart(3) },
                     new Order.CategoryAdvertisement { OrderId = 3, OrderPositionId = 3, PositionId = 4, CategoryId = 12, SalesModel = 12 },
                     new Order.CostPerClickAdvertisement { OrderId = 3, OrderPositionId = 3, PositionId = 4, CategoryId = 12 },
 
                     new Project.Category { CategoryId = 12 },
-                    new Project.CostPerClickRestriction { CategoryId = 12, Begin = MonthStart(1), End = DateTime.MaxValue })
+                    new Project.CostPerClickRestriction { CategoryId = 12, Start = MonthStart(1), End = DateTime.MaxValue })
                 .Message(
                     new Messages::Version.ValidationResult
                         {
