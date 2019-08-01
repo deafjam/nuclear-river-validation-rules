@@ -56,7 +56,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             private readonly IQuery _query;
 
             public  FirmPositionAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(query, x))) => _query = query;
-            
+
             private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Firm.FirmPosition>, IEnumerable<long>> func)
                 => new RuleInvalidator
                     {
