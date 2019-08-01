@@ -45,9 +45,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<ThemeCategory> dataObjects)
         {
-            var themeIds = dataObjects.Select(x => x.ThemeId);
+            var themeIds = dataObjects.Select(x => x.ThemeId).ToHashSet();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(ThemeCategory), typeof(Theme), themeIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(ThemeCategory), typeof(Theme), themeIds)};
         }
     }
 }

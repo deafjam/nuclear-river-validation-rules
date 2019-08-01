@@ -49,7 +49,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
             var orderIds =
                 from account in _query.For<Account>().Where(x => accountIds.Contains(x.Id))
-                from order in _query.For<Order>().Where(x =>
+                from order in _query.For<OrderConsistency>().Where(x =>
                     x.LegalPersonId == account.LegalPersonId &&
                     x.BranchOfficeOrganizationUnitId == account.BranchOfficeOrganizationUnitId)
                 select order.Id;

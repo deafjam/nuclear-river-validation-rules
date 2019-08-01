@@ -81,7 +81,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var orderAndFirmIds =
                 (from opa in _query.For<OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue && categoryIds.Contains(x.CategoryId.Value))
                 from order in _query.For<Order>().Where(x => x.Id == opa.OrderId)
-                select new { OrderId = order.Id, order.FirmId }).Distinct().ToList();
+                select new { OrderId = order.Id, order.FirmId })
+                .Distinct()
+                .ToList();
 
             var themeIds = _query.For<ThemeCategory>()
                 .Where(x => categoryIds.Contains(x.CategoryId))

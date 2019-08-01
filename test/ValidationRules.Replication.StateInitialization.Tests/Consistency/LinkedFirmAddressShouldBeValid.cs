@@ -21,7 +21,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(LinkedFirmAddressShouldBeValid))
                 .Fact(
-                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), FirmId = 1 },
+                    new Facts::OrderConsistency { Id = 1, FirmId = 1 },
 
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },
                     new Facts::FirmAddress { Id = 1, FirmId = 2 },
@@ -51,7 +51,6 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Position { Id = 2, CategoryCode = Position.CategoryCodesPoiAddressCheck.First() },
                     new Facts::Position { Id = 3, CategoryCode = Position.CategoryCodePartnerAdvertisingAddress, BindingObjectType = Position.BindingObjectTypeAddressMultiple })
                 .Aggregate(
-                    new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.InvalidFirmAddress { OrderId = 1, FirmAddressId = 1, OrderPositionId = 1, PositionId = 1, State = InvalidFirmAddressState.NotBelongToFirm },
                     new Order.InvalidFirmAddress { OrderId = 1, FirmAddressId = 2, OrderPositionId = 1, PositionId = 1, State = InvalidFirmAddressState.Deleted },
                     new Order.InvalidFirmAddress { OrderId = 1, FirmAddressId = 3, OrderPositionId = 1, PositionId = 1, State = InvalidFirmAddressState.NotActive },

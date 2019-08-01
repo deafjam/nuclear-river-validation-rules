@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.Replication.Core.Specs;
@@ -11,7 +10,6 @@ using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Events;
 using NuClear.ValidationRules.Replication.Specifications;
 using NuClear.ValidationRules.Storage.Model.Facts;
-
 using Erm = NuClear.ValidationRules.Storage.Model.Erm;
 
 namespace NuClear.ValidationRules.Replication.Accessors
@@ -30,24 +28,12 @@ namespace NuClear.ValidationRules.Replication.Accessors
             {
                 Id = order.Id,
                 FirmId = order.FirmId,
-
+                ProjectId = project.Id,
+                
                 AgileDistributionStartDate = order.AgileDistributionStartDate,
                 AgileDistributionEndPlanDate = order.AgileDistributionEndPlanDate + OneSecond,
                 AgileDistributionEndFactDate = order.AgileDistributionEndFactDate + OneSecond,
 
-                SignupDate = order.SignupDate,
-
-                DestProjectId = project.Id,
-
-                LegalPersonId = order.LegalPersonId,
-                LegalPersonProfileId = order.LegalPersonProfileId,
-                BranchOfficeOrganizationUnitId = order.BranchOfficeOrganizationUnitId,
-                BargainId = order.BargainId,
-                DealId = order.DealId,
-
-                WorkflowStep = order.WorkflowStepId,
-                IsFreeOfCharge = Erm::Order.FreeOfChargeTypes.Contains(order.OrderType),
-                HasCurrency = order.CurrencyId != null,
                 IsSelfAds = order.OrderType == Erm::Order.OrderTypeSelfAds,
                 IsSelfSale = order.SaleType == Erm::Order.OrderSaleTypeSelfSale,
             };
@@ -58,43 +44,47 @@ namespace NuClear.ValidationRules.Replication.Accessors
         }
 
         public IReadOnlyCollection<IEvent> HandleCreates(IReadOnlyCollection<Order> dataObjects)
-            => new [] {new DataObjectCreatedEvent(typeof(Order), dataObjects.Select(x => x.Id))} ;
+            => new[] {new DataObjectCreatedEvent(typeof(Order), dataObjects.Select(x => x.Id))};
 
         public IReadOnlyCollection<IEvent> HandleUpdates(IReadOnlyCollection<Order> dataObjects)
-            => new [] {new DataObjectUpdatedEvent(typeof(Order), dataObjects.Select(x => x.Id))} ;
+            => new[] {new DataObjectUpdatedEvent(typeof(Order), dataObjects.Select(x => x.Id))};
 
         public IReadOnlyCollection<IEvent> HandleDeletes(IReadOnlyCollection<Order> dataObjects)
-            => new [] {new DataObjectDeletedEvent(typeof(Order), dataObjects.Select(x => x.Id))} ;
+            => new[] {new DataObjectDeletedEvent(typeof(Order), dataObjects.Select(x => x.Id))};
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<Order> dataObjects)
         {
             var orderIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var accountIds =
-                from order in _query.For<Order>().Where(x => orderIds.Contains(x.Id))
-                from account in _query.For<Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
-                select account.Id;
+                (from order in _query.For<OrderConsistency>().Where(x => orderIds.Contains(x.Id))
+                    from account in _query.For<Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
+                    select account.Id)
+                .Distinct()
+                .ToList();
 
             var orderDtos = _query.For<Order>().Where(x => orderIds.Contains(x.Id)).Select(x => new
             {
                 x.FirmId,
-                x.DestProjectId,
+                x.ProjectId,
                 x.AgileDistributionStartDate,
                 x.AgileDistributionEndFactDate,
                 x.AgileDistributionEndPlanDate,
             }).ToList();
 
-            var firmIds = orderDtos.Select(x => x.FirmId);
+            var firmIds = orderDtos.Select(x => x.FirmId).ToHashSet();
+            
             var periodKeys =
-                  orderDtos.Select(x => new PeriodKey(x.DestProjectId, x.AgileDistributionStartDate))
-                  .Concat(orderDtos.Select(x => new PeriodKey(x.DestProjectId, x.AgileDistributionEndFactDate)))
-                  .Concat(orderDtos.Select(x => new PeriodKey(x.DestProjectId, x.AgileDistributionEndPlanDate)));
+                  orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionStartDate))
+                  .Concat(orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionEndFactDate)))
+                  .Concat(orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionEndPlanDate)))
+                  .ToHashSet();
 
             return new IEvent[]
             {
-                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Account), accountIds.ToHashSet()),
-                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Firm), firmIds.ToHashSet()),
-                new PeriodKeysOutdatedEvent(periodKeys.ToHashSet()), 
+                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Account), accountIds),
+                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Firm), firmIds),
+                new PeriodKeysOutdatedEvent(periodKeys), 
             };
         }
     }

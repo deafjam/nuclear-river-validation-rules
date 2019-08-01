@@ -18,9 +18,12 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustHaveActiveDealAggregate))
                 .Fact(
-                    new Facts::Order { Id = 1, DealId = null, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), HasCurrency = true },
-                    new Facts::Order { Id = 2, DealId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), HasCurrency = true },
-                    new Facts::Order { Id = 3, DealId = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), HasCurrency = true },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2)},
+                    new Facts::OrderConsistency { Id = 1, DealId = null, HasCurrency = true },
+                    new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2)},
+                    new Facts::OrderConsistency { Id = 2, DealId = 2, HasCurrency = true },
+                    new Facts::Order { Id = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2)},
+                    new Facts::OrderConsistency { Id = 3, DealId = 3, HasCurrency = true },
 
                     new Facts::Deal { Id = 3 })
                 .Aggregate(

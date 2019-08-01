@@ -88,6 +88,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
                 var principals =
                     from order in _query.For<Facts::Order>()
+                    from orderWorkflow in _query.For<Facts::OrderWorkflow>().Where(x => x.Id == order.Id)
                     from orderItem in _query.For<Facts::OrderItem>().Where(x => order.Id == x.OrderId)
                     from firmPeriod in firmPeriods.Where(x => x.FirmId == order.FirmId && x.Start >= order.AgileDistributionStartDate && x.End <= order.AgileDistributionEndPlanDate)
                     from category in _query.For<Facts::Category>().Where(x => x.Id == orderItem.CategoryId).DefaultIfEmpty()
@@ -104,7 +105,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                             Category3Id = category.L3Id,
                             FirmAddressId = orderItem.FirmAddressId,
 
-                            Scope = order.AgileDistributionEndFactDate > firmPeriod.Start ? Scope.Compute(order.WorkflowStep, order.Id) : order.Id,
+                            Scope = order.AgileDistributionEndFactDate > firmPeriod.Start ? Scope.Compute(orderWorkflow.Step, order.Id) : order.Id,
                             Start = firmPeriod.Start,
                             End = firmPeriod.End,
                         };
@@ -147,7 +148,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 var evaluatedRestrictions =
                     from order in _query.For<Facts::Order>()
                     from item in _query.For<Facts::OrderItem>().Where(x => x.OrderId == order.Id)
-                    from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == order.DestProjectId)
+                    from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == order.ProjectId)
                     from rule in _query.For<Facts::Ruleset.AssociatedRule>().Where(x => x.AssociatedNomenclatureId == item.ItemPositionId)
                     where _query.For(Specs.Find.Facts.Ruleset)
                                 .Any(x => x.Id == rule.RulesetId
@@ -200,7 +201,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 var evaluatedRestrictions =
                     from order in _query.For<Facts::Order>()
                     from item in _query.For<Facts::OrderItem>().Where(x => x.OrderId == order.Id)
-                    from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == order.DestProjectId)
+                    from rp in _query.For<Facts::Ruleset.RulesetProject>().Where(x => x.ProjectId == order.ProjectId)
                     from ruleset in _query.For(Specs.Find.Facts.Ruleset)
                                           .Where(x => x.Id == rp.RulesetId
                                                       && x.BeginDate <= order.AgileDistributionStartDate

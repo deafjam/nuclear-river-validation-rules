@@ -49,15 +49,16 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             
             public IQueryable<Order> GetSource()
                 =>
-                    _query.For<Facts::Order>()
-                        .Select(x => new Order
-                        {
-                            Id = x.Id,
-                            FirmId = x.FirmId,
-                            Start = x.AgileDistributionStartDate,
-                            End = x.AgileDistributionEndPlanDate,
-                            IsCommitted = Facts::Order.State.Committed.Contains(x.WorkflowStep)
-                        });
+                    from order in _query.For<Facts::Order>()
+                    from orderWorkflow in _query.For<Facts::OrderWorkflow>().Where(x => x.Id == order.Id)
+                    select new Order
+                    {
+                        Id = order.Id,
+                        FirmId = order.FirmId,
+                        Start = order.AgileDistributionStartDate,
+                        End = order.AgileDistributionEndPlanDate,
+                        IsCommitted = Facts::OrderWorkflowStep.Committed.Contains(orderWorkflow.Step)
+                    };
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -89,15 +90,16 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 => GetSource1().Concat(GetSource2());
 
             public IQueryable<Order.OrderPeriod> GetSource1()
-                => _query.For<Facts::Order>()
-                        .Select(x => new Order.OrderPeriod
-                        {
-                            OrderId = x.Id,
-                            ProjectId = x.DestProjectId,
-                            Start = x.AgileDistributionStartDate,
-                            End = x.AgileDistributionEndFactDate,
-                            Scope = Scope.Compute(x.WorkflowStep, x.Id)
-                        });
+                => from order in _query.For<Facts::Order>()
+                    from orderWorkflow in _query.For<Facts::OrderWorkflow>().Where(x => x.Id == order.Id)
+                    select new Order.OrderPeriod
+                    {
+                        OrderId = order.Id,
+                        ProjectId = order.ProjectId,
+                        Start = order.AgileDistributionStartDate,
+                        End = order.AgileDistributionEndFactDate,
+                        Scope = Scope.Compute(orderWorkflow.Step, order.Id)
+                    };
 
             public IQueryable<Order.OrderPeriod> GetSource2()
                 => _query.For<Facts::Order>()
@@ -105,7 +107,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                         .Select(x => new Order.OrderPeriod
                         {
                             OrderId = x.Id,
-                            ProjectId = x.DestProjectId,
+                            ProjectId = x.ProjectId,
                             Start = x.AgileDistributionEndFactDate,
                             End = x.AgileDistributionEndPlanDate,
                             Scope = x.Id
@@ -314,7 +316,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                 var result =
                     from order in _query.For<Facts::Order>()
                     let price = _query.For<Facts::Price>()
-                                .Where(x => x.ProjectId == order.DestProjectId)
+                                .Where(x => x.ProjectId == order.ProjectId)
                                 .Where(x => x.BeginDate <= order.AgileDistributionStartDate)
                                 .OrderByDescending(x => x.BeginDate)
                                 .FirstOrDefault()

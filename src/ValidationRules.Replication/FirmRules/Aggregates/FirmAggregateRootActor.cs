@@ -95,6 +95,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
 
                 var result =
                     from order in _query.For<Facts::Order>()
+                    from orderWorkflow in _query.For<Facts::OrderWorkflow>().Where(x => x.Id == order.Id)
                     from firm in _query.For<Facts::Firm>().Where(x => x.Id == order.FirmId)
                     from cat in cats.Where(x => x.OrderId == order.Id)
                     from date in dates.Where(x => x.FirmId == order.FirmId && order.AgileDistributionStartDate <= x.Date && x.Date < order.AgileDistributionEndPlanDate)
@@ -104,7 +105,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                             FirmId = order.FirmId,
                             Start = date.Date,
                             End = nextDate.Date,
-                            Scope = order.AgileDistributionEndFactDate > date.Date ? Scope.Compute(order.WorkflowStep, order.Id) : order.Id,
+                            Scope = order.AgileDistributionEndFactDate > date.Date ? Scope.Compute(orderWorkflow.Step, order.Id) : order.Id,
                             CategoryId = cat.CategoryId,
                     };
 

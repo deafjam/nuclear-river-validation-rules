@@ -17,17 +17,21 @@ namespace NuClear.ValidationRules.OperationsProcessing
 {
     internal static partial class EntityTypeMap
     {
-        private static readonly Dictionary<Tuple<Type, Type>, IReadOnlyCollection<Type>> AggregateEventMapping =
-            new Dictionary<Tuple<Type, Type>, IList<Type>>()
+        private static readonly Dictionary<(Type, Type), IReadOnlyCollection<Type>> AggregateEventMapping =
+            new Dictionary<(Type, Type), IList<Type>>()
                 // AccountAggregates
                 .Aggregate<AccountAggregates::Account>(
                     x => x.Match<Facts::Account>()
                           .DependOn<Facts::Order>()
+                          .DependOn<Facts::OrderConsistency>()
+                          .DependOn<Facts::OrderWorkflow>()
                           .DependOn<Facts::AccountDetail>()
                           .DependOn<Facts::OrderPosition>()
                           .DependOn<Facts::ReleaseWithdrawal>())
                 .Aggregate<AccountAggregates::Order>(
                     x => x.Match<Facts::Order>()
+                          .DependOn<Facts::OrderConsistency>()
+                          .DependOn<Facts::OrderWorkflow>()
                           .DependOn<Facts::UnlimitedOrder>()
                           .DependOn<Facts::Account>())
 
@@ -44,6 +48,7 @@ namespace NuClear.ValidationRules.OperationsProcessing
                 // ConsistencyAggregates
                 .Aggregate<ConsistencyAggregates::Order>(
                     x => x.Match<Facts::Order>()
+                          .DependOn<Facts::OrderConsistency>()
                           .DependOn<Facts::Bargain>()
                           .DependOn<Facts::BargainScanFile>()
                           .DependOn<Facts::Bill>()
@@ -66,9 +71,11 @@ namespace NuClear.ValidationRules.OperationsProcessing
                 .Aggregate<FirmAggregates::Firm>(
                     x => x.Match<Facts::Firm>()
                           .DependOn<Facts::Order>()
+                          .DependOn<Facts::OrderWorkflow>()
                           .DependOn<Facts::OrderItem>())
                 .Aggregate<FirmAggregates::Order>(
                     x => x.Match<Facts::Order>()
+                          .DependOn<Facts::OrderWorkflow>()
                           .DependOn<Facts::Firm>()
                           .DependOn<Facts::FirmInactive>()
                           .DependOn<Facts::FirmAddress>()
@@ -79,6 +86,7 @@ namespace NuClear.ValidationRules.OperationsProcessing
                 // PriceAggregates
                 .Aggregate<PriceAggregates::Order>(
                     x => x.Match<Facts::Order>()
+                          .DependOn<Facts::OrderWorkflow>()
                           .DependOn<Facts::OrderPosition>()
                           .DependOn<Facts::OrderPositionAdvertisement>()
                           .DependOn<Facts::FirmAddress>()
@@ -87,11 +95,11 @@ namespace NuClear.ValidationRules.OperationsProcessing
                           .DependOn<Facts::PricePosition>())
                 .Aggregate<PriceAggregates::Period>(
                     x => x.Match<object>()
-                          .DependOn<Facts::Order>()
-                          .DependOn<Facts::Price>())
+                          .DependOn<Facts::Order>())
                 .Aggregate<PriceAggregates::Firm>(
                     x => x.Match<Facts::Firm>()
                           .DependOn<Facts::Order>()
+                          .DependOn<Facts::OrderWorkflow>()
                           .DependOn<Facts::OrderItem>()
                           .DependOn<Facts::Category>()
                           .DependOn<Facts::Ruleset>())
@@ -102,6 +110,7 @@ namespace NuClear.ValidationRules.OperationsProcessing
                 // ProjectAggregates
                 .Aggregate<ProjectAggregates::Order>(
                     x => x.Match<Facts::Order>()
+                          .DependOn<Facts::OrderWorkflow>()
                           .DependOn<Facts::Category>()
                           .DependOn<Facts::FirmAddress>()
                           .DependOn<Facts::OrderPosition>()
@@ -138,28 +147,28 @@ namespace NuClear.ValidationRules.OperationsProcessing
 
         public static bool TryGetAggregateTypes(Type factType, out IReadOnlyCollection<Type> aggregateTypes)
         {
-            var key = Tuple.Create(factType, factType);
+            var key = (factType, factType);
             return AggregateEventMapping.TryGetValue(key, out aggregateTypes);
         }
 
         public static bool TryGetRelatedAggregateTypes(Type factType, Type relatedFactType, out IReadOnlyCollection<Type> aggregateTypes)
         {
-            var key = Tuple.Create(factType, relatedFactType);
+            var key = (factType, relatedFactType);
             return AggregateEventMapping.TryGetValue(key, out aggregateTypes);
         }
 
-        private static Dictionary<Tuple<Type, Type>, IList<Type>> Aggregate<TAggregate>(
-            this Dictionary<Tuple<Type, Type>, IList<Type>> dictionary,
+        private static Dictionary<(Type, Type), IList<Type>> Aggregate<TAggregate>(
+            this Dictionary<(Type, Type), IList<Type>> dictionary,
             Action<FluentDictionaryBuilder> action)
         {
             var builder = new FluentDictionaryBuilder();
             action.Invoke(builder);
 
-            dictionary.Append(Tuple.Create(builder.Matched, builder.Matched), typeof(TAggregate));
+            dictionary.Append((builder.Matched, builder.Matched), typeof(TAggregate));
             foreach (var depended in builder.Depended)
             {
                 // Первым идёт тип, от которого зависит агрегат. Он же тип, accessor которого сгенерировал событие.
-                dictionary.Append(Tuple.Create(depended, builder.Matched), typeof(TAggregate));
+                dictionary.Append((depended, builder.Matched), typeof(TAggregate));
             }
 
             return dictionary;

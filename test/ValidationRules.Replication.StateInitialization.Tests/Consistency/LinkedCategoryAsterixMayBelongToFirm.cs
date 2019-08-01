@@ -17,7 +17,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(InvalidCategory))
                 .Fact(
-                    new Facts::Order { Id = 1, FirmId = 1 },
+                    new Facts::OrderConsistency { Id = 1, FirmId = 1 },
                     new Facts::Position { Id = 1 },
                     new Facts::Position { Id = 2, BindingObjectType = Facts::Position.BindingObjectTypeCategoryMultipleAsterisk },
                     new Facts::FirmAddress { Id = 1, FirmId = 1 },

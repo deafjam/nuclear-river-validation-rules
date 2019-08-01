@@ -52,13 +52,14 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             
             public IQueryable<Order> GetSource()
                 => from order in _query.For<Facts::Order>()
-                   select new Order
+                    from orderWorkflow in _query.For<Facts::OrderWorkflow>().Where(x => x.Id == order.Id)
+                    select new Order
                        {
                            Id = order.Id,
                            Start = order.AgileDistributionStartDate,
                            End = order.AgileDistributionEndPlanDate, // ?
-                           ProjectId = order.DestProjectId,
-                           IsDraft = order.WorkflowStep == Facts::Order.State.OnRegistration,
+                           ProjectId = order.ProjectId,
+                           IsDraft = orderWorkflow.Step == Facts::OrderWorkflowStep.OnRegistration,
                        };
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

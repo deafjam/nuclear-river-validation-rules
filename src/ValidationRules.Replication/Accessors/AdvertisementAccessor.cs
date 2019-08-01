@@ -47,9 +47,10 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var orderIds = _query.For<OrderPositionAdvertisement>()
                 .Where(x => advertisementIds.Contains(x.AdvertisementId.Value))
                 .Select(x => x.OrderId)
-                .Distinct();
+                .Distinct()
+                .ToList();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(Advertisement), typeof(Order), orderIds.ToList())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(Advertisement), typeof(Order), orderIds)};
         }
 
         public IReadOnlyCollection<IEvent> HandleCreates(IReadOnlyCollection<Advertisement> dataObjects) => Array.Empty<IEvent>();

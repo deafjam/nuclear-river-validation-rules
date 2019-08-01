@@ -50,9 +50,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<UnlimitedOrder> dataObjects)
         {
-            var orderIds = dataObjects.Select(x => x.OrderId);
+            var orderIds = dataObjects.Select(x => x.OrderId).ToHashSet();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(UnlimitedOrder), typeof(Order), orderIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(UnlimitedOrder), typeof(Order), orderIds)};
         }
     }
 }

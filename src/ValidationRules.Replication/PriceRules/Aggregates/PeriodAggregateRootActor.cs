@@ -43,15 +43,11 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public IQueryable<Period> GetSource()
             {
-                var orderDates =
-                    _query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionStartDate})
-                        .Union(_query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionEndFactDate}))
-                        .Union(_query.For<Facts::Order>().Select(x => new {ProjectId = x.DestProjectId, Date = x.AgileDistributionEndPlanDate}));
+                var dates =
+                    _query.For<Facts::Order>().Select(x => new {x.ProjectId, Date = x.AgileDistributionStartDate})
+                        .Union(_query.For<Facts::Order>().Select(x => new {x.ProjectId, Date = x.AgileDistributionEndFactDate}))
+                        .Union(_query.For<Facts::Order>().Select(x => new {x.ProjectId, Date = x.AgileDistributionEndPlanDate}));
                
-                var priceDates = _query.For<Facts::Price>().Select(x => new {x.ProjectId, Date = x.BeginDate});
-
-                var dates = orderDates.Union(priceDates);
-
                 var result =
                     from date in dates
                     from next in dates.Where(x => x.ProjectId == date.ProjectId && x.Date > date.Date).OrderBy(x => x.Date).Take(1).DefaultIfEmpty()

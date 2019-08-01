@@ -57,7 +57,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
         {
             var orderIds = dataObjects.Select(x => x.OrderId).ToHashSet();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(OrderPositionAdvertisement), typeof(Order), orderIds)};
+            return new[] { new RelatedDataObjectOutdatedEvent(typeof(OrderPositionAdvertisement), typeof(Order), orderIds) };
         }
     }
 }

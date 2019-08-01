@@ -52,19 +52,23 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var orderPositionIds = dataObjects.Select(x => x.OrderPositionId).ToHashSet();
 
             var accountIds =
-                from order in _query.For<Order>()
+                (from order in _query.For<OrderConsistency>()
                 from account in _query.For<Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
                 from orderPosition in _query.For<OrderPosition>().Where(x => orderPositionIds.Contains(x.Id) && x.OrderId == order.Id)
-                select account.Id;
+                select account.Id)
+                .Distinct()
+                .ToList();
 
-            var orderIds =
-                from orderPosition in _query.For<OrderPosition>().Where(x => orderPositionIds.Contains(x.Id))
-                select orderPosition.OrderId;
+            var orderIds = _query.For<OrderPosition>()
+                .Where(x => orderPositionIds.Contains(x.Id))
+                .Select(x => x.OrderId)
+                .Distinct()
+                .ToList();
 
             return new[]
             {
-                new RelatedDataObjectOutdatedEvent(typeof(ReleaseWithdrawal), typeof(Account), accountIds.ToHashSet()),
-                new RelatedDataObjectOutdatedEvent(typeof(ReleaseWithdrawal), typeof(Order), orderIds.ToHashSet())
+                new RelatedDataObjectOutdatedEvent(typeof(ReleaseWithdrawal), typeof(Account), accountIds),
+                new RelatedDataObjectOutdatedEvent(typeof(ReleaseWithdrawal), typeof(Order), orderIds)
             };
         }
     }

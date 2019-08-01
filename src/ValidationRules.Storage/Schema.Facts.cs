@@ -115,16 +115,24 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<Order>()
                    .HasSchemaName(FactsSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.LegalPersonId, x.SignupDate }, x => x.Id)
-                   .HasIndex(x => x.BargainId, x => x.Id)
-                   .HasIndex(x => new { x.BargainId, x.SignupDate }, x => x.Id)
-                   .HasIndex(x => x.DealId)
-                   .HasIndex(x => x.FirmId, x => new { x.DestProjectId, x.AgileDistributionStartDate })
-                   // подумать, может быть индекс по DestProjectId можно объединить с каким-нибудь другим  
-                   .HasIndex(x => x.DestProjectId, x => new { x.FirmId, x.AgileDistributionStartDate, x.AgileDistributionEndFactDate, x.IsSelfAds, x.AgileDistributionEndPlanDate, x.WorkflowStep })
-                   .HasIndex(x => new { x.AgileDistributionStartDate, x.DestProjectId }, x => x.FirmId)
+                   .HasIndex(x => x.FirmId, x => new { x.ProjectId, x.AgileDistributionStartDate })
+                   // подумать, может быть индекс по ProjectId можно объединить с каким-нибудь другим  
+                   .HasIndex(x => x.ProjectId, x => new { x.FirmId, x.AgileDistributionStartDate, x.AgileDistributionEndFactDate, x.IsSelfAds, x.AgileDistributionEndPlanDate })
+                   .HasIndex(x => new { x.AgileDistributionStartDate, x.ProjectId }, x => x.FirmId)
                    .HasIndex(x => x.AgileDistributionEndPlanDate)
                    .HasIndex(x => x.AgileDistributionEndFactDate);
+
+            builder.Entity<OrderWorkflow>()
+                   .HasSchemaName(FactsSchema)
+                   .HasPrimaryKey(x => x.Id)
+                   .HasIndex(x => x.Step);
+            
+            builder.Entity<OrderConsistency>()
+                   .HasSchemaName(FactsSchema)
+                   .HasPrimaryKey(x => x.Id)
+                   .HasIndex(x => new {x.LegalPersonId, x.SignupDate}, x => x.Id)
+                   .HasIndex(x => new {x.BargainId, x.SignupDate}, x => x.Id)
+                   .HasIndex(x => x.DealId);
 
             builder.Entity<OrderItem>()
                    .HasSchemaName(FactsSchema)

@@ -73,12 +73,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 _query.For<Order>()
                     .Where(x => orderIds.Contains(x.Id))
                     .Select(x => x.FirmId)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
 
             return new[]
             {
                 new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Order), orderIds),
-                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Firm), firmIds.ToList())
+                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Firm), firmIds)
             };
         }
     }

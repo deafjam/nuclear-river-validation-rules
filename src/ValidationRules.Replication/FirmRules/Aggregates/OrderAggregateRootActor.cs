@@ -60,15 +60,17 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
                 dataObjects.Select(x => x.Id);
             
             public IQueryable<Order> GetSource()
-                => from order in _query.For<Facts::Order>()
-                   select new Order
-                       {
-                           Id = order.Id,
-                           FirmId = order.FirmId,
-                           Start = order.AgileDistributionStartDate,
-                           End = order.AgileDistributionEndFactDate,
-                           Scope = Scope.Compute(order.WorkflowStep, order.Id),
-                       };
+                =>
+                    from order in _query.For<Facts::Order>() 
+                    from orderWorkflow in _query.For<Facts::OrderWorkflow>().Where(x => x.Id == order.Id)
+                    select new Order
+                    {
+                       Id = order.Id,
+                       FirmId = order.FirmId,
+                       Start = order.AgileDistributionStartDate,
+                       End = order.AgileDistributionEndFactDate,
+                       Scope = Scope.Compute(orderWorkflow.Step, order.Id),
+                    };
 
             public FindSpecification<Order> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -95,7 +97,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Aggregates
             public IQueryable<Order.FirmOrganizationUnitMismatch> GetSource()
                 => from order in _query.For<Facts::Order>()
                    from firm in _query.For<Facts::Firm>().Where(x => x.Id == order.FirmId)
-                   where order.DestProjectId != firm.ProjectId
+                   where order.ProjectId != firm.ProjectId
                    select new Order.FirmOrganizationUnitMismatch { OrderId = order.Id };
 
             public FindSpecification<Order.FirmOrganizationUnitMismatch> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

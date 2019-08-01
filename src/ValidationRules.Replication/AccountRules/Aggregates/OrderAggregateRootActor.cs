@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using NuClear.Replication.Core;
@@ -45,13 +44,15 @@ namespace NuClear.ValidationRules.Replication.AccountRules.Aggregates
                 => dataObjects.Select(x => x.Id);
             
             public IQueryable<Order> GetSource()
-                => from order in _query.For<Facts::Order>().Where(x => Facts::Order.State.Payable.Contains(x.WorkflowStep))
-                   from account in _query.For<Facts::Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId).DefaultIfEmpty()
+                => from order in _query.For<Facts::Order>()
+                   from orderConsistency in _query.For<Facts::OrderConsistency>().Where(x => x.Id == order.Id)
+                   from orderWorkflow in _query.For<Facts::OrderWorkflow>().Where(x => Facts::OrderWorkflowStep.Payable.Contains(x.Step)).Where(x => x.Id == order.Id)
+                   from account in _query.For<Facts::Account>().Where(x => x.LegalPersonId == orderConsistency.LegalPersonId && x.BranchOfficeOrganizationUnitId == orderConsistency.BranchOfficeOrganizationUnitId).DefaultIfEmpty()
                    select new Order
                        {
                            Id = order.Id,
                            AccountId = account.Id,
-                           IsFreeOfCharge = order.IsFreeOfCharge,
+                           IsFreeOfCharge = orderConsistency.IsFreeOfCharge,
                            Start = order.AgileDistributionStartDate,
                            End = order.AgileDistributionEndFactDate,
                        };

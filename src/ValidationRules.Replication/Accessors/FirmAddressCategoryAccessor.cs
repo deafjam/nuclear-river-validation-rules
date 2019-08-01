@@ -68,11 +68,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var firmAddressIds = dataObjects.Select(x => x.FirmAddressId).ToHashSet();
 
             var orderIds =
-                from firmAddress in _query.For<FirmAddress>().Where(x => firmAddressIds.Contains(x.Id))
-                from order in _query.For<Order>().Where(x => x.FirmId == firmAddress.FirmId)
-                select order.Id;
+                (from firmAddress in _query.For<FirmAddress>().Where(x => firmAddressIds.Contains(x.Id))
+                from order in _query.For<OrderConsistency>().Where(x => x.FirmId == firmAddress.FirmId)
+                select order.Id)
+                .Distinct()
+                .ToList();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(FirmAddressCategory), typeof(Order), orderIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(FirmAddressCategory), typeof(Order), orderIds)};
         }
     }
 }

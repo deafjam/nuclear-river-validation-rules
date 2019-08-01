@@ -21,31 +21,18 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                       // Новый заказ, до этого не выходил ни разу на счете достаточно средств: ошибки нет
                       new Facts::Account { Id = 1, Balance = 11, BranchOfficeOrganizationUnitId = 1, LegalPersonId = 1 },
 
-                      new Facts::Order
-                      {
-                          Id = 1,
-                          BranchOfficeOrganizationUnitId = 1,
-                          LegalPersonId = 1,
-                          AgileDistributionStartDate = FirstDayFeb,
-                          AgileDistributionEndFactDate = FirstDayApr,
-                          WorkflowStep = 5
-                      },
+                      new Facts::Order { Id = 1, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayApr },
+                      new Facts::OrderConsistency { Id = 1, BranchOfficeOrganizationUnitId = 1, LegalPersonId = 1 },
+                      new Facts::OrderWorkflow { Id = 1, Step = 5 },
                       new Facts::OrderPosition { Id = 1, OrderId = 1 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 1, Amount = 10, Start = FirstDayFeb, End = FirstDayMar },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 1, Amount = 10, Start = FirstDayMar, End = FirstDayApr },
 
                       // Новый заказ, до этого не выходил ни разу с бесплатным типом: ошибки нет
                       new Facts::Account { Id = 2, Balance = 0, BranchOfficeOrganizationUnitId = 2, LegalPersonId = 2 },
-                      new Facts::Order
-                      {
-                          Id = 2,
-                          BranchOfficeOrganizationUnitId = 2,
-                          LegalPersonId = 2,
-                          AgileDistributionStartDate = FirstDayFeb,
-                          AgileDistributionEndFactDate = FirstDayMay,
-                          WorkflowStep = 5,
-                          IsFreeOfCharge = true
-                      },
+                      new Facts::Order { Id = 2, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayMay },
+                      new Facts::OrderConsistency { Id = 2, BranchOfficeOrganizationUnitId = 2, LegalPersonId = 2, IsFreeOfCharge = true },
+                      new Facts::OrderWorkflow { Id = 2, Step = 5 },
                       new Facts::OrderPosition { Id = 2, OrderId = 2 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 2, Amount = 1, Start = FirstDayFeb, End = FirstDayMar },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 2, Amount = 2, Start = FirstDayMar, End = FirstDayApr },
@@ -53,58 +40,34 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
                       // Новый заказ, до этого не выходил ни разу со скидкой 100 %: ошибки нет
                       new Facts::Account { Id = 3, Balance = 0, BranchOfficeOrganizationUnitId = 3, LegalPersonId = 3 },
-                      new Facts::Order
-                      {
-                          Id = 3,
-                          BranchOfficeOrganizationUnitId = 3,
-                          LegalPersonId = 3,
-                          AgileDistributionStartDate = FirstDayFeb,
-                          AgileDistributionEndFactDate = FirstDayMar,
-                          WorkflowStep = 5
-                      },
+                      new Facts::Order { Id = 3, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayMar },
+                      new Facts::OrderConsistency { Id = 3, BranchOfficeOrganizationUnitId = 3, LegalPersonId = 3 },
+                      new Facts::OrderWorkflow { Id = 3, Step = 5 },
                       new Facts::OrderPosition { Id = 3, OrderId = 3 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 3, Amount = 0, Start = FirstDayFeb, End = FirstDayMar },
 
                       // Новый заказ, до этого не выходил ни разу, у него есть UnlimitedOrder за это период: ошибки нет
                       new Facts::Account { Id = 4, Balance = -500, BranchOfficeOrganizationUnitId = 4, LegalPersonId = 4 },
-                      new Facts::Order
-                      {
-                          Id = 4,
-                          BranchOfficeOrganizationUnitId = 4,
-                          LegalPersonId = 4,
-                          AgileDistributionStartDate = FirstDayFeb,
-                          AgileDistributionEndFactDate = FirstDayMar,
-                          WorkflowStep = 5
-                      },
+                      new Facts::Order { Id = 4, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayMar },
+                      new Facts::OrderConsistency { Id = 4, BranchOfficeOrganizationUnitId = 4, LegalPersonId = 4 },
+                      new Facts::OrderWorkflow { Id = 4, Step = 5 },
                       new Facts::OrderPosition { Id = 4, OrderId = 4 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 4, Amount = 105000, Start = FirstDayFeb, End = FirstDayMar },
                       new Facts::UnlimitedOrder { OrderId = 4, PeriodStart = FirstDayFeb, PeriodEnd = FirstDayMar },
 
                       // Новый заказ, до этого не выходил ни разу: задолжность = RW за текущий месяц (баланс 0, задолжность 105000)
                       new Facts::Account { Id = 5, Balance = 0, BranchOfficeOrganizationUnitId = 5, LegalPersonId = 5 },
-                      new Facts::Order
-                      {
-                          Id = 5,
-                          BranchOfficeOrganizationUnitId = 5,
-                          LegalPersonId = 5,
-                          AgileDistributionStartDate = FirstDayFeb,
-                          AgileDistributionEndFactDate = FirstDayMar,
-                          WorkflowStep = 5
-                      },
+                      new Facts::Order { Id = 5, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayMar },
+                      new Facts::OrderConsistency { Id = 5, BranchOfficeOrganizationUnitId = 5, LegalPersonId = 5 },
+                      new Facts::OrderWorkflow { Id = 5, Step = 5 },
                       new Facts::OrderPosition { Id = 5, OrderId = 5 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 5, Amount = 105000, Start = FirstDayFeb, End = FirstDayMar },
 
                       // Заказ выходил в выпуск 1раз, у него есть списание за 1-й период: задолжность = RW за текущий месяц (баланс -1, задолжность 2)
                       new Facts::Account { Id = 6, Balance = -1, BranchOfficeOrganizationUnitId = 6, LegalPersonId = 6 },
-                      new Facts::Order
-                      {
-                          Id = 6,
-                          BranchOfficeOrganizationUnitId = 6,
-                          LegalPersonId = 6,
-                          AgileDistributionStartDate = FirstDayJan,
-                          AgileDistributionEndFactDate = FirstDayMay,
-                          WorkflowStep = 5
-                      },
+                      new Facts::Order { Id = 6, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMay },
+                      new Facts::OrderConsistency { Id = 6, BranchOfficeOrganizationUnitId = 6, LegalPersonId = 6 },
+                      new Facts::OrderWorkflow { Id = 6, Step = 5 },
                       new Facts::OrderPosition { Id = 6, OrderId = 6 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 6, Amount = 1, Start = FirstDayJan, End = FirstDayFeb },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 6, Amount = 2, Start = FirstDayFeb, End = FirstDayMar },
@@ -114,30 +77,18 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
                       // Заказ выходил в выпуск 1раз, у него нет списания за прошлый месяц: задолжность = RW за текущий месяц + RW за прошлый месяц (баланс 0, задолжность 3)
                       new Facts::Account { Id = 7, Balance = 0, BranchOfficeOrganizationUnitId = 7, LegalPersonId = 7 },
-                      new Facts::Order
-                          {
-                              Id = 7,
-                              BranchOfficeOrganizationUnitId = 7,
-                              LegalPersonId = 7,
-                              AgileDistributionStartDate = FirstDayJan,
-                              AgileDistributionEndFactDate = FirstDayMar,
-                              WorkflowStep = 5
-                          },
+                      new Facts::Order { Id = 7, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMar },
+                      new Facts::OrderConsistency { Id = 7, BranchOfficeOrganizationUnitId = 7, LegalPersonId = 7 },
+                      new Facts::OrderWorkflow { Id = 7, Step = 5 },
                       new Facts::OrderPosition { Id = 7, OrderId = 7 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 7, Amount = 1, Start = FirstDayJan, End = FirstDayFeb },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 7, Amount = 2, Start = FirstDayFeb, End = FirstDayMar },
 
                       // Заказ выходил в выпуск 1раз, скидка 100%, есть списание за 1-й период на 0 рублей: ошибки нет 
                       new Facts::Account { Id = 8, Balance = 0, BranchOfficeOrganizationUnitId = 8, LegalPersonId = 8 },
-                      new Facts::Order
-                      {
-                          Id = 8,
-                          BranchOfficeOrganizationUnitId = 8,
-                          LegalPersonId = 8,
-                          AgileDistributionStartDate = FirstDayJan,
-                          AgileDistributionEndFactDate = FirstDayMar,
-                          WorkflowStep = 5
-                      },
+                      new Facts::Order { Id = 8, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMar },
+                      new Facts::OrderConsistency { Id = 8, BranchOfficeOrganizationUnitId = 8, LegalPersonId = 8 },
+                      new Facts::OrderWorkflow { Id = 8, Step = 5 },
                       new Facts::OrderPosition { Id = 8, OrderId = 8 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 8, Amount = 0, Start = FirstDayJan, End = FirstDayFeb },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 8, Amount = 0, Start = FirstDayFeb, End = FirstDayMar },
@@ -145,29 +96,17 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
                       // Новый заказ, до этого не выходил ни разу со скидкой 100 %, баланс счета отрицательный: ошибки нет
                       new Facts::Account { Id = 9, Balance = -1, BranchOfficeOrganizationUnitId = 9, LegalPersonId = 9 },
-                      new Facts::Order
-                      {
-                          Id = 9,
-                          BranchOfficeOrganizationUnitId = 9,
-                          LegalPersonId = 9,
-                          AgileDistributionStartDate = FirstDayFeb,
-                          AgileDistributionEndFactDate = FirstDayMar,
-                          WorkflowStep = 5
-                      },
+                      new Facts::Order { Id = 9, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayMar },
+                      new Facts::OrderConsistency { Id = 9, BranchOfficeOrganizationUnitId = 9, LegalPersonId = 9 },
+                      new Facts::OrderWorkflow { Id = 9, Step = 5 },
                       new Facts::OrderPosition { Id = 9, OrderId = 9 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 9, Amount = 0, Start = FirstDayFeb, End = FirstDayMar },
 
                       // Заказ выходил в выпуск 1раз, в текущем месяце переведен в статус "4", у него нет списания за прошлый месяц: RW за текущий месяц + RW за прошлый месяц (баланс 0, задолжность -3)
                       new Facts::Account { Id = 10, Balance = 0, BranchOfficeOrganizationUnitId = 10, LegalPersonId = 10 },
-                      new Facts::Order
-                      {
-                          Id = 10,
-                          BranchOfficeOrganizationUnitId = 10,
-                          LegalPersonId = 10,
-                          AgileDistributionStartDate = FirstDayJan,
-                          AgileDistributionEndFactDate = FirstDayApr,
-                          WorkflowStep = 4
-                      },
+                      new Facts::Order { Id = 10, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayApr },
+                      new Facts::OrderConsistency { Id = 10, BranchOfficeOrganizationUnitId = 10, LegalPersonId = 10 },
+                      new Facts::OrderWorkflow { Id = 10, Step = 4 },
                       new Facts::OrderPosition { Id = 10, OrderId = 10 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 10, Amount = 1, Start = FirstDayJan, End = FirstDayFeb },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 10, Amount = 2, Start = FirstDayFeb, End = FirstDayMar },
@@ -175,16 +114,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
                       // Новый заказ, до этого не выходил ни разу с бесплатным типом, баланс счета отрицательный: ошибки нет
                       new Facts::Account { Id = 11, Balance = -1, BranchOfficeOrganizationUnitId = 11, LegalPersonId = 11 },
-                      new Facts::Order
-                      {
-                          Id = 11,
-                          BranchOfficeOrganizationUnitId = 11,
-                          LegalPersonId = 11,
-                          AgileDistributionStartDate = FirstDayFeb,
-                          AgileDistributionEndFactDate = FirstDayMar,
-                          WorkflowStep = 5,
-                          IsFreeOfCharge = true
-                      },
+                      new Facts::Order { Id = 11, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayMar },
+                      new Facts::OrderConsistency { Id = 11, BranchOfficeOrganizationUnitId = 11, LegalPersonId = 11, IsFreeOfCharge = true },
+                      new Facts::OrderWorkflow { Id = 11, Step = 5 },
                       new Facts::OrderPosition { Id = 11, OrderId = 11 },
                       new Facts::ReleaseWithdrawal { OrderPositionId = 11, Amount = 3, Start = FirstDayFeb, End = FirstDayMar })
 

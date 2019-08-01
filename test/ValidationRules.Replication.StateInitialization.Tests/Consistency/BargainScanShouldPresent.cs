@@ -16,7 +16,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(BargainScanShouldPresent))
                 .Fact(
-                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), BargainId = 1 })
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
+                    new Facts::OrderConsistency { Id = 1, BargainId = 1 })
                 .Aggregate(
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },
                     new Order.MissingBargainScan { OrderId = 1 })

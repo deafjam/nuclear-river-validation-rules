@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using NuClear.Replication.Core;
@@ -113,7 +112,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             public IQueryable<Order.InvalidFirmAddress> GetSource()
             {
                 var result =
-                    from order in _query.For<Facts::Order>()
+                    from order in _query.For<Facts::OrderConsistency>()
                     from opa in _query.For<Facts::OrderPositionAdvertisement>()
                         .Where(x => x.OrderId == order.Id)
                     from position in _query.For<Facts::Position>().Where(x => x.Id == opa.PositionId)
@@ -225,7 +224,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             public IQueryable<Order.InvalidCategory> GetSource()
             {
                 var result = 
-                    from order in _query.For<Facts::Order>()
+                    from order in _query.For<Facts::OrderConsistency>()
                     from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.CategoryId.HasValue).Where(x => x.OrderId == order.Id)
                     from category in _query.For<Facts::Category>().Where(x => x.Id == opa.CategoryId.Value)
                     from position in _query.For<Facts::Position>().Where(x => !x.IsDeleted).Where(x => x.Id == opa.PositionId)
@@ -268,7 +267,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.BargainSignedLaterThanOrder> GetSource()
-                => from order in _query.For<Facts::Order>().Where(x => x.BargainId.HasValue)
+                => from order in _query.For<Facts::OrderConsistency>().Where(x => x.BargainId.HasValue)
                    from bargain in _query.For<Facts::Bargain>().Where(x => x.Id == order.BargainId)
                    where bargain.SignupDate > order.SignupDate
                    select new Order.BargainSignedLaterThanOrder
@@ -295,7 +294,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.HasNoAnyLegalPersonProfile> GetSource()
-                => from order in _query.For<Facts::Order>()
+                => from order in _query.For<Facts::OrderConsistency>()
                    from profile in _query.For<Facts::LegalPersonProfile>().Where(x => x.LegalPersonId == order.LegalPersonId).DefaultIfEmpty()
                    where profile == null
                    select new Order.HasNoAnyLegalPersonProfile
@@ -326,7 +325,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.HasNoAnyPosition> GetSource()
-                => from order in _query.For<Facts::Order>()
+                => from order in _query.For<Facts::OrderConsistency>()
                    from orderPosition in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id).DefaultIfEmpty()
                    where orderPosition == null
                    select new Order.HasNoAnyPosition
@@ -358,7 +357,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
             
             // todo: сравнить запросы left join и exists
             public IQueryable<Order.InactiveReference> GetSource()
-                => from order in _query.For<Facts::Order>()
+                => from order in _query.For<Facts::OrderConsistency>()
                    from boou in _query.For<Facts::BranchOfficeOrganizationUnit>().Where(x => x.Id == order.BranchOfficeOrganizationUnitId).DefaultIfEmpty()
                    from bo in _query.For<Facts::BranchOffice>().Where(x => boou != null && x.Id == boou.BranchOfficeId).DefaultIfEmpty()
                    from legalPerson in _query.For<Facts::LegalPerson>().Where(x => x.Id == order.LegalPersonId).DefaultIfEmpty()
@@ -394,7 +393,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.InvalidBillsTotal> GetSource()
-                => from order in _query.For<Facts::Order>().Where(x => x.WorkflowStep == Facts::Order.State.OnRegistration && !x.IsFreeOfCharge)
+                => from order in _query.For<Facts::OrderConsistency>().Where(x => !x.IsFreeOfCharge)
                    let billTotal = _query.For<Facts::Bill>().Where(x => x.OrderId == order.Id).Sum(x => (decimal?)x.PayablePlan)
                    let orderTotal = (from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                                      from rw in _query.For<Facts::ReleaseWithdrawal>().Where(x => x.OrderPositionId == op.Id)
@@ -424,7 +423,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.LegalPersonProfileBargainExpired> GetSource()
-                => from order in _query.For<Facts::Order>()
+                => from order in _query.For<Facts::OrderConsistency>()
                    from profile in _query.For<Facts::LegalPersonProfile>().Where(x => x.BargainEndDate.HasValue).Where(x => x.LegalPersonId == order.LegalPersonId)
                    where profile.BargainEndDate.Value < order.SignupDate
                    select new Order.LegalPersonProfileBargainExpired
@@ -452,7 +451,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.LegalPersonProfileWarrantyExpired> GetSource()
-                => from order in _query.For<Facts::Order>()
+                => from order in _query.For<Facts::OrderConsistency>()
                    from profile in _query.For<Facts::LegalPersonProfile>().Where(x => x.WarrantyEndDate.HasValue).Where(x => x.LegalPersonId == order.LegalPersonId)
                    where profile.WarrantyEndDate.Value < order.SignupDate
                    select new Order.LegalPersonProfileWarrantyExpired
@@ -480,7 +479,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.MissingBargainScan> GetSource()
-                => from order in _query.For<Facts::Order>().Where(x => x.BargainId.HasValue)
+                => from order in _query.For<Facts::OrderConsistency>().Where(x => x.BargainId.HasValue)
                    from scan in _query.For<Facts::BargainScanFile>().Where(x => x.BargainId == order.BargainId).DefaultIfEmpty()
                    where scan == null
                    select new Order.MissingBargainScan
@@ -507,7 +506,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.MissingBills> GetSource()
-                => from order in _query.For<Facts::Order>().Where(x => x.WorkflowStep == Facts::Order.State.OnRegistration && !x.IsFreeOfCharge)
+                => from order in _query.For<Facts::OrderConsistency>().Where(x => !x.IsFreeOfCharge)
                    let billCount = _query.For<Facts::Bill>().Count(x => x.OrderId == order.Id)
                    let orderTotal = (from op in _query.For<Facts::OrderPosition>().Where(x => x.OrderId == order.Id)
                                      from rw in _query.For<Facts::ReleaseWithdrawal>().Where(x => x.OrderPositionId == op.Id)
@@ -542,7 +541,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.MissingRequiredField> GetSource()
-                => from order in _query.For<Facts::Order>()
+                => from order in _query.For<Facts::OrderConsistency>()
                    where !(order.BranchOfficeOrganizationUnitId.HasValue && order.HasCurrency && order.LegalPersonId.HasValue && order.LegalPersonProfileId.HasValue && order.DealId.HasValue)
                    select new Order.MissingRequiredField
                        {
@@ -622,7 +621,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
             
             public IQueryable<Order.MissingOrderScan> GetSource()
-                => from order in _query.For<Facts::Order>()
+                => from order in _query.For<Facts::OrderConsistency>()
                    from scan in _query.For<Facts::OrderScanFile>().Where(x => x.OrderId == order.Id).DefaultIfEmpty()
                    where scan == null
                    select new Order.MissingOrderScan

@@ -378,6 +378,8 @@ namespace NuClear.ValidationRules.Replication.Host.DI
                    .RegisterAccessor<LegalPersonProfile, LegalPersonProfileAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<NomenclatureCategory, NomenclatureCategoryAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<Order, OrderAccessor>(entryPointSpecificLifetimeManagerFactory)
+                   .RegisterAccessor<OrderConsistency, OrderConsistencyAccessor>(entryPointSpecificLifetimeManagerFactory)
+                   .RegisterAccessor<OrderWorkflow, OrderWorkflowAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<OrderItem, OrderItemAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<OrderPosition, OrderPositionAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<OrderPositionAdvertisement, OrderPositionAdvertisementAccessor>(entryPointSpecificLifetimeManagerFactory)
