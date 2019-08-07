@@ -142,6 +142,7 @@ namespace NuClear.ValidationRules.Storage
                   .HasSchemaName(PriceAggregatesSchema)
                   .HasPrimaryKey(x => x.Id)
                   .HasIndex(x => x.FirmId)
+                  .HasIndex(x => new {x.ProjectId, x.Start, x.End })
                   .HasIndex(x => x.IsCommitted, x => new {x.Start, x.End});
 
             builder.Entity<PriceAggregates::Order.OrderPeriod>()
@@ -176,7 +177,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<PriceAggregates::Period>()
                   .HasSchemaName(PriceAggregatesSchema)
-                  .HasPrimaryKey(x => new { x.Start, x.End, x.ProjectId});
+                  .HasPrimaryKey(x => new { x.ProjectId, x.Start, x.End});
 
             builder.Entity<PriceAggregates::Ruleset>()
                    .HasSchemaName(PriceAggregatesSchema)

@@ -29,24 +29,45 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
         {
             private readonly IQuery _query;
 
-            public PeriodAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
+            public PeriodAccessor(IQuery query) : base(CreateInvalidator(x => GetRelatedOrders(query, x))) => _query = query;
 
-            private static IRuleInvalidator CreateInvalidator()
+            private static IRuleInvalidator CreateInvalidator(Func<IReadOnlyCollection<Period>, IEnumerable<long>> func)
                 => new RuleInvalidator
-                    {
-                        MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited,
-                        MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions,
-                        MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass,
-                        MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions,
-                    };
+                {
+                    {MessageTypeCode.AdvertisementCountPerCategoryShouldBeLimited, func},
+                    {MessageTypeCode.AdvertisementCountPerThemeShouldBeLimited, func},
+                    {MessageTypeCode.AdvertisementAmountShouldMeetMaximumRestrictions, func},
+                    {MessageTypeCode.AdvertisementAmountShouldMeetMinimumRestrictionsMass, func},
+                    {MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions, func},
+                };
 
+            private static IEnumerable<long> GetRelatedOrders(IQuery query, IReadOnlyCollection<Period> dataObjects)
+            {
+                return query.For(PeriodSpec(dataObjects)).Select(x => x.Id);
+                
+                FindSpecification<Order> PeriodSpec(IEnumerable<Period> periods)
+                {
+                    var projectSpecs = periods.GroupBy(x => x.ProjectId).Select(x =>
+                    {
+                        var timeRanges = x.Select(y => new TimeRange(y.Start, y.End)).Merge();
+                        var timeRangesSpec = timeRanges.Select(TimeRangeSpec).Aggregate(new FindSpecification<Order>(y => false), (current, spec) => current | spec);
+                    
+                        return new FindSpecification<Order>(y => y.ProjectId == x.Key) & timeRangesSpec;
+                    });
+                
+                    return projectSpecs.Aggregate(new FindSpecification<Order>(x => false), (current, spec) => current | spec);
+                    
+                    FindSpecification<Order> TimeRangeSpec(TimeRange timeRange) => new FindSpecification<Order>(x => x.Start <= timeRange.End && timeRange.Start <= x.End);
+                }
+            }
+            
             public IQueryable<Period> GetSource()
             {
                 var dates =
                     _query.For<Facts::Order>().Select(x => new {x.ProjectId, Date = x.AgileDistributionStartDate})
                         .Union(_query.For<Facts::Order>().Select(x => new {x.ProjectId, Date = x.AgileDistributionEndFactDate}))
-                        .Union(_query.For<Facts::Order>().Select(x => new {x.ProjectId, Date = x.AgileDistributionEndPlanDate}));
+                        .Union(_query.For<Facts::Order>().Select(x => new {x.ProjectId, Date = x.AgileDistributionEndPlanDate}))
+                        .Union(_query.For<Facts::Order>().Select(x => new {x.ProjectId, Date = DateTime.MinValue}));
                
                 var result =
                     from date in dates
@@ -63,27 +84,9 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
 
             public FindSpecification<Period> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
-                var ids = commands.Cast<SyncPeriodCommand>()
-                    .SelectMany(x => x.PeriodKeys)
-                    .ToHashSet();
-
-                return Periods(ids);
+                var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
+                return new FindSpecification<Period>(x => aggregateIds.Contains(x.ProjectId));
             }
-
-            private static FindSpecification<Period> Periods(IEnumerable<PeriodKey> periodKeys)
-            {
-                var projectSpecs = periodKeys.GroupBy(x => x.ProjectId).Select(x =>
-                {
-                    var beginEndSpecs = x.Select(BeginEndSpec).Aggregate(new FindSpecification<Period>(y => false), (current, spec) => current | spec);
-                    return new FindSpecification<Period>(y => y.ProjectId == x.Key) & beginEndSpecs;
-                });
-                
-                return projectSpecs.Aggregate(new FindSpecification<Period>(x => false), (current, spec) => current | spec);
-            }
-
-            private static FindSpecification<Period> BeginEndSpec(PeriodKey periodKey)
-                => new FindSpecification<Period>(x => x.Start <= periodKey.Date && periodKey.Date <= x.End);
-
         }
     }
 }

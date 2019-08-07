@@ -38,9 +38,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Facts::Order { Id = 1, ProjectId = 2, AgileDistributionStartDate = MonthStart(2), AgileDistributionEndFactDate = MonthStart(3), AgileDistributionEndPlanDate = MonthStart(4) },
                     new Facts::Order { Id = 3, ProjectId = 1, AgileDistributionStartDate = MonthStart(5), AgileDistributionEndFactDate = MonthStart(7), AgileDistributionEndPlanDate = MonthStart(7) })
                 .Aggregate(
+                    new Period { ProjectId = 1, Start = DateTime.MinValue, End = MonthStart(5) },
                     new Period { ProjectId = 1, Start = MonthStart(5), End = MonthStart(7) },
                     new Period { ProjectId = 1, Start = MonthStart(7), End = DateTime.MaxValue },
                     
+                    new Period { ProjectId = 2, Start = DateTime.MinValue, End = MonthStart(2) },
                     new Period { ProjectId = 2, Start = MonthStart(2), End = MonthStart(3) },
                     new Period { ProjectId = 2, Start = MonthStart(3), End = MonthStart(4) },
                     new Period { ProjectId = 2, Start = MonthStart(4), End = DateTime.MaxValue });

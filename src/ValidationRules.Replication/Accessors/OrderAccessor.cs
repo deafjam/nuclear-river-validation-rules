@@ -63,28 +63,18 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 .Distinct()
                 .ToList();
 
-            var orderDtos = _query.For<Order>().Where(x => orderIds.Contains(x.Id)).Select(x => new
-            {
-                x.FirmId,
-                x.ProjectId,
-                x.AgileDistributionStartDate,
-                x.AgileDistributionEndFactDate,
-                x.AgileDistributionEndPlanDate,
-            }).ToList();
-
-            var firmIds = orderDtos.Select(x => x.FirmId).ToHashSet();
-            
-            var periodKeys =
-                  orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionStartDate))
-                  .Concat(orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionEndFactDate)))
-                  .Concat(orderDtos.Select(x => new PeriodKey(x.ProjectId, x.AgileDistributionEndPlanDate)))
-                  .ToHashSet();
+            var orderDtos = _query.For<Order>()
+                .Where(x => orderIds.Contains(x.Id))
+                .Select(x => new { x.FirmId, x.ProjectId })
+                .Distinct()
+                .ToList();
 
             return new IEvent[]
             {
                 new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Account), accountIds),
-                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Firm), firmIds),
-                new PeriodKeysOutdatedEvent(periodKeys), 
+                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Firm), orderDtos.Select(x => x.FirmId).ToHashSet()),
+                // period
+                new RelatedDataObjectOutdatedEvent(typeof(Order), typeof(Project), orderDtos.Select(x => x.ProjectId).ToHashSet()), 
             };
         }
     }

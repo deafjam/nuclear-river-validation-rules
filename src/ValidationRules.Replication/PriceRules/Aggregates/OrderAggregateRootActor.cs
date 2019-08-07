@@ -55,6 +55,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
                     {
                         Id = order.Id,
                         FirmId = order.FirmId,
+                        ProjectId = order.ProjectId,
                         Start = order.AgileDistributionStartDate,
                         End = order.AgileDistributionEndPlanDate,
                         IsCommitted = Facts::OrderWorkflowStep.Committed.Contains(orderWorkflow.Step)

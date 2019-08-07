@@ -31,6 +31,8 @@ namespace NuClear.ValidationRules.OperationsProcessing
             .AddMapping<EntityTypeLegalPerson>(typeof(Facts::LegalPerson))
             .AddMapping<EntityTypeLegalPersonProfile>(typeof(Facts::LegalPersonProfile))
             .AddMapping<EntityTypeOrder>(typeof(Facts::Order),
+                                         typeof(Facts::OrderWorkflow),
+                                         typeof(Facts::OrderConsistency),
                                          typeof(Facts::UnlimitedOrder))
             .AddMapping<EntityTypeOrderPosition>(typeof(Facts::OrderPosition),
                                                  typeof(Facts::OrderPositionAdvertisement),
