@@ -16,7 +16,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderShouldNotBeSignedBeforeBargain))
                 .Fact(
-                    new Facts::Order { Id = 1, BargainId = 1, SignupDate = MonthStart(1), AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
+                    new Facts::OrderConsistency { Id = 1, BargainId = 1, SignupDate = MonthStart(1) },
                     new Facts::Bargain { Id = 1, SignupDate = MonthStart(1).AddDays(1) })
                 .Aggregate(
                     new Order { Id = 1, Start = MonthStart(1), End = MonthStart(2) },

@@ -51,11 +51,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var pricePositionIds = dataObjects.Select(x => x.Id).ToHashSet();
 
             var orderIds =
-                from op in _query.For<OrderPosition>().Where(x => pricePositionIds.Contains(x.PricePositionId))
+                (from op in _query.For<OrderPosition>().Where(x => pricePositionIds.Contains(x.PricePositionId))
                 join order in _query.For<Order>() on op.OrderId equals order.Id
-                select order.Id;
+                select order.Id)
+                .Distinct()
+                .ToList();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(PricePosition), typeof(Order), orderIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(PricePosition), typeof(Order), orderIds)};
         }
     }
 }

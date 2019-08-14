@@ -48,9 +48,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<AccountDetail> dataObjects)
         {
-            var accountIds = dataObjects.Select(x => x.AccountId);
+            var accountIds = dataObjects.Select(x => x.AccountId).ToHashSet();
             
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(AccountDetail), typeof(Account), accountIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(AccountDetail), typeof(Account), accountIds)};
         }
     }
 }

@@ -19,6 +19,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(OrderPositionCostPerClickMustNotBeLessMinimum))
                 .Fact(
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::OrderWorkflow { Id = 1 },
                     new Facts::OrderPosition { Id = 1, OrderId = 1, PricePositionId = 5 },
                     new Facts::OrderPositionCostPerClick { OrderPositionId = 1, CategoryId = 12, Amount = 1 },
                     new Facts::Position { Id = 4 },

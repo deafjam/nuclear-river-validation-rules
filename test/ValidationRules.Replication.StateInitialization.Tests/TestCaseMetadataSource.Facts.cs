@@ -201,7 +201,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 new Erm::Order { Id = 4, IsActive = true, IsDeleted = true },
                 new Erm::Project { Id = 3, OrganizationUnitId = 2, IsActive = true })
             .Fact(
-                new Order { Id = 1, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = LastSecondJan.AddSeconds(1), AgileDistributionEndPlanDate = LastSecondMar.AddSeconds(1), DestProjectId = 3, FirmId = 5, WorkflowStep = 8, HasCurrency = true, IsFreeOfCharge = true, IsSelfAds = true });
+                new Order { Id = 1, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = LastSecondJan.AddSeconds(1), AgileDistributionEndPlanDate = LastSecondMar.AddSeconds(1), ProjectId = 3, FirmId = 5, IsSelfAds = true },
+                new OrderWorkflow {Id = 1, Step = 8},
+                new OrderConsistency { Id = 1, FirmId = 5, HasCurrency = true, IsFreeOfCharge = true });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderPositionFacts

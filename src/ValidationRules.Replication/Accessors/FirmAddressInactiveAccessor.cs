@@ -52,9 +52,10 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var orderIds = _query.For<OrderPositionAdvertisement>()
                 .Where(x => firmAddressIds.Contains(x.FirmAddressId.Value))
                 .Select(x => x.OrderId)
-                .Distinct();
+                .Distinct()
+                .ToList();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(FirmAddress), typeof(Order), orderIds.ToList())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(FirmAddress), typeof(Order), orderIds)};
         }
     }
 }

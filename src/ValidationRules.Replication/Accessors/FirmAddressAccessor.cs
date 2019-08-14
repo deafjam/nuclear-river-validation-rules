@@ -64,9 +64,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 .Select(x => x.OrderId)
                 .Distinct();
             
-            var orderIds = orderIdsByFirm.Concat(orderIdsByUsage);
+            var orderIds = orderIdsByFirm.Concat(orderIdsByUsage).ToHashSet();
             
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(FirmAddress), typeof(Order), orderIds.ToHashSet())};
+            return new[] { new RelatedDataObjectOutdatedEvent(typeof(FirmAddress), typeof(Order), orderIds) };
         }
     }
 }

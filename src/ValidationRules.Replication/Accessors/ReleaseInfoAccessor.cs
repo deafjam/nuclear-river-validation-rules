@@ -52,11 +52,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
         {
             var organizationUnitIds = dataObjects.Select(x => x.OrganizationUnitId).ToHashSet();
 
-            var projectIds =
-                from project in _query.For<Project>().Where(project => organizationUnitIds.Contains(project.OrganizationUnitId))
-                select project.Id;
+            var projectIds = _query.For<Project>()
+                .Where(x => organizationUnitIds.Contains(x.OrganizationUnitId))
+                .Select(x => x.Id)
+                .Distinct()
+                .ToList();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(ReleaseInfo), typeof(Project), projectIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(ReleaseInfo), typeof(Project), projectIds)};
         }
     }
 }

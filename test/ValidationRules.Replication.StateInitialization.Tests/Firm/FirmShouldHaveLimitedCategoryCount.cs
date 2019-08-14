@@ -20,17 +20,21 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmShouldHaveLimitedCategoryCountAggregates))
                 .Fact(
                     new Facts::Firm { Id = 1 },
-                    new Facts::Order { Id = 1, WorkflowStep = 4, FirmId = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(3), AgileDistributionEndPlanDate = MonthStart(4) },
+                    new Facts::Order { Id = 1, FirmId = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(3), AgileDistributionEndPlanDate = MonthStart(4) },
+                    new Facts::OrderWorkflow {Id = 1, Step = 4},
                     new Facts::OrderItem { OrderId = 1, OrderPositionId = 1, CategoryId = 5 },
 
-                    new Facts::Order { Id = 2, WorkflowStep = 5, FirmId = 1, AgileDistributionStartDate = MonthStart(3), AgileDistributionEndFactDate = MonthStart(5), AgileDistributionEndPlanDate = MonthStart(5) },
+                    new Facts::Order { Id = 2, FirmId = 1, AgileDistributionStartDate = MonthStart(3), AgileDistributionEndFactDate = MonthStart(5), AgileDistributionEndPlanDate = MonthStart(5)},
+                    new Facts::OrderWorkflow {Id = 2, Step = 5},
                     new Facts::OrderItem { OrderId = 2, OrderPositionId = 21, CategoryId = 5 },
                     new Facts::OrderItem { OrderId = 2, OrderPositionId = 22, CategoryId = 6 },
 
                     new Facts::Firm { Id = 2 },
-                    new Facts::Order { Id = 3, WorkflowStep = 1, FirmId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(5), AgileDistributionEndPlanDate = MonthStart(5) },
+                    new Facts::Order { Id = 3, FirmId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(5), AgileDistributionEndPlanDate = MonthStart(5)},
+                    new Facts::OrderWorkflow {Id = 3, Step = 1},
                     new Facts::OrderItem { OrderId = 3, OrderPositionId = 3, CategoryId = 5 },
-                    new Facts::Order { Id = 4, WorkflowStep = 1, FirmId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(5), AgileDistributionEndPlanDate = MonthStart(5) },
+                    new Facts::Order { Id = 4, FirmId = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(5), AgileDistributionEndPlanDate = MonthStart(5)},
+                    new Facts::OrderWorkflow {Id = 4, Step = 1},
                     new Facts::OrderItem { OrderId = 4, OrderPositionId = 4, CategoryId = 5 })
                 .Aggregate(
                     // Периоды строятся по 

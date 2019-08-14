@@ -64,7 +64,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
                                                      .Where(x => branchOfficeOrganizationUnitIds.Contains(x.Id))
                                                      .Execute();
             store.AddRange(branchOfficeOrganizationUnits);
-            var branchOfficeIds = branchOfficeOrganizationUnits.Select(x => x.BranchOfficeId).ToList();
+            var branchOfficeIds = branchOfficeOrganizationUnits.Select(x => x.BranchOfficeId).ToHashSet();
 
             var branchOffices = query.GetTable<BranchOffice>()
                                      .Where(x => branchOfficeIds.Contains(x.Id))

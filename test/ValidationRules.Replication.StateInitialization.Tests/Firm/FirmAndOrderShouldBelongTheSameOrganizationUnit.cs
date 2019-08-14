@@ -16,7 +16,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmAndOrderShouldBelongTheSameOrganizationUnit))
                 .Fact(
                     new Facts::Firm { Id = 1, ProjectId = 1},
-                    new Facts::Order { Id = 2, FirmId = 1, DestProjectId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb, WorkflowStep = 5 })
+                    new Facts::Order { Id = 2, FirmId = 1, ProjectId = 2, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb },
+                    new Facts::OrderWorkflow {Id = 2, Step = 5}
+                    )
                 .Aggregate(
                     new Firm { Id = 1, },
                     new Order { Id = 2, FirmId = 1, Start = FirstDayJan, End = FirstDayFeb },

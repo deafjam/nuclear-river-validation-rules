@@ -15,7 +15,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts
         private readonly Dictionary<Type, HashSet<long>> _updatedEvents = new Dictionary<Type, HashSet<long>>();
         private readonly Dictionary<Type, HashSet<long>> _deletedEvents = new Dictionary<Type, HashSet<long>>();
         private readonly Dictionary<(Type, Type), HashSet<long>> _relatedEvents = new Dictionary<(Type, Type), HashSet<long>>();
-        private readonly HashSet<PeriodKey> _relatedPeriodKeyEvents = new HashSet<PeriodKey>();
 
         public void Add(IEnumerable<IEvent> events)
         {
@@ -78,12 +77,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts
                     break;
                 }
 
-                case PeriodKeysOutdatedEvent periodKeysOutdatedEvent:
-                {
-                    _relatedPeriodKeyEvents.UnionWith(periodKeysOutdatedEvent.PeriodKeys);
-                    break;
-                }
-                
                 default:
                     throw new ArgumentOutOfRangeException(nameof(@event), $"Unexpected event type { @event.GetType().GetFriendlyName() }");
             }
@@ -94,7 +87,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts
                 .SelectMany(x => x.Value.CreateBatches(BatchSize).Select(y => new DataObjectCreatedEvent(x.Key, y))).Cast<IEvent>()
                 .Concat(_updatedEvents.SelectMany(x => x.Value.CreateBatches(BatchSize).Select(y => new DataObjectUpdatedEvent(x.Key, y))))
                 .Concat(_deletedEvents.SelectMany(x => x.Value.CreateBatches(BatchSize).Select(y => new DataObjectDeletedEvent(x.Key, y))))
-                .Concat(_relatedEvents.SelectMany(x => x.Value.CreateBatches(BatchSize).Select(y => new RelatedDataObjectOutdatedEvent(x.Key.Item1, x.Key.Item2, y))))
-                .Concat(_relatedPeriodKeyEvents.CreateBatches(BatchSize).Select(y => new PeriodKeysOutdatedEvent(y)));
+                .Concat(_relatedEvents.SelectMany(x => x.Value.CreateBatches(BatchSize).Select(y => new RelatedDataObjectOutdatedEvent(x.Key.Item1, x.Key.Item2, y))));
     }
 }

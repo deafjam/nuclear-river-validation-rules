@@ -44,18 +44,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
         {
             var pricesIds = dataObjects.Select(x => x.Id).ToHashSet();
 
-            var periodKeys = from price in _query.For<Price>().Where(x => pricesIds.Contains(x.Id))
-                          select new PeriodKey(price.ProjectId, price.BeginDate);
+            var orderIds = (from price in _query.For<Price>().Where(x => pricesIds.Contains(x.Id))
+                           from order in _query.For<Order>().Where(x => x.AgileDistributionStartDate >= price.BeginDate && x.ProjectId == price.ProjectId)
+                           select order.Id)
+                           .Distinct()
+                           .ToList();
 
-            var orderIds = from price in _query.For<Price>().Where(x => pricesIds.Contains(x.Id))
-                           from order in _query.For<Order>().Where(x => x.AgileDistributionStartDate >= price.BeginDate && x.DestProjectId == price.ProjectId)
-                           select order.Id;
-
-            return new IEvent[]
-            {
-                new PeriodKeysOutdatedEvent(periodKeys.ToHashSet()), 
-                new RelatedDataObjectOutdatedEvent(typeof(Price), typeof(Order), orderIds.ToHashSet())
-            };
+            return new IEvent[] { new RelatedDataObjectOutdatedEvent(typeof(Price), typeof(Order), orderIds) };
         }
     }
 }

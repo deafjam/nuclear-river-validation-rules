@@ -48,12 +48,6 @@ namespace NuClear.ValidationRules.Replication
                                      .ToList();
                 events.AddRange(_rootToLeafActor.ExecuteCommands(recalculateCommands));
 
-                var recalculatePeriodCommands =
-                    aggregateCommands.OfType<RecalculatePeriodCommand>()
-                                     .Select(x => new SyncPeriodCommand(x.PeriodKeys))
-                                     .ToList();
-                events.AddRange(_rootToLeafActor.ExecuteCommands(recalculatePeriodCommands));
-
                 // TODO: вопрос: надо ли тут схлапывать events по distinct или не надо, проверить!!! 
                 
                 return events;

@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemeCategoryMustBeActiveAndNotDeleted_OneOrder))
                 .Fact(
-                    new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb},
+                    new Facts::Order { Id = 1, ProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb},
 
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 4, ThemeId = 5 },
 
@@ -51,8 +51,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemeCategoryMustBeActiveAndNotDeleted_TwoOrders))
                 .Fact(
-                    new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMar },
-                    new Facts::Order { Id = 2, DestProjectId = 3, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayApr },
+                    new Facts::Order { Id = 1, ProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayMar },
+                    new Facts::Order { Id = 2, ProjectId = 3, AgileDistributionStartDate = FirstDayFeb, AgileDistributionEndFactDate = FirstDayApr },
 
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 4, ThemeId = 5 },
                     new Facts::OrderPositionAdvertisement {OrderId = 2, OrderPositionId = 5, ThemeId = 5 },
@@ -90,7 +90,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(ThemeCategoryMustBeActiveAndNotDeletedNaegative))
                 .Fact(
-                    new Facts::Order { Id = 1, DestProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb },
+                    new Facts::Order { Id = 1, ProjectId = 3, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = FirstDayFeb },
 
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 4, ThemeId = 5 },
 

@@ -18,14 +18,14 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustHaveActiveLegalEntitiesAggregate))
                 .Fact(
-                    new Facts::Order { Id = 1, BranchOfficeOrganizationUnitId = 1, LegalPersonId = null, LegalPersonProfileId = null },
-                    new Facts::Order { Id = 2, BranchOfficeOrganizationUnitId = null, LegalPersonId = 1, LegalPersonProfileId = null },
-                    new Facts::Order { Id = 3, BranchOfficeOrganizationUnitId = null, LegalPersonId = null, LegalPersonProfileId = 1 },
-                    new Facts::Order { Id = 4, BranchOfficeOrganizationUnitId = 11, LegalPersonId = null, LegalPersonProfileId = null },
+                    new Facts::OrderConsistency { Id = 1, BranchOfficeOrganizationUnitId = 1, LegalPersonId = null, LegalPersonProfileId = null },
+                    new Facts::OrderConsistency { Id = 2, BranchOfficeOrganizationUnitId = null, LegalPersonId = 1, LegalPersonProfileId = null },
+                    new Facts::OrderConsistency { Id = 3, BranchOfficeOrganizationUnitId = null, LegalPersonId = null, LegalPersonProfileId = 1 },
+                    new Facts::OrderConsistency { Id = 4, BranchOfficeOrganizationUnitId = 11, LegalPersonId = null, LegalPersonProfileId = null },
 
-                    new Facts::Order { Id = 5, BranchOfficeOrganizationUnitId = 2, LegalPersonId = null, LegalPersonProfileId = null },
-                    new Facts::Order { Id = 6, BranchOfficeOrganizationUnitId = null, LegalPersonId = 2, LegalPersonProfileId = null },
-                    new Facts::Order { Id = 7, BranchOfficeOrganizationUnitId = null, LegalPersonId = null, LegalPersonProfileId = 2 },
+                    new Facts::OrderConsistency { Id = 5, BranchOfficeOrganizationUnitId = 2, LegalPersonId = null, LegalPersonProfileId = null },
+                    new Facts::OrderConsistency { Id = 6, BranchOfficeOrganizationUnitId = null, LegalPersonId = 2, LegalPersonProfileId = null },
+                    new Facts::OrderConsistency { Id = 7, BranchOfficeOrganizationUnitId = null, LegalPersonId = null, LegalPersonProfileId = 2 },
 
                     new Facts::BranchOfficeOrganizationUnit { Id = 11, BranchOfficeId = 999 },
 

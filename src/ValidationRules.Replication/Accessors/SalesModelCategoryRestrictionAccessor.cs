@@ -48,9 +48,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<SalesModelCategoryRestriction> dataObjects)
         {
-            var projectIds = dataObjects.Select(x => x.ProjectId);
+            var projectIds = dataObjects.Select(x => x.ProjectId).ToHashSet();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(SalesModelCategoryRestriction), typeof(Project), projectIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(SalesModelCategoryRestriction), typeof(Project), projectIds)};
         }
     }
 }

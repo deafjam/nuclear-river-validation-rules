@@ -49,11 +49,13 @@ namespace NuClear.ValidationRules.Replication.Accessors
         {
             var bargainIds = dataObjects.Select(x => x.BargainId).ToHashSet();
 
-            var orderIds =
-                from order in _query.For<Order>().Where(x => bargainIds.Contains(x.BargainId.Value))
-                select order.Id;
+            var orderIds = _query.For<OrderConsistency>()
+                .Where(x => bargainIds.Contains(x.BargainId.Value))
+                .Select(x => x.Id)
+                .Distinct()
+                .ToList();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(BargainScanFile), typeof(Order), orderIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(BargainScanFile), typeof(Order), orderIds)};
         }
     }
 }

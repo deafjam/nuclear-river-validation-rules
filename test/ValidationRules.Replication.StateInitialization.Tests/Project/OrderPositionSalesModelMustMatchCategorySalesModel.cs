@@ -22,22 +22,26 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Fact(
                     // Заказ 1 с неправильным размещением в рубрике - есть ошибка
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::OrderWorkflow { Id = 1 },
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, PositionId = 1, CategoryId = 12 },
                     new Facts::Position { Id = 1, SalesModel = 2 },
 
                     // Заказ 2 с корректным размещением в рубрике - нет ошибки
                     new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::OrderWorkflow { Id = 2 },
                     new Facts::OrderPositionAdvertisement {OrderId = 2, OrderPositionId = 2, PositionId = 2, CategoryId = 12 },
                     new Facts::Position { Id = 2, SalesModel = 1 },
 
                     // Заказ 3 с неправильным размещением в рубрике, но позиция игнорирует модель продаж - нет ошибки
                     new Facts::Order { Id = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::OrderWorkflow { Id = 3 },
                     new Facts::OrderPositionAdvertisement {OrderId = 3, OrderPositionId = 3, PositionId = 3, CategoryId = 12 },
                     new Facts::PricePosition { Id = 3, PositionId = 3 },
                     new Facts::Position { Id = 3, SalesModel = 2, PositionsGroup = PositionsGroupMedia },
 
                     // Заказ 4 начинает размещение корректно, но в процессе меняется модель продаж - есть ошибка
                     new Facts::Order { Id = 4, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(8) },
+                    new Facts::OrderWorkflow { Id = 4 },
                     new Facts::OrderPositionAdvertisement {OrderId = 4, OrderPositionId = 4, PositionId = 4, CategoryId = 12 },
                     new Facts::Position { Id = 4, SalesModel = 1 },
 

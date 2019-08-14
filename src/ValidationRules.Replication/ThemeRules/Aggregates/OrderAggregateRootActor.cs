@@ -51,7 +51,7 @@ namespace NuClear.ValidationRules.Replication.ThemeRules.Aggregates
                             Id = order.Id,
                             Start = order.AgileDistributionStartDate,
                             End = order.AgileDistributionEndFactDate,
-                            ProjectId = order.DestProjectId,
+                            ProjectId = order.ProjectId,
                             IsSelfAds = order.IsSelfAds,
                         });
 

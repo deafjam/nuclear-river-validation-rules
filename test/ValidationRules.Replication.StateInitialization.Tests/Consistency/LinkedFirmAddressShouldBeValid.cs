@@ -22,6 +22,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(LinkedFirmAddressShouldBeValid))
                 .Fact(
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2), FirmId = 1 },
+                    new Facts::OrderConsistency { Id = 1, FirmId = 1 },
 
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, FirmAddressId = 1, PositionId = 1 },
                     new Facts::FirmAddress { Id = 1, FirmId = 2 },

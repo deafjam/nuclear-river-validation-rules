@@ -9,6 +9,8 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
     {
         public long Id { get; set; }
         public long FirmId { get; set; }
+        
+        public long ProjectId { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public bool IsCommitted { get; set; }

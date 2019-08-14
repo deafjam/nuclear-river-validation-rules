@@ -17,6 +17,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(FirmAddressMustBeLocatedOnTheMap))
                 .Fact(
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2) },
+                    new Facts::OrderWorkflow { Id = 1 },
                     
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 3, FirmAddressId = 2, PositionId = 4 },
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 3, FirmAddressId = 2, PositionId = 5 },

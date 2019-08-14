@@ -32,6 +32,8 @@ namespace NuClear.ValidationRules.Replication
             typeof(LegalPersonProfile),
             typeof(NomenclatureCategory),
             typeof(Order),
+            typeof(OrderWorkflow),
+            typeof(OrderConsistency),
             typeof(OrderItem),
             typeof(OrderPosition),
             typeof(OrderPositionAdvertisement),

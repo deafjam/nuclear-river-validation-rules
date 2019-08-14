@@ -51,12 +51,14 @@ namespace NuClear.ValidationRules.Replication.Accessors
             var legalPersonIds = dataObjects.Select(x => x.LegalPersonId).ToHashSet();
 
             var orderIds =
-                from order in _query.For<Order>()
+                (from order in _query.For<OrderConsistency>()
                 where legalPersonProfileIds.Contains(order.LegalPersonProfileId.Value)
                       || legalPersonIds.Contains(order.LegalPersonId.Value)
-                select order.Id;
+                select order.Id)
+                .Distinct()
+                .ToList();
 
-            return new[] {new RelatedDataObjectOutdatedEvent(typeof(LegalPersonProfile), typeof(Order), orderIds.ToHashSet())};
+            return new[] {new RelatedDataObjectOutdatedEvent(typeof(LegalPersonProfile), typeof(Order), orderIds)};
         }
     }
 }
