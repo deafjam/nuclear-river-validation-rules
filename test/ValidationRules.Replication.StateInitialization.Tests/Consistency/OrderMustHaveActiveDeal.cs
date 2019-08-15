@@ -19,11 +19,11 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(OrderMustHaveActiveDealAggregate))
                 .Fact(
                     new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2)},
-                    new Facts::OrderConsistency { Id = 1, DealId = null, HasCurrency = true },
+                    new Facts::OrderConsistency { Id = 1, DealId = null },
                     new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2)},
-                    new Facts::OrderConsistency { Id = 2, DealId = 2, HasCurrency = true },
+                    new Facts::OrderConsistency { Id = 2, DealId = 2 },
                     new Facts::Order { Id = 3, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(2)},
-                    new Facts::OrderConsistency { Id = 3, DealId = 3, HasCurrency = true },
+                    new Facts::OrderConsistency { Id = 3, DealId = 3 },
 
                     new Facts::Deal { Id = 3 })
                 .Aggregate(
@@ -78,21 +78,16 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                         OrderId = 2,
                     });
 
-        private static Order.MissingRequiredField CreateOrderMissingRequiredField(long orderId,
-                                                                                      bool branchOfficeOrganizationUnit = true,
-                                                                                      bool currency = false,
-                                                                                      bool deal = true,
-                                                                                      bool legalPerson = true,
-                                                                                      bool legalPersonProfile = true)
+        private static Order.MissingRequiredField CreateOrderMissingRequiredField(long orderId, bool deal)
         {
             return new Order.MissingRequiredField
                 {
                     OrderId = orderId,
-                    BranchOfficeOrganizationUnit = branchOfficeOrganizationUnit,
-                    Currency = currency,
+                    LegalPerson = true,
+                    LegalPersonProfile = true,
+                    BranchOfficeOrganizationUnit = true,
+                    Currency = true,
                     Deal = deal,
-                    LegalPerson = legalPerson,
-                    LegalPersonProfile = legalPersonProfile,
                 };
         }
     }

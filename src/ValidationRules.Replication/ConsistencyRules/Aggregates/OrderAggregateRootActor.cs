@@ -541,17 +541,23 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                 dataObjects.Select(x => x.OrderId);
 
             public IQueryable<Order.MissingRequiredField> GetSource()
-                => from order in _query.For<Facts::OrderConsistency>()
-                   where !(order.BranchOfficeOrganizationUnitId.HasValue && order.HasCurrency && order.LegalPersonId.HasValue && order.LegalPersonProfileId.HasValue && order.DealId.HasValue)
-                   select new Order.MissingRequiredField
-                       {
-                           OrderId = order.Id,
-                           BranchOfficeOrganizationUnit = order.BranchOfficeOrganizationUnitId == null,
-                           Currency = !order.HasCurrency,
-                           LegalPerson = order.LegalPersonId == null,
-                           LegalPersonProfile = order.LegalPersonId == null,
-                           Deal = order.DealId == null,
-                       };
+            {
+                var result =  from order in _query.For<Facts::OrderConsistency>()
+                    where !(order.LegalPersonId.HasValue && order.LegalPersonProfileId.HasValue &&
+                            order.BranchOfficeOrganizationUnitId.HasValue && order.HasCurrency &&
+                            order.DealId.HasValue)
+                    select new Order.MissingRequiredField
+                    {
+                        OrderId = order.Id,
+                        BranchOfficeOrganizationUnit = order.BranchOfficeOrganizationUnitId == null,
+                        Currency = !order.HasCurrency,
+                        LegalPerson = order.LegalPersonId == null,
+                        LegalPersonProfile = order.LegalPersonProfileId == null,
+                        Deal = order.DealId == null,
+                    };
+                
+                return result;
+            }
 
             public FindSpecification<Order.MissingRequiredField> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

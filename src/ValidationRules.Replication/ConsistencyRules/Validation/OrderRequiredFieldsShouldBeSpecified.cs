@@ -25,18 +25,17 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Validation
             var ruleResults =
                 from order in query.For<Order>()
                 from missing in query.For<Order.MissingRequiredField>().Where(x => x.OrderId == order.Id)
-                where missing.Currency || missing.BranchOfficeOrganizationUnit 
-                    || missing.LegalPerson || missing.LegalPersonProfile
+                where missing.LegalPerson || missing.LegalPersonProfile || missing.BranchOfficeOrganizationUnit || missing.Currency 
                 select new Version.ValidationResult
                     {
                         MessageParams =
                             new MessageParams(
                                     new Dictionary<string, object>
                                         {
-                                                { "currency", missing.Currency },
-                                                { "branchOfficeOrganizationUnit", missing.BranchOfficeOrganizationUnit },
-                                                { "legalPerson", missing.LegalPerson },
-                                                { "legalPersonProfile", missing.LegalPersonProfile },
+                                            { "legalPerson", missing.LegalPerson },
+                                            { "legalPersonProfile", missing.LegalPersonProfile },
+                                            { "branchOfficeOrganizationUnit", missing.BranchOfficeOrganizationUnit },
+                                            { "currency", missing.Currency },
                                         },
                                     new Reference<EntityTypeOrder>(order.Id))
                                 .ToXDocument(),
