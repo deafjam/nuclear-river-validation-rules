@@ -23,6 +23,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IQueryable<OrderPositionCostPerClick> GetSource() => _query
             .For<Erm::OrderPositionCostPerClick>()
+            .Where(x => x.CategoryId != null)
             .Where(cpc =>
                    cpc.BidIndex == _query.For<Erm::OrderPositionCostPerClick>()
                                          .Where(x => x.OrderPositionId == cpc.OrderPositionId)
@@ -30,7 +31,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
             .Select(cpc => new OrderPositionCostPerClick
             {
                 OrderPositionId = cpc.OrderPositionId,
-                CategoryId = cpc.CategoryId,
+                CategoryId = cpc.CategoryId.Value,
                 Amount = cpc.Amount,
             });
 

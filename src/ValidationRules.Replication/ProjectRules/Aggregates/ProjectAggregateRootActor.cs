@@ -130,6 +130,8 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                 => new RuleInvalidator
                     {
                         MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel,
+                        // если изменился SalesModelRestriction.SalesModel с CPC на CPS, то надо пересчитать CPC-проверки, чтобы существующие CPC-ошибки пропали
+                        MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction,
                     };
 
             public IQueryable<Project.SalesModelRestriction> GetSource()
