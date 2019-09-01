@@ -25,10 +25,11 @@ namespace NuClear.ValidationRules.Replication.Accessors
             .For<Erm::CostPerClickCategoryRestriction>()
             .Select(x => new CostPerClickCategoryRestriction
             {
-                CategoryId = x.CategoryId,
                 ProjectId = x.ProjectId,
-                MinCostPerClick = x.MinCostPerClick,
                 Start = x.BeginningDate,
+                
+                CategoryId = x.CategoryId,
+                MinCostPerClick = x.MinCostPerClick,
             });
 
         public FindSpecification<CostPerClickCategoryRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

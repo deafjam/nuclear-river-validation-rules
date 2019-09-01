@@ -65,7 +65,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<CostPerClickCategoryRestriction>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, Begin = x.Start });
+                   .HasPrimaryKey(x => new { x.ProjectId, x.Start, x.CategoryId });
 
             builder.Entity<Deal>()
                    .HasSchemaName(FactsSchema)
@@ -195,7 +195,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<SalesModelCategoryRestriction>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, Begin = x.Start });
+                   .HasPrimaryKey(x => new { x.ProjectId, x.Start, x.CategoryId });
 
             builder.Entity<SystemStatus>()
                    .HasSchemaName(FactsSchema)

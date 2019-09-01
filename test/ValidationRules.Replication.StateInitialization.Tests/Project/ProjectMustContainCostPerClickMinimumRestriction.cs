@@ -20,13 +20,13 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Name(nameof(ProjectMustContainCostPerClickMinimumRestriction))
                 .Fact(
                     // Действует ограничение по 13-й рубрике (месяц 1)
-                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(3) },
                     new Facts::OrderWorkflow { Id = 1 },
                     new Facts::OrderPosition { Id = 1, OrderId = 1, PricePositionId = 5 },
                     new Facts::OrderPositionCostPerClick { OrderPositionId = 1, CategoryId = 13, Amount = 2 },
 
                     // Ограничение по 14-й рубрике обнуляет таковое по 13-й (месяц 2)
-                    new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(2), AgileDistributionEndFactDate = MonthStart(3) },
                     new Facts::OrderWorkflow { Id = 2 },
                     new Facts::OrderPosition { Id = 2, OrderId = 2, PricePositionId = 5 },
                     new Facts::OrderPositionCostPerClick { OrderPositionId = 2, CategoryId = 13, Amount = 2 },

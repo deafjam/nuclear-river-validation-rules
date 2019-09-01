@@ -24,7 +24,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
         {
             var ruleResults =
                 from order in query.For<Order>()
-                from restriction in query.For<Project.SalesModelRestriction>().Where(x => x.End > order.Start && order.End > x.Start && x.ProjectId == order.ProjectId)
+                from restriction in query.For<Project.SalesModelRestriction>().Where(x => x.ProjectId == order.ProjectId && x.End > order.Start && order.End > x.Start)
                 from adv in query.For<Order.CategoryAdvertisement>().Where(x => x.IsSalesModelRestrictionApplicable).Where(x => x.OrderId == order.Id && x.CategoryId == restriction.CategoryId)
                 where restriction.SalesModel != adv.SalesModel
                 let start = order.Start > restriction.Start ? order.Start : restriction.Start

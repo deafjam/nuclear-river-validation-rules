@@ -11,12 +11,13 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.ProjectRules
 
         public MessageComposerResult Compose(NamedReference[] references, IReadOnlyDictionary<string, string> extra)
         {
+            var orderReference = references.Get<EntityTypeOrder>();
             var categoryReference = references.Get<EntityTypeCategory>();
             var projectReference = references.Get<EntityTypeProject>();
             var start = extra.ReadStartDate();
 
             return new MessageComposerResult(
-                projectReference,
+                orderReference,
                 Resources.ProjectMustContainCostPerClickMinimumRestriction,
                 categoryReference,
                 projectReference,

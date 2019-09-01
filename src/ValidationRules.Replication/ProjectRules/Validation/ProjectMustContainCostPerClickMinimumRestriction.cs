@@ -34,7 +34,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
 
             var ruleResults =
                 from req in requiredRestrictions
-                let restrictionExist = query.For<Project.CostPerClickRestriction>().Any(x => x.ProjectId == req.ProjectId && x.CategoryId == req.CategoryId && x.Start <= req.Start && x.End > req.Start)
+                let restrictionExist = query.For<Project.CostPerClickRestriction>().Any(x => x.ProjectId == req.ProjectId && x.Start <= req.Start && x.End > req.Start && x.CategoryId == req.CategoryId)
                 where !restrictionExist
                 select new Version.ValidationResult
                     {
@@ -42,6 +42,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
                             new MessageParams(
                                     new Dictionary<string, object> { { "start", req.Start } },
                                     new Reference<EntityTypeCategory>(req.CategoryId),
+                                    new Reference<EntityTypeOrder>(req.OrderId),
                                     new Reference<EntityTypeProject>(req.ProjectId))
                                 .ToXDocument(),
 

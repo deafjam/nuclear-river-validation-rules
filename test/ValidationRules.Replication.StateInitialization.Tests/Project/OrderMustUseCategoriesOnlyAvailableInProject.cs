@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustUseCategoriesOnlyAvailableInProjectPositive))
                 .Fact(
-                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(3) },
                     new Facts::OrderWorkflow { Id = 1 },
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
                     new Facts::Position { Id = 4 },
@@ -47,7 +47,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustUseCategoriesOnlyAvailableInProjectCategoryNotActive))
                 .Fact(
-                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(3) },
                     new Facts::OrderWorkflow { Id = 1 },
                     new Facts::OrderPosition { Id = 1, OrderId = 1 },
                     new Facts::OrderPositionAdvertisement { OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
@@ -64,7 +64,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustUseCategoriesOnlyAvailableInProjectNegative))
                 .Fact(
-                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3) },
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(3) },
                     new Facts::OrderWorkflow { Id = 1 },
                     new Facts::OrderPositionAdvertisement {OrderId = 1, OrderPositionId = 1, CategoryId = 12, PositionId = 4 },
                     new Facts::Position { Id = 4 },

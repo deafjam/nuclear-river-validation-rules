@@ -57,7 +57,7 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                        {
                            Id = order.Id,
                            Start = order.AgileDistributionStartDate,
-                           End = order.AgileDistributionEndPlanDate, // ?
+                           End = order.AgileDistributionEndFactDate,
                            ProjectId = order.ProjectId,
                            IsDraft = orderWorkflow.Step == Facts::OrderWorkflowStep.OnRegistration,
                        };

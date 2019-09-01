@@ -25,10 +25,11 @@ namespace NuClear.ValidationRules.Replication.Accessors
             .For<Erm::SalesModelCategoryRestriction>()
             .Select(x => new SalesModelCategoryRestriction
             {
-                CategoryId = x.CategoryId,
                 ProjectId = x.ProjectId,
-                SalesModel = x.SalesModel,
                 Start = x.BeginningDate,
+                
+                CategoryId = x.CategoryId,
+                SalesModel = x.SalesModel,
             });
 
         public FindSpecification<SalesModelCategoryRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

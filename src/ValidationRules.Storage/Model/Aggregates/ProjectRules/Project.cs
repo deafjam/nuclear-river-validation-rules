@@ -15,19 +15,21 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
         public sealed class CostPerClickRestriction
         {
             public long ProjectId { get; set; }
-            public long CategoryId { get; set; }
-            public decimal Minimum { get; set; }
             public DateTime Start { get; set; }
             public DateTime End { get; set; }
+
+            public long CategoryId { get; set; }
+            public decimal Minimum { get; set; }
         }
 
         public sealed class SalesModelRestriction
         {
             public long ProjectId { get; set; }
-            public long CategoryId { get; set; }
-            public int SalesModel { get; set; }
             public DateTime Start { get; set; }
             public DateTime End { get; set; }
+            
+            public long CategoryId { get; set; }
+            public int SalesModel { get; set; }
         }
 
         public sealed class NextRelease

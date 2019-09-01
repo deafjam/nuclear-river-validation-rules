@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustNotIncludeReleasedPeriodPositive))
                 .Fact(
-                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3)},
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(3)},
                     new Facts::OrderWorkflow {Id = 1, Step = 1},
                     new Facts::ReleaseInfo { PeriodEndDate = MonthStart(2) },
                     new Facts::Project())
@@ -39,9 +39,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                 .Config
                 .Name(nameof(OrderMustNotIncludeReleasedPeriodNegative))
                 .Fact(
-                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(2), AgileDistributionEndPlanDate = MonthStart(3)},
+                    new Facts::Order { Id = 1, AgileDistributionStartDate = MonthStart(2), AgileDistributionEndFactDate = MonthStart(3)},
                     new Facts::OrderWorkflow {Id = 1, Step = 1},
-                    new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndPlanDate = MonthStart(3)},
+                    new Facts::Order { Id = 2, AgileDistributionStartDate = MonthStart(1), AgileDistributionEndFactDate = MonthStart(3)},
                     new Facts::OrderWorkflow {Id = 2, Step = 5},
                     new Facts::ReleaseInfo { PeriodEndDate = MonthStart(2) },
                     new Facts::Project())

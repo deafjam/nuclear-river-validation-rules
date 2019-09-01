@@ -101,17 +101,23 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
                     };
 
             public IQueryable<Project.CostPerClickRestriction> GetSource()
-                => from project in _query.For<Facts::Project>()
-                   from restriction in _query.For<Facts::CostPerClickCategoryRestriction>().Where(x => x.ProjectId == project.Id)
-                   let nextRestriction = _query.For<Facts::CostPerClickCategoryRestriction>().Where(x => x.ProjectId == project.Id && x.Start > restriction.Start).Min(x => (DateTime?)x.Start)
-                   select new Project.CostPerClickRestriction
-                   {
-                       ProjectId = project.Id,
-                       CategoryId = restriction.CategoryId,
-                       Minimum = restriction.MinCostPerClick,
-                       Start = restriction.Start,
-                       End = nextRestriction ?? DateTime.MaxValue
-                   };
+            {
+                var result =
+                    from restriction in _query.For<Facts::CostPerClickCategoryRestriction>()
+                    from nextRestriction in _query.For<Facts::CostPerClickCategoryRestriction>()
+                        .Where(x => x.ProjectId == restriction.ProjectId && x.Start > restriction.Start).OrderBy(x => x.Start).Take(1).DefaultIfEmpty()
+                    select new Project.CostPerClickRestriction
+                    {
+                        ProjectId = restriction.ProjectId,
+                        Start = restriction.Start,
+                        End = nextRestriction != null ? nextRestriction.Start : DateTime.MaxValue,
+
+                        CategoryId = restriction.CategoryId,
+                        Minimum = restriction.MinCostPerClick,
+                    };
+
+                return result;
+            }
 
             public FindSpecification<Project.CostPerClickRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {
@@ -129,23 +135,27 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel,
-                        // если изменился SalesModelRestriction.SalesModel с CPC на CPS, то надо пересчитать CPC-проверки, чтобы существующие CPC-ошибки пропали
-                        MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction,
+                        MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel
                     };
 
             public IQueryable<Project.SalesModelRestriction> GetSource()
-                => from project in _query.For<Facts::Project>()
-                   from restriction in _query.For<Facts::SalesModelCategoryRestriction>().Where(x => x.ProjectId == project.Id)
-                   let nextRestriction = _query.For<Facts::SalesModelCategoryRestriction>().Where(x => x.ProjectId == project.Id && x.CategoryId == restriction.CategoryId && x.Start > restriction.Start).Min(x => (DateTime?)x.Start)
-                   select new Project.SalesModelRestriction
-                   {
-                       ProjectId = project.Id,
-                       CategoryId = restriction.CategoryId,
-                       SalesModel = restriction.SalesModel,
-                       Start = restriction.Start,
-                       End = nextRestriction ?? DateTime.MaxValue
-                   };
+            {
+                var result = 
+                    from restriction in _query.For<Facts::SalesModelCategoryRestriction>()
+                    from nextRestriction in _query.For<Facts::SalesModelCategoryRestriction>()
+                        .Where(x => x.ProjectId == restriction.ProjectId && x.Start > restriction.Start).OrderBy(x => x.Start).Take(1).DefaultIfEmpty()    
+                    select new Project.SalesModelRestriction
+                    {
+                        ProjectId = restriction.ProjectId,
+                        Start = restriction.Start,
+                        End = nextRestriction != null ? nextRestriction.Start : DateTime.MaxValue,
+
+                        CategoryId = restriction.CategoryId,
+                        SalesModel = restriction.SalesModel,
+                    };
+
+                return result;
+            }
 
             public FindSpecification<Project.SalesModelRestriction> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
             {

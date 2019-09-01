@@ -223,11 +223,11 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<ProjectAggregates::Project.CostPerClickRestriction>()
                    .HasSchemaName(ProjectAggregatesSchema)
-                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, x.Start, x.End });
+                   .HasPrimaryKey(x => new { x.ProjectId, x.Start, x.End, x.CategoryId });
 
             builder.Entity<ProjectAggregates::Project.SalesModelRestriction>()
                    .HasSchemaName(ProjectAggregatesSchema)
-                   .HasPrimaryKey(x => new { x.ProjectId, x.CategoryId, x.Start, x.End });
+                   .HasPrimaryKey(x => new { x.ProjectId, x.Start, x.End, x.CategoryId });
 
             builder.Entity<ProjectAggregates::Project.NextRelease>()
                    .HasSchemaName(ProjectAggregatesSchema)
