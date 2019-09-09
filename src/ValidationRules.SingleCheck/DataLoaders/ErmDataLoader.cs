@@ -107,7 +107,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
             var categoryIds = opas.Where(x => x.CategoryId.HasValue).Select(x => x.CategoryId.Value).ToList();
             var firmAddressIds = opas.Where(x => x.FirmAddressId.HasValue).Select(x => x.FirmAddressId.Value).ToList(); // список привязанных адресов из-за ЗМК может превышать список адресов фирмы
 
-            var costs = query.GetTable<OrderPositionCostPerClick>()
+            var costs = query.GetTable<OrderPositionCostPerAny>()
                              .Where(x => orderPositionIds.Contains(x.OrderPositionId))
                              .Execute(); // Можно ужесточить: только проверямый заказ, только актуальные ставки
             store.AddRange(costs);

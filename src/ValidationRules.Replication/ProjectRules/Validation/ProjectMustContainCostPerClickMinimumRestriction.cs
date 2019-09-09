@@ -8,13 +8,9 @@ using NuClear.ValidationRules.Storage.Model.Messages;
 
 namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
 {
-    /// <summary>
-    /// Для проектов, где есть продажи в рубрики без указанного ограничения стоимости клика*, должна выводиться ошибка.
-    /// "Для рубрики {0} в проекте {1} не указан минимальный CPC"
-    /// 
-    /// * учитываются ограничения только самой свежей версии для города.
-    /// Source: IsCostPerClickRestrictionMissingOrderValidationRule
-    /// </summary>
+    // Для проектов, где есть продажи в рубрики без указанного ограничения стоимости клика*, должна выводиться ошибка.
+    // "Для рубрики {0} в проекте {1} не указан минимальный CPC"
+    // * учитываются ограничения только самой свежей версии для города.
     public sealed class ProjectMustContainCostPerClickMinimumRestriction : ValidationResultAccessorBase
     {
         public ProjectMustContainCostPerClickMinimumRestriction(IQuery query) : base(query, MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction)

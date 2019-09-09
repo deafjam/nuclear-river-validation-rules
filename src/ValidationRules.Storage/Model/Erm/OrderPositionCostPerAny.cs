@@ -1,6 +1,6 @@
 ﻿namespace NuClear.ValidationRules.Storage.Model.Erm
 {
-    public sealed class OrderPositionCostPerClick
+    public sealed class OrderPositionCostPerAny
     {
         public long OrderPositionId { get; set; }
         public long? CategoryId { get; set; }

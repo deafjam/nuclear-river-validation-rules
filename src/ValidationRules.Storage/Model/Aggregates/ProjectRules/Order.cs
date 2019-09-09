@@ -18,7 +18,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
             public long AddressId { get; set; }
         }
 
-        public class CategoryAdvertisement
+        public sealed class CategoryAdvertisement
         {
             public const int CostPerClickSalesModel = 12; // erm: MultiPlannedProvision
 
@@ -30,7 +30,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
             public bool IsSalesModelRestrictionApplicable { get; set; }
         }
 
-        public class CostPerClickAdvertisement
+        public sealed class CostPerClickAdvertisement
         {
             public long OrderId { get; set; }
             public long OrderPositionId { get; set; }

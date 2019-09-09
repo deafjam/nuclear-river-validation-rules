@@ -22,10 +22,10 @@ namespace NuClear.ValidationRules.Replication.Accessors
         public OrderPositionCostPerClickAccessor(IQuery query) => _query = query;
 
         public IQueryable<OrderPositionCostPerClick> GetSource() => _query
-            .For<Erm::OrderPositionCostPerClick>()
+            .For<Erm::OrderPositionCostPerAny>()
             .Where(x => x.CategoryId != null)
             .Where(cpc =>
-                   cpc.BidIndex == _query.For<Erm::OrderPositionCostPerClick>()
+                   cpc.BidIndex == _query.For<Erm::OrderPositionCostPerAny>()
                                          .Where(x => x.OrderPositionId == cpc.OrderPositionId)
                                          .Max(x => x.BidIndex))
             .Select(cpc => new OrderPositionCostPerClick

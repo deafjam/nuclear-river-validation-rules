@@ -345,8 +345,8 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
             => ArrangeMetadataElement.Config
                 .Name(nameof(OrderPositionCostPerClickFacts))
                 .Erm(
-                    new Erm::OrderPositionCostPerClick { CategoryId = 1, OrderPositionId = 2, Amount = 1, BidIndex = 1 },
-                    new Erm::OrderPositionCostPerClick { CategoryId = 1, OrderPositionId = 2, Amount = 2, BidIndex = 2 })
+                    new Erm::OrderPositionCostPerAny { CategoryId = 1, OrderPositionId = 2, Amount = 1, BidIndex = 1 },
+                    new Erm::OrderPositionCostPerAny { CategoryId = 1, OrderPositionId = 2, Amount = 2, BidIndex = 2 })
                 .Fact(
                     new OrderPositionCostPerClick { CategoryId = 1, OrderPositionId = 2, Amount = 2 });
 

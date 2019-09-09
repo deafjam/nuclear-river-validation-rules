@@ -7,12 +7,8 @@ using NuClear.ValidationRules.Storage.Model.Messages;
 
 namespace NuClear.ValidationRules.Replication.ProjectRules.Validation
 {
-    /// <summary>
-    /// Для заказов, в позиции которого выставлена ставка меньше минимально допустимой для этого города/рубрики, должна выводиться ошибка.
-    /// "Для позиции {0} в рубрику {1} указан CPC меньше минимального"
-    /// 
-    /// Source: CostPerClickOrderValidationRule
-    /// </summary>
+    // Для заказов, в позиции которого выставлена ставка меньше минимально допустимой для этого города/рубрики, должна выводиться ошибка.
+    // "Для позиции {0} в рубрику {1} указан CPC меньше минимального"
     public sealed class OrderPositionCostPerClickMustNotBeLessMinimum : ValidationResultAccessorBase
     {
         public OrderPositionCostPerClickMustNotBeLessMinimum(IQuery query) : base(query, MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum)
