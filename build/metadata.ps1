@@ -166,6 +166,7 @@ $AllEnvironments = @{
 	'Edu.Russia' = @{ EnvType = 'Edu'; Country = 'Russia' }
 	'Edu.Ukraine' = @{ EnvType = 'Edu'; Country = 'Ukraine' }
 	'Edu.Uzbekistan' = @{ EnvType = 'Edu'; Country = 'Uzbekistan' }
+	'Edu.Azerbaijan' = @{ EnvType = 'Edu'; Country = 'Azerbaijan' }
 
 	'Business.Russia' = @{ EnvType = 'Business'; Country = 'Russia' }
 	'Business.Russia.01' = @{ EnvType = 'Business'; Country = 'Russia'; Index = '01'}
@@ -178,6 +179,7 @@ $AllEnvironments = @{
 	'Load.Kyrgyzstan' = @{ EnvType = 'Load'; Country = 'Kyrgyzstan' }
 	'Load.Ukraine' = @{ EnvType = 'Load'; Country = 'Ukraine' }
 	'Load.Uzbekistan' = @{ EnvType = 'Load'; Country = 'Uzbekistan' }
+	'Load.Azerbaijan' = @{ EnvType = 'Load'; Country = 'Azerbaijan' }
 
 	'Production.Cyprus' = @{ EnvType = 'Production'; Country = 'Cyprus' }
 	'Production.Czech' = @{ EnvType = 'Production'; Country = 'Czech' }
@@ -187,6 +189,7 @@ $AllEnvironments = @{
 	'Production.Ukraine' = @{ EnvType = 'Production'; Country = 'Ukraine' }
 	'Production.Kyrgyzstan' = @{ EnvType = 'Production'; Country = 'Kyrgyzstan' }
 	'Production.Uzbekistan' = @{ EnvType = 'Production'; Country = 'Uzbekistan' }
+	'Production.Azerbaijan' = @{ EnvType = 'Production'; Country = 'Azerbaijan' }
 	
 	'Test.01' = @{ EnvType = 'Test'; Country = 'Russia'; Index = '01' }
 	'Test.02' = @{ EnvType = 'Test'; Country = 'Russia'; Index = '02' }
@@ -242,7 +245,16 @@ $AllEnvironments = @{
 	'Test.205' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '205' }
 	'Test.206' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '206' }
 	'Test.207' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '207' }
-	'Test.208' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '208' }	
+	'Test.208' = @{ EnvType = 'Test'; Country = 'Czech'; Index = '208' }
+
+	'Test.301' = @{ EnvType = 'Test'; Country = 'Azerbaijan'; Index = '301' }
+	'Test.302' = @{ EnvType = 'Test'; Country = 'Azerbaijan'; Index = '302' }
+	'Test.303' = @{ EnvType = 'Test'; Country = 'Azerbaijan'; Index = '303' }
+	'Test.304' = @{ EnvType = 'Test'; Country = 'Azerbaijan'; Index = '304' }
+	'Test.305' = @{ EnvType = 'Test'; Country = 'Azerbaijan'; Index = '305' }
+	'Test.306' = @{ EnvType = 'Test'; Country = 'Azerbaijan'; Index = '306' }
+	'Test.307' = @{ EnvType = 'Test'; Country = 'Azerbaijan'; Index = '307' }
+	'Test.308' = @{ EnvType = 'Test'; Country = 'Azerbaijan'; Index = '308' }	
 	
 	'Test.401' = @{ EnvType = 'Test'; Country = 'Ukraine'; Index = '401' }
 	'Test.402' = @{ EnvType = 'Test'; Country = 'Ukraine'; Index = '402' }

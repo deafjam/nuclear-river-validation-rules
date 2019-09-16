@@ -14,6 +14,7 @@ $DomainNames = @{
 	'Kazakhstan' = 'kz'
 	'Kyrgyzstan' = 'kg'
 	'Uzbekistan' = 'uz'
+	'Azerbaijan' = 'az'
 }
 
 $DBSuffixes = @{
@@ -25,6 +26,7 @@ $DBSuffixes = @{
 	'Kazakhstan' = 'KZ'
 	'Kyrgyzstan' = 'KG'
 	'Uzbekistan' = 'UZ'
+	'Azerbaijan' = 'AZ'
 }
 
 function Get-DBSuffix($Context){

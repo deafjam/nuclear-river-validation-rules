@@ -166,6 +166,8 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                     return "KG";
                 case "Uzbekistan":
                     return "UZ";
+                case "Azerbaijan":
+                    return "AZ";
                 default:
                     throw new ArgumentOutOfRangeException();
             }
