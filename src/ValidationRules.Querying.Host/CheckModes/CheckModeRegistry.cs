@@ -212,10 +212,10 @@ namespace NuClear.ValidationRules.Querying.Host.CheckModes
                          release: RuleSeverityLevel.Error),
 
                     Rule(MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum,
-                         single: RuleSeverityLevel.Error,
-                         manualReport: RuleSeverityLevel.Error,
-                         prerelease: RuleSeverityLevel.Error,
-                         release: RuleSeverityLevel.Error),
+                         single: RuleSeverityLevel.Warning,
+                         manualReport: RuleSeverityLevel.Warning,
+                         prerelease: RuleSeverityLevel.Warning,
+                         release: RuleSeverityLevel.Warning),
 
                     Rule(MessageTypeCode.OrderPositionSalesModelMustMatchCategorySalesModel,
                          single: RuleSeverityLevel.Error,
