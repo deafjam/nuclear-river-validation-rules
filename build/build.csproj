@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netstandard20</TargetFramework>
     <NoWarn>NU1701</NoWarn>
     <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="2GIS.NuClear.AdvancedSearch.Tools.ConvertTrackedUseCases" Version="0.1.14" />
-    <PackageReference Include="2GIS.NuClear.BuildTools" Version="0.2.118" />
+    <PackageReference Include="2GIS.NuClear.BuildTools" Version="0.2.123" />
   </ItemGroup>
 
 </Project>

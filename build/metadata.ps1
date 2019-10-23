@@ -9,16 +9,6 @@ function Get-EntryPointsMetadata ($EntryPoints, $Context) {
 
 	$entryPointsMetadata = @{}
 
-	# конвертер нужен всегда (очистка ресурсов)
-	$Context.EntryPoint = 'ConvertUseCasesService'
-	$entryPointsMetadata += Get-WinServiceMetadata $Context
-
-	# production копия конвертера нужна всегда (очистка ресурсов)
-	$productionContext = $Context.Clone()
-	$productionContext.EnvType = 'Production' 
-	$productionContext.EntryPoint = 'ConvertUseCasesService-Production'
-	$entryPointsMetadata += Get-WinServiceMetadata $productionContext 
-
 	switch ($EntryPoints){
 		'ValidationRules.Querying.Host' {
 			$Context.EntryPoint = $_
@@ -123,7 +113,6 @@ function Parse-EnvironmentMetadata ($Properties) {
 	}
 	$context.EnvironmentName = $environmentName
 
-	$context.UseCaseRoute = $Properties['UseCaseRoute']
 	$context.RulesetsFactsTopic = $Properties['RulesetsFactsTopic']
 
 	if ($Properties.ContainsKey('EntryPoints')){

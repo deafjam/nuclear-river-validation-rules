@@ -11,7 +11,6 @@ if ($Properties.Count -eq 0){
 		'ValidationRules.Querying.Host'
 		'ValidationRules.Replication.Host'
 	)
-	#$Properties.UseCaseRoute = 'ERM'
 	#$Properties.UpdateSchemas = 'PriceAggregate'
 }
 

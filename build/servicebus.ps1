@@ -13,14 +13,6 @@ Task Deploy-ServiceBus -Precondition { $Metadata['UpdateSchemas'] } {
 	if ($Metadata['ValidationRules.Replication.Host']){
 		Deploy-ServiceBus 'ValidationRules.Replication.Host'	
 	}
-
-	if ($Metadata['ConvertUseCasesService-Production']){
-		Deploy-ServiceBus 'ConvertUseCasesService-Production'	
-	}
-
-	if ($Metadata['ConvertUseCasesService']){
-		Deploy-ServiceBus 'ConvertUseCasesService'	
-	}
 }
 
 function Deploy-ServiceBus ($entryPointName){

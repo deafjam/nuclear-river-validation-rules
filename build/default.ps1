@@ -12,7 +12,6 @@ Import-Module "$BuildToolsRoot\modules\deploy.winservice.psm1" -DisableNameCheck
 Include "$BuildToolsRoot\psake\common.ps1"
 Include "$BuildToolsRoot\psake\unittests.ps1"
 Include 'servicebus.ps1'
-Include 'convertusecases.ps1'
 Include 'bulktool.ps1'
 Include 'tests.ps1'
 
@@ -63,7 +62,6 @@ Task Stop-ReplicationHost -Precondition { $Metadata['ValidationRules.Replication
 Task Validate-PullRequest -depends Run-UnitTestsExplicit
 
 Task Build-Packages -depends `
-	Build-ConvertUseCasesService, `
 	QueueBuild-BulkTool, `
 	QueueBuild-QueryingHost, `
 	QueueBuild-ReplicationHost, `
@@ -74,7 +72,6 @@ Task Deploy-Packages -depends `
 	Stop-ReplicationHost, `
 	Deploy-ServiceBus, `
 	Run-BulkTool, `
-	QueueDeploy-ConvertUseCasesService, `
 	QueueDeploy-QueryingHost, `
 	QueueDeploy-ReplicationHost, `
 	Deploy-Queue, `

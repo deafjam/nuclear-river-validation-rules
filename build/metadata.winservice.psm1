@@ -47,10 +47,6 @@ function Get-TargetHostsMetadata ($Context){
 				'ValidationRules.Replication.Host'{
 					return @{ 'TargetHosts' = @('uk-erm-bus01', 'uk-erm-bus02', 'uk-erm-bus03', 'uk-erm-bus04') }
 				}
-				'ConvertUseCasesService' {
-					return @{ 'TargetHosts' = @('uk-erm-bus01') }
-				}
-				'ConvertUseCasesService-Production' { return @{} }
 				default {
 					throw "Unknown entrypoint $_"
 				}
@@ -86,12 +82,6 @@ function Get-ServiceNameMetadata ($Context) {
 			return @{
 				'ServiceName' = 'ValidationRules.Replication.Host'
 				'ServiceDisplayName' = '2GIS NuClear River ValidationRules Replication Host Service'
-			}
-		}
-		'ConvertUseCasesService' {
-			return @{
-				'ServiceName' = 'ConvertUseCases'
-				'ServiceDisplayName' = '2GIS NuClear River Convert UseCases Service'
 			}
 		}
 		default {

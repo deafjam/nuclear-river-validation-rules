@@ -125,45 +125,20 @@ function Get-RulesetsFactsTopicsMetadata($Context){
 }
 
 function Get-XdtMetadata($Context){
-	$xdt = @()
+	$xdt = @('environments\Common\Erm.Release.config')
 
-
-	switch($Context.EntryPoint){
-		'ConvertUseCasesService-Production' {
-			$xdt += @("environments\ConvertUseCases.Production.config")
+	switch($Context.EnvType){
+		'Test' {
+			$xdt += @("environments\Templates\Erm.Test.config")
 		}
-		'ConvertUseCasesService' {
-			switch($Context.EnvType){
-				'Test' {
-					$xdt += @("environments\Templates\ConvertUseCases.Test.config")
-				}
-				'Load' {
-					$xdt += @("environments\ConvertUseCases.Load.config")
-				}
-				default {
-					$xdt += @("environments\ConvertUseCases.config")
-				}
-			}
+		'Production' {
+			$xdt += @("environments\Erm.Production.config")
+		}
+		'Load' {
+			$xdt += @("environments\Erm.Load.config")
 		}
 		default {
-			$xdt += @(
-				'environments\Common\Erm.Release.config'
-			)
-
-			switch($Context.EnvType){
-				'Test' {
-					$xdt += @("environments\Templates\Erm.Test.config")
-				}
-				'Production' {
-					$xdt += @("environments\Erm.Production.config")
-				}
-				'Load' {
-					$xdt += @("environments\Erm.Load.config")
-				}
-				default {
-					$xdt += @("environments\Erm.config")
-				}
-			}
+			$xdt += @("environments\Erm.config")
 		}
 	}
 
