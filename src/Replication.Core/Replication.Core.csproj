@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>NuClear.Replication.Core</RootNamespace>
+    <AssemblyName>2GIS.NuClear.Replication.Core</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="2GIS.NuClear.Assembling" Version="1.0.4" />
+    <PackageReference Include="2GIS.NuClear.Storage.API" Version="2.1.1" />
+    <PackageReference Include="2GIS.NuClear.Telemetry" Version="0.14.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
+
+</Project>

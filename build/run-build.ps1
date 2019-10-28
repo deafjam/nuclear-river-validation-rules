@@ -1,4 +1,5 @@
 ﻿param([string[]]$TaskList = @(), [hashtable]$Properties = @{})
+#Requires –Version 3.0
 
 if ($TaskList.Count -eq 0){
 	$TaskList = @('Run-UnitTests', 'Build-NuGet')
@@ -7,26 +8,21 @@ if ($TaskList.Count -eq 0){
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 #------------------------------
-cls
+Clear-Host
 
 $Properties.SolutionDir = Join-Path $PSScriptRoot '..'
 
 # Restore-Packages
 & {
-	$NugetPath = Join-Path $Properties.SolutionDir '.nuget\NuGet_v3.3.0.exe'
-	if (!(Test-Path $NugetPath)){
-		$webClient = New-Object System.Net.WebClient
-		$webClient.UseDefaultCredentials = $true
-		$webClient.Proxy.Credentials = $webClient.Credentials
-		$webClient.DownloadFile('https://dist.nuget.org/win-x86-commandline/v3.3.0/nuget.exe', $NugetPath)
+	& 'dotnet' @('msbuild', '/nologo', '/verbosity:quiet', '/t:Restore', $PSScriptRoot)
+	if ($LastExitCode -ne 0) {
+		throw "dotnet restore failed with exit code $LastExitCode"
 	}
-	$solution = Get-ChildItem $Properties.SolutionDir -Filter '*.sln'
-	& $NugetPath @('restore', $solution.FullName, '-NonInteractive', '-Verbosity', 'quiet')
 }
 
 $packageName = "2GIS.NuClear.BuildTools"
-$packageVersion = (ConvertFrom-Json (Get-Content "$PSScriptRoot\project.json" -Raw)).dependencies.PSObject.Properties[$packageName].Value
-Import-Module "${env:UserProfile}\.nuget\packages\$packageName\$packageVersion\tools\buildtools.psm1" -DisableNameChecking -Force
+$packageVersion = ([xml](Get-Content "$PSScriptRoot\build.csproj" -Raw)).SelectSingleNode("//PackageReference[@Include='$packageName']").Version
+Import-Module "~\.nuget\packages\$packageName\$packageVersion\tools\buildtools.psm1" -DisableNameChecking -Force
 Add-Metadata @{
 	'NuGet' = @{
 		'Publish' = @{

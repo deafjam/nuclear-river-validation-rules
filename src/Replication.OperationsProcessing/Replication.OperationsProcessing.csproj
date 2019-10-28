@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>NuClear.Replication.OperationsProcessing</RootNamespace>
+    <AssemblyName>2GIS.NuClear.Replication.OperationsProcessing</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="2GIS.NuClear.OperationsProcessing.Transports.ServiceBus" Version="5.5.7-pullrequest6938-0004" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Replication.Core\Replication.Core.csproj" />
+  </ItemGroup>
+
+</Project>
