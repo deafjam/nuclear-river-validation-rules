@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
 {
     public sealed class AmsFactsFlowHandler : IMessageProcessingHandler
     {
-        private readonly IDataObjectsActorFactoryRefactored _dataObjectsActorFactory;
+        private readonly IDataObjectsActorFactory _dataObjectsActorFactory;
         private readonly SyncEntityNameActor _syncEntityNameActor;
         private readonly IEventLogger _eventLogger;
         private readonly ITracer _tracer;
@@ -32,7 +32,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
             };
 
         public AmsFactsFlowHandler(
-            IDataObjectsActorFactoryRefactored dataObjectsActorFactory,
+            IDataObjectsActorFactory dataObjectsActorFactory,
             SyncEntityNameActor syncEntityNameActor,
             IEventLogger eventLogger,
             AmsFactsFlowTelemetryPublisher telemetryPublisher,

@@ -1,20 +1,17 @@
-﻿using System;
-using System.Linq;
-using NuClear.Jobs;
+﻿using NuClear.Jobs;
 using NuClear.OperationsLogging.API;
 using NuClear.Replication.Core;
 using NuClear.Security.API.Auth;
 using NuClear.Security.API.Context;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Writings;
-using NuClear.Tracing.API;
+using NuClear.ValidationRules.Hosting.Common;
+using NuClear.ValidationRules.OperationsProcessing;
 using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
 using NuClear.ValidationRules.Replication.Events;
-
 using Quartz;
-
-using ValidationRules.Hosting.Common;
-
+using System;
+using System.Linq;
 using SystemStatus = NuClear.ValidationRules.Storage.Model.Facts.SystemStatus;
 
 namespace NuClear.ValidationRules.Replication.Host.Jobs
@@ -31,12 +28,12 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
         public HeartbeatJob(IUserContextManager userContextManager,
                             IUserAuthenticationService userAuthenticationService,
                             IUserAuthorizationService userAuthorizationService,
-                            ITracer tracer,
+                            IJobExecutionObserver jobExecutionObserver,
                             KafkaMessageFlowInfoProvider kafkaMessageFlowInfoProvider,
                             IQuery query,
                             IRepository<SystemStatus> repository,
                             IEventLogger eventLogger)
-            : base(userContextManager, userAuthenticationService, userAuthorizationService, tracer)
+            : base(userContextManager, userAuthenticationService, userAuthorizationService, jobExecutionObserver)
         {
             _kafkaMessageFlowInfoProvider = kafkaMessageFlowInfoProvider;
             _query = query;

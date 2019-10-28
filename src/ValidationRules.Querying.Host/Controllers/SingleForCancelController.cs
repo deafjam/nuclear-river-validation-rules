@@ -1,10 +1,9 @@
 ﻿using System.Web.Http;
-
+using NuClear.ValidationRules.Hosting.Common;
 using NuClear.ValidationRules.Querying.Host.CheckModes;
 using NuClear.ValidationRules.Querying.Host.Composition;
 using NuClear.ValidationRules.SingleCheck;
 using NuClear.ValidationRules.Storage.Model.Messages;
-using ValidationRules.Hosting.Common;
 
 namespace NuClear.ValidationRules.Querying.Host.Controllers
 {

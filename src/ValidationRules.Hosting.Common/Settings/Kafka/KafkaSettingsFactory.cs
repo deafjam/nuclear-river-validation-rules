@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Confluent.Kafka;
-
 using Newtonsoft.Json;
-
 using NuClear.Messaging.API.Flows;
 using NuClear.Messaging.Transports.Kafka;
 using NuClear.River.Hosting.Common.Settings;
 
-namespace ValidationRules.Hosting.Common.Settings.Kafka
+namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
 {
     public sealed class KafkaSettingsFactory : IKafkaSettingsFactory
     {

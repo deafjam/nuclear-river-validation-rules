@@ -9,12 +9,12 @@ using NuClear.Messaging.Transports.ServiceBus.API;
 using NuClear.OperationsLogging.API;
 using NuClear.OperationsLogging.Transports.ServiceBus;
 using NuClear.Replication.OperationsProcessing.Transports.ServiceBus.Factories;
+using NuClear.ValidationRules.OperationsProcessing;
 using NuClear.ValidationRules.OperationsProcessing.AggregatesFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.MessagesFlow;
-using NuClear.ValidationRules.Replication.Events;
 
 namespace NuClear.ValidationRules.Replication.Host.Factories
 {

@@ -4,11 +4,10 @@ using System.Linq;
 
 using NuClear.Messaging.API.Flows;
 using NuClear.Replication.Core;
+using NuClear.ValidationRules.Hosting.Common.Settings;
 using NuClear.ValidationRules.OperationsProcessing;
 using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
 using NuClear.ValidationRules.Replication.Dto;
-
-using ValidationRules.Hosting.Common.Settings;
 
 namespace NuClear.ValidationRules.StateInitialization.Host.Kafka.Rulesets
 {
@@ -40,7 +39,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka.Rulesets
                 return Array.Empty<ICommand>();
             }
 
-            return DataObjectTypesProviderFactory.RulesetFactTypes
+            return DataObjectTypesProvider.RulesetFactTypes
                                                  .Select(factType => new BulkInsertInMemoryDataObjectsCommand(factType, deserializedDtos))
                                                  .ToList();
         }

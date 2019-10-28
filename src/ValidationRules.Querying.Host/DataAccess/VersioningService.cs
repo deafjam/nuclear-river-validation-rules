@@ -5,9 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using LinqToDB;
-
-using ValidationRules.Hosting.Common;
-
+using NuClear.ValidationRules.Hosting.Common;
 using Version = NuClear.ValidationRules.Storage.Model.Messages.Version;
 
 namespace NuClear.ValidationRules.Querying.Host.DataAccess

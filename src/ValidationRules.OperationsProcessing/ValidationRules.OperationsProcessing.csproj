@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Replication.OperationsProcessing\Replication.OperationsProcessing.csproj" />
     <ProjectReference Include="..\ValidationRules.Hosting.Common\ValidationRules.Hosting.Common.csproj" />
     <ProjectReference Include="..\ValidationRules.Replication\ValidationRules.Replication.csproj" />
   </ItemGroup>

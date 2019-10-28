@@ -1,7 +1,7 @@
 ﻿using NuClear.Settings;
 using NuClear.Settings.API;
 
-namespace ValidationRules.Hosting.Common.Settings
+namespace NuClear.ValidationRules.Hosting.Common.Settings
 {
     public sealed class BusinessModelSettingsAspect : ISettingsAspect, ISettings, IBusinessModelSettings
     {

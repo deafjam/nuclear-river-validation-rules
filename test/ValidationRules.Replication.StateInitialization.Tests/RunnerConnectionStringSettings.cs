@@ -1,7 +1,6 @@
 ﻿using NuClear.Storage.API.ConnectionStrings;
-using NuClear.ValidationRules.Storage.Connections;
-
-using ValidationRules.Hosting.Common.Settings.Connections;
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
+using NuClear.ValidationRules.Hosting.Common.Settings.Connections;
 
 namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Confluent.Kafka;
 using NuClear.Messaging.Transports.Kafka;
 
-namespace ValidationRules.Hosting.Common.Settings.Kafka
+namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
 {
     public sealed class KafkaMessageFlowReceiverSettings : IKafkaMessageFlowReceiverSettings
     {

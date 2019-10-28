@@ -39,7 +39,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka.Ams
                 return Array.Empty<ICommand>();
             }
 
-            return DataObjectTypesProviderFactory.AmsFactTypes
+            return DataObjectTypesProvider.AmsFactTypes
                                                  .Select(factType => new BulkInsertInMemoryDataObjectsCommand(factType, deserializedDtos))
                                                  .ToList();
         }

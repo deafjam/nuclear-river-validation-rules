@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Confluent.Kafka;
 
-namespace ValidationRules.Hosting.Common.Settings.Kafka
+namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
 {
     internal sealed class KafkaMessageFlowInfoSettings : IKafkaMessageFlowInfoSettings
     {

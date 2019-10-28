@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
 using Confluent.Kafka;
 
-namespace ValidationRules.Hosting.Common
+namespace NuClear.ValidationRules.Hosting.Common
 {
     public sealed class CompactedKafkaMessageQueue
     {

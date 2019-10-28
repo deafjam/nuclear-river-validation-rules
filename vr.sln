@@ -52,6 +52,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{
 		environments\Templates\quartz.Test.config = environments\Templates\quartz.Test.config
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuclear-river", "nuclear-river", "{9CDE9CCE-C40E-44F6-8023-6140B96FE430}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Replication.Core", "src\Replication.Core\Replication.Core.csproj", "{D919999A-7708-4F55-9600-D34EBD4EC36C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Replication.OperationsProcessing", "src\Replication.OperationsProcessing\Replication.OperationsProcessing.csproj", "{365160E4-6FC5-4CD9-AAB6-9367BCCE0E15}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hosting.Common", "src\Hosting.Common\Hosting.Common.csproj", "{BBC660B1-D17E-4747-A96A-591CE469296D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateInitialization.Core", "src\StateInitialization.Core\StateInitialization.Core.csproj", "{F01E5C87-97A4-4095-B552-05D9BD9762DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +116,22 @@ Global
 		{3E0D8363-B4B7-475A-975E-6A2FDAB8831E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E0D8363-B4B7-475A-975E-6A2FDAB8831E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E0D8363-B4B7-475A-975E-6A2FDAB8831E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D919999A-7708-4F55-9600-D34EBD4EC36C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D919999A-7708-4F55-9600-D34EBD4EC36C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D919999A-7708-4F55-9600-D34EBD4EC36C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D919999A-7708-4F55-9600-D34EBD4EC36C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{365160E4-6FC5-4CD9-AAB6-9367BCCE0E15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{365160E4-6FC5-4CD9-AAB6-9367BCCE0E15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{365160E4-6FC5-4CD9-AAB6-9367BCCE0E15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{365160E4-6FC5-4CD9-AAB6-9367BCCE0E15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBC660B1-D17E-4747-A96A-591CE469296D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBC660B1-D17E-4747-A96A-591CE469296D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBC660B1-D17E-4747-A96A-591CE469296D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBC660B1-D17E-4747-A96A-591CE469296D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F01E5C87-97A4-4095-B552-05D9BD9762DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F01E5C87-97A4-4095-B552-05D9BD9762DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F01E5C87-97A4-4095-B552-05D9BD9762DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F01E5C87-97A4-4095-B552-05D9BD9762DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,9 +148,13 @@ Global
 		{3E0D8363-B4B7-475A-975E-6A2FDAB8831E} = {D5758A2D-BB93-47E5-A13B-4EEC203D4371}
 		{286AF053-EC9B-4746-93B9-28A3DBB7C9F3} = {2BD0C7B2-8BF2-4867-AEA9-069B1587A45E}
 		{20619483-64A9-4413-9167-E9436494D22E} = {2BD0C7B2-8BF2-4867-AEA9-069B1587A45E}
+		{D919999A-7708-4F55-9600-D34EBD4EC36C} = {9CDE9CCE-C40E-44F6-8023-6140B96FE430}
+		{365160E4-6FC5-4CD9-AAB6-9367BCCE0E15} = {9CDE9CCE-C40E-44F6-8023-6140B96FE430}
+		{BBC660B1-D17E-4747-A96A-591CE469296D} = {9CDE9CCE-C40E-44F6-8023-6140B96FE430}
+		{F01E5C87-97A4-4095-B552-05D9BD9762DA} = {9CDE9CCE-C40E-44F6-8023-6140B96FE430}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8;packages\EnterpriseLibrary.TransientFaultHandling.ServiceBus.6.0.1304.0\lib\NET45
 		SolutionGuid = {E2E29DCD-1A76-42B9-A70B-05333BA3C557}
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8;packages\EnterpriseLibrary.TransientFaultHandling.ServiceBus.6.0.1304.0\lib\NET45
 	EndGlobalSection
 EndGlobal

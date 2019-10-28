@@ -1,12 +1,9 @@
 ﻿using System.Linq;
-
 using Confluent.Kafka;
-
 using NuClear.Messaging.API.Flows;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 
-using ValidationRules.Hosting.Common.Settings.Kafka;
-
-namespace ValidationRules.Hosting.Common
+namespace NuClear.ValidationRules.Hosting.Common
 {
     public sealed class KafkaMessageFlowInfoProvider
     {

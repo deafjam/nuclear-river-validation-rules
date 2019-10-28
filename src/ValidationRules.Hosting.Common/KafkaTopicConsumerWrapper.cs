@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Confluent.Kafka;
 using NuClear.Messaging.Transports.Kafka;
 using NuClear.Tracing.API;
 
-namespace ValidationRules.Hosting.Common
+namespace NuClear.ValidationRules.Hosting.Common
 {
     // TODO: move to 'messagging' repo after successful testing
     public sealed class KafkaTopicConsumerWrapper : IKafkaMessageFlowReceiver

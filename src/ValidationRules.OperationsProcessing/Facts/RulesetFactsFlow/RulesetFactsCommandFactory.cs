@@ -3,11 +3,10 @@ using System.Collections.Generic;
 
 using NuClear.OperationsProcessing.Transports.Kafka;
 using NuClear.Replication.Core;
+using NuClear.ValidationRules.Hosting.Common.Settings;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Dto;
 using NuClear.ValidationRules.Storage.Model.Facts;
-
-using ValidationRules.Hosting.Common.Settings;
 
 namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 {

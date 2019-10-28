@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-
+using NuClear.ValidationRules.Hosting.Common.Settings;
 using NuClear.ValidationRules.Replication.Dto;
 
 using Optional;
-
-using ValidationRules.Hosting.Common.Settings;
 
 namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 {

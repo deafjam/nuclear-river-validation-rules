@@ -20,7 +20,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
 {
     public sealed class ErmFactsFlowHandler : IMessageProcessingHandler
     {
-        private readonly IDataObjectsActorFactoryRefactored _dataObjectsActorFactory;
+        private readonly IDataObjectsActorFactory _dataObjectsActorFactory;
         private readonly SyncEntityNameActor _syncEntityNameActor;
         private readonly IEventLogger _eventLogger;
         private readonly ITracer _tracer;
@@ -28,7 +28,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
         private readonly TransactionOptions _transactionOptions;
 
         public ErmFactsFlowHandler(
-            IDataObjectsActorFactoryRefactored dataObjectsActorFactory,
+            IDataObjectsActorFactory dataObjectsActorFactory,
             SyncEntityNameActor syncEntityNameActor,
             IEventLogger eventLogger,
             ErmFactsFlowTelemetryPublisher telemetryPublisher,

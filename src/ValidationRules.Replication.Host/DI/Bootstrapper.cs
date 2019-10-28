@@ -26,7 +26,7 @@ using NuClear.ValidationRules.Replication.Host.Settings;
 using NuClear.ValidationRules.Storage;
 using NuClear.DI.Unity.Config;
 using NuClear.DI.Unity.Config.RegistrationResolvers;
-using NuClear.IdentityService.Client.Interaction;
+using NuClear.Jobs;
 using NuClear.Jobs.Schedulers;
 using NuClear.Jobs.Schedulers.Exporter;
 using NuClear.Jobs.Unity;
@@ -75,7 +75,6 @@ using NuClear.Replication.OperationsProcessing.Metadata;
 using NuClear.Replication.OperationsProcessing.Transports;
 using NuClear.Replication.OperationsProcessing.Transports.ServiceBus;
 using NuClear.Replication.OperationsProcessing.Transports.ServiceBus.Factories;
-using NuClear.Replication.OperationsProcessing.Transports.SQLStore;
 using NuClear.River.Hosting.Common.Identities.Connections;
 using NuClear.River.Hosting.Common.Settings;
 using NuClear.Security;
@@ -93,6 +92,9 @@ using NuClear.Storage.LinqToDB.Writings;
 using NuClear.Storage.Readings;
 using NuClear.Telemetry;
 using NuClear.Tracing.API;
+using NuClear.ValidationRules.Hosting.Common;
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using NuClear.ValidationRules.OperationsProcessing.AggregatesFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
@@ -101,16 +103,9 @@ using NuClear.ValidationRules.Replication.Accessors;
 using NuClear.ValidationRules.Replication.Accessors.Rulesets;
 using NuClear.ValidationRules.Replication.Host.Customs;
 using NuClear.ValidationRules.Replication.Host.Jobs;
-using NuClear.ValidationRules.Storage.Connections;
 using NuClear.ValidationRules.Storage.FieldComparer;
-using NuClear.WCF.Client;
-using NuClear.WCF.Client.Config;
 
 using Quartz.Spi;
-
-using ValidationRules.Hosting.Common;
-using ValidationRules.Hosting.Common.Settings.Kafka;
-
 using Schema = NuClear.ValidationRules.Storage.Schema;
 using Version = NuClear.ValidationRules.Storage.Model.Messages.Version;
 
@@ -136,10 +131,7 @@ namespace NuClear.ValidationRules.Replication.Host.DI
                      .ConfigureSettingsAspects(settingsContainer)
                      .ConfigureTracing(tracer)
                      .ConfigureSecurityAspects()
-                     .ConfigureQuartzRemoteControl()
                      .ConfigureQuartz()
-                     .ConfigureIdentityInfrastructure()
-                     .ConfigureWcf()
                      .ConfigureOperationsProcessing(connectionStringSettings, environmentSettings)
                      .ConfigureStorage(storageSettings, EntryPointSpecificLifetimeManagerFactory)
                      .ConfigureReplication(EntryPointSpecificLifetimeManagerFactory);
@@ -188,13 +180,15 @@ namespace NuClear.ValidationRules.Replication.Host.DI
                 .RegisterType<IUserContextScopeChangesObserver, Security.TracerContextUserContextScopeChangesObserver>(Lifetime.Singleton);
         }
 
-        private static IUnityContainer ConfigureQuartz(this IUnityContainer container)
+        private static IUnityContainer ConfigureQuartz(
+            this IUnityContainer container)
         {
-            return container
+            return container.ConfigureQuartzRemoteControl()
                 .RegisterType<IJobFactory, JobFactory>(Lifetime.Singleton, new InjectionConstructor(container.Resolve<UnityJobFactory>(), container.Resolve<ITracer>()))
                 .RegisterType<IJobStoreFactory, JobStoreFactory>(Lifetime.Singleton)
                 .RegisterType<ISchedulerManager, SchedulerManager>("default", Lifetime.Singleton)
-                .RegisterType<ISchedulerManager, KafkaFactsImportShedulerManager>("kafka", Lifetime.Singleton);
+                .RegisterType<ISchedulerManager, KafkaFactsImportShedulerManager>("kafka", Lifetime.Singleton)
+                .RegisterType<IJobExecutionObserver, VrTracingJobExecutionObserver>(Lifetime.Singleton);
         }
 
         private static IUnityContainer ConfigureQuartzRemoteControl(
@@ -224,19 +218,6 @@ namespace NuClear.ValidationRules.Replication.Host.DI
             }
 
             return container;
-        }
-
-        private static IUnityContainer ConfigureWcf(this IUnityContainer container)
-        {
-            return container
-                .RegisterType<IServiceClientSettingsProvider, ServiceClientSettingsProvider>(Lifetime.Singleton)
-                .RegisterType<IClientProxyFactory, ClientProxyFactory>(Lifetime.Singleton);
-        }
-
-        private static IUnityContainer ConfigureIdentityInfrastructure(this IUnityContainer container)
-        {
-            return container.RegisterType<IIdentityGenerator, IdentityGenerator>(Lifetime.Singleton)
-                            .RegisterType<IIdentityServiceClient, IdentityServiceClient>(Lifetime.Singleton);
         }
 
         private static IUnityContainer ConfigureOperationsProcessing(
@@ -356,8 +337,6 @@ namespace NuClear.ValidationRules.Replication.Host.DI
         private static IUnityContainer ConfigureReplication(this IUnityContainer container, Func<LifetimeManager> entryPointSpecificLifetimeManagerFactory)
         {
             return container
-                   .RegisterType<IDataObjectTypesProvider, DataObjectTypesProvider>(Lifetime.Singleton)
-
                    .RegisterAccessor<Account, AccountAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<AccountDetail, AccountDetailAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterAccessor<Bargain, BargainAccessor>(entryPointSpecificLifetimeManagerFactory)
@@ -409,7 +388,7 @@ namespace NuClear.ValidationRules.Replication.Host.DI
                    .RegisterMemoryAccessor<Ruleset.RulesetProject, RulesetProjectAccessor>(entryPointSpecificLifetimeManagerFactory)
                    .RegisterMemoryAccessor<Version.ErmState, Messages.ErmStateAccessor>(entryPointSpecificLifetimeManagerFactory)
 
-                   .RegisterType<IDataObjectsActorFactoryRefactored, UnityDataObjectsActorFactory>(entryPointSpecificLifetimeManagerFactory())
+                   .RegisterType<IDataObjectsActorFactory, UnityDataObjectsActorFactory>(entryPointSpecificLifetimeManagerFactory())
                    .RegisterType<IAggregateActorFactory, UnityAggregateActorFactory>(entryPointSpecificLifetimeManagerFactory());
         }
 
@@ -451,6 +430,13 @@ namespace NuClear.ValidationRules.Replication.Host.DI
             public const string Facts = "Facts";
             public const string Aggregates = "Aggregates";
             public const string Messages = "Messages";
+        }
+
+        private sealed class VrTracingJobExecutionObserver : TracingJobExecutionObserver
+        {
+            public VrTracingJobExecutionObserver(ITracer tracer) : base(tracer)
+            {
+            }
         }
     }
 }

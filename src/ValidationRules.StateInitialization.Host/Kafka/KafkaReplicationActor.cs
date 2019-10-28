@@ -13,6 +13,7 @@ using NuClear.Messaging.API.Flows;
 using NuClear.Messaging.Transports.Kafka;
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.Actors;
+using NuClear.Replication.Core.DataObjects;
 using NuClear.Settings;
 using NuClear.Settings.API;
 using NuClear.StateInitialization.Core;
@@ -22,17 +23,15 @@ using NuClear.StateInitialization.Core.Storage;
 using NuClear.Storage.API.ConnectionStrings;
 using NuClear.Storage.API.Readings;
 using NuClear.Tracing.API;
-
+using NuClear.ValidationRules.Hosting.Common;
 using Polly;
-
-using ValidationRules.Hosting.Common;
 
 namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
 {
     internal sealed class KafkaReplicationActor : IActor
     {
         private readonly IConnectionStringSettings _connectionStringSettings;
-        private readonly IDataObjectTypesProviderFactory _dataObjectTypesProviderFactory;
+        private readonly IDataObjectTypesProvider _dataObjectTypesProvider;
         private readonly IKafkaMessageFlowReceiverFactory _receiverFactory;
         private readonly KafkaMessageFlowInfoProvider _kafkaMessageFlowInfoProvider;
         private readonly IReadOnlyCollection<IBulkCommandFactory<Confluent.Kafka.Message>> _commandFactories;
@@ -43,14 +42,14 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
 
         public KafkaReplicationActor(
             IConnectionStringSettings connectionStringSettings,
-            IDataObjectTypesProviderFactory dataObjectTypesProviderFactory,
+            IDataObjectTypesProvider dataObjectTypesProvider,
             IKafkaMessageFlowReceiverFactory kafkaMessageFlowReceiverFactory,
             KafkaMessageFlowInfoProvider kafkaMessageFlowInfoProvider,
             IReadOnlyCollection<IBulkCommandFactory<Confluent.Kafka.Message>> commandFactories,
             ITracer tracer)
         {
             _connectionStringSettings = connectionStringSettings;
-            _dataObjectTypesProviderFactory = dataObjectTypesProviderFactory;
+            _dataObjectTypesProvider = dataObjectTypesProvider;
             _receiverFactory = kafkaMessageFlowReceiverFactory;
             _kafkaMessageFlowInfoProvider = kafkaMessageFlowInfoProvider;
             _commandFactories = commandFactories;
@@ -61,23 +60,22 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
         {
             foreach (var kafkaCommand in commands.OfType<KafkaReplicationCommand>())
             {
-                var command = kafkaCommand.ReplicateInBulkCommand;
-                var dataObjectTypes = GetDataObjectTypes(command);
+                var dataObjectTypes = _dataObjectTypesProvider.Get(kafkaCommand);
 
-                using (var targetConnection = CreateDataConnection(command.TargetStorageDescriptor))
+                using (var targetConnection = CreateDataConnection(kafkaCommand.ReplicateInBulkCommand.TargetStorageDescriptor))
                 {
                     LoadDataFromKafka2Db(kafkaCommand.MessageFlow,
                                          dataObjectTypes,
                                          targetConnection,
-                                         (int)command.BulkCopyTimeout.TotalSeconds);
+                                         (int)kafkaCommand.ReplicateInBulkCommand.BulkCopyTimeout.TotalSeconds);
 
-                    if (!command.DbManagementMode.HasFlag(DbManagementMode.UpdateTableStatistics))
+                    if (!kafkaCommand.ReplicateInBulkCommand.DbManagementMode.HasFlag(DbManagementMode.UpdateTableStatistics))
                     {
                         continue;
                     }
 
                     IReadOnlyCollection<ICommand> updateStatisticsCommands =
-                        dataObjectTypes.Select(t => command.TargetStorageDescriptor.MappingSchema.GetTableName(t))
+                        dataObjectTypes.Select(t => kafkaCommand.ReplicateInBulkCommand.TargetStorageDescriptor.MappingSchema.GetTableName(t))
                                        .Select(table => new UpdateTableStatisticsActor.UpdateTableStatisticsCommand(table,
                                                                                                                     StatisticsTarget.All,
                                                                                                                     StatisticsScanType.FullScan))
@@ -160,12 +158,6 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
 
                 _tracer.Info($"Receiving messages from kafka for flow: {targetMessageFlowDescription} finished. Received messages quantity: {receivedMessagesQuantity}");
             }
-        }
-
-        private IReadOnlyCollection<Type> GetDataObjectTypes(ReplicateInBulkCommand command)
-        {
-            var dataObjectTypesProvider = (DataObjectTypesProviderFactory.DataObjectTypesProvider)_dataObjectTypesProviderFactory.Create(command);
-            return dataObjectTypesProvider.DataObjectTypes;
         }
 
         private IReadOnlyCollection<IActor> CreateActors(IReadOnlyCollection<Type> dataObjectTypes,

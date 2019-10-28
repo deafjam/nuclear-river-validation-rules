@@ -3,7 +3,6 @@ using System.Configuration;
 
 using Jobs.RemoteControl.Settings;
 
-using NuClear.IdentityService.Client.Settings;
 using NuClear.OperationsLogging.Transports.ServiceBus;
 using NuClear.Replication.Core.Settings;
 using NuClear.River.Hosting.Common.Identities.Connections;
@@ -12,12 +11,10 @@ using NuClear.Settings;
 using NuClear.Settings.API;
 using NuClear.Storage.API.ConnectionStrings;
 using NuClear.Telemetry.Logstash;
-using NuClear.ValidationRules.Storage.Connections;
-
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
+using NuClear.ValidationRules.Hosting.Common.Settings;
+using NuClear.ValidationRules.Hosting.Common.Settings.Connections;
 using Quartz.Impl;
-
-using ValidationRules.Hosting.Common.Settings;
-using ValidationRules.Hosting.Common.Settings.Connections;
 
 namespace NuClear.ValidationRules.Replication.Host.Settings
 {
@@ -47,7 +44,6 @@ namespace NuClear.ValidationRules.Replication.Host.Settings
                    .Use(new ServiceBusReceiverSettingsAspect(connectionStringSettings.GetConnectionString(ServiceBusConnectionStringIdentity.Instance)))
                    .Use<ArchiveVersionsSettings>()
                    .Use<LogstashSettingsAspect>()
-                   .Use<IdentityServiceClientSettingsAspect>()
                    .Use(new TaskServiceRemoteControlSettings(quartzProperties));
         }
 

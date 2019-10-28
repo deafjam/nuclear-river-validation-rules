@@ -1,6 +1,6 @@
 ﻿using NuClear.Settings.API;
 
-namespace ValidationRules.Hosting.Common.Settings
+namespace NuClear.ValidationRules.Hosting.Common.Settings
 {
     public interface IBusinessModelSettings : ISettings
     {

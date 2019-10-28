@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="2GIS.NuClear.Aggregates.Storage.DI.Unity" Version="2.1.0" />
-    <PackageReference Include="2GIS.NuClear.Jobs.RemoteControl" Version="2.1.4" />
-    <PackageReference Include="2GIS.NuClear.Jobs.Unity" Version="2.1.4" />
+    <PackageReference Include="2GIS.NuClear.Aggregates.Storage.DI.Unity" Version="2.1.1" />
+    <PackageReference Include="2GIS.NuClear.Jobs.RemoteControl" Version="2.2.0" />
+    <PackageReference Include="2GIS.NuClear.Jobs.Unity" Version="2.2.0" />
     <PackageReference Include="2GIS.NuClear.Messaging.DI.Factories.Unity" Version="2.3.4" />
     <PackageReference Include="2GIS.NuClear.Metamodeling.Basics" Version="2.1.0" />
     <PackageReference Include="2GIS.NuClear.OperationsLogging" Version="5.5.4" />
