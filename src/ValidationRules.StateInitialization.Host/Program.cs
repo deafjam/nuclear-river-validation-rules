@@ -52,7 +52,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             if (args.Contains("-messages"))
             {
                 commands.Add(BulkReplicationCommands.ErmToMessages);
-                commands.Add(BulkReplicationCommands.AggregatesToMessages);
+//                commands.Add(BulkReplicationCommands.AggregatesToMessages);
                 commands.Add(SchemaInitializationCommands.Messages);
             }
 
@@ -71,8 +71,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                     {AmsFactsFlow.Instance, connectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance)},
                     {RulesetFactsFlow.Instance, connectionStringSettings.GetConnectionString(RulesetConnectionStringIdentity.Instance)}
                 },
-                environmentSettings,
-                Offset.Beginning);
+                environmentSettings);
 
             var kafkaMessageFlowReceiverFactory = new KafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
 
@@ -82,7 +81,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                                                                   dataObjectTypesProvider,
                                                                   kafkaMessageFlowReceiverFactory,
                                                                   new KafkaMessageFlowInfoProvider(kafkaSettingsFactory),
-                                                                  new IBulkCommandFactory<Message>[]
+                                                                  new IBulkCommandFactory<ConsumeResult<byte[], byte[]>>[]
                                                                       {
                                                                           new AmsFactsBulkCommandFactory(),
                                                                           new RulesetFactsBulkCommandFactory(businessModelSettings)

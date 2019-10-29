@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using Confluent.Kafka;
 using NuClear.Messaging.API.Flows;
 using NuClear.Replication.Core;
 using NuClear.ValidationRules.OperationsProcessing;
@@ -10,9 +10,9 @@ using NuClear.ValidationRules.Replication.Dto;
 
 namespace NuClear.ValidationRules.StateInitialization.Host.Kafka.Ams
 {
-    public sealed class AmsFactsBulkCommandFactory : IBulkCommandFactory<Confluent.Kafka.Message>
+    public sealed class AmsFactsBulkCommandFactory : IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>
     {
-        private readonly IDeserializer<Confluent.Kafka.Message, AdvertisementDto> _deserializer;
+        private readonly IDeserializer<ConsumeResult<Ignore, byte[]>, AdvertisementDto> _deserializer;
 
         public AmsFactsBulkCommandFactory()
         {
@@ -22,16 +22,14 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka.Ams
 
         public IReadOnlyCollection<IMessageFlow> AppropriateFlows { get; }
 
-        public IReadOnlyCollection<ICommand> CreateCommands(IReadOnlyCollection<Confluent.Kafka.Message> messages)
+        public IReadOnlyCollection<ICommand> CreateCommands(IReadOnlyCollection<ConsumeResult<Ignore, byte[]>> results)
         {
-            var deserializedDtos = messages.AsParallel()
-                                           .Select(message => _deserializer.Deserialize(message))
-                                           .AsSequential()
-                                           .Aggregate(new List<AdvertisementDto>(messages.Count),
-                                                      (dtos, collection) =>
+            var deserializedDtos = _deserializer.Deserialize(results)
+                                           .Aggregate(new Dictionary<long, AdvertisementDto>(results.Count),
+                                                      (dict, dto) =>
                                                           {
-                                                              dtos.AddRange(collection);
-                                                              return dtos;
+                                                              dict[dto.Id] = dto;
+                                                              return dict;
                                                           });
 
             if (deserializedDtos.Count == 0)
@@ -40,7 +38,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka.Ams
             }
 
             return DataObjectTypesProvider.AmsFactTypes
-                                                 .Select(factType => new BulkInsertInMemoryDataObjectsCommand(factType, deserializedDtos))
+                                                 .Select(factType => new BulkInsertInMemoryDataObjectsCommand(factType, deserializedDtos.Values))
                                                  .ToList();
         }
     }

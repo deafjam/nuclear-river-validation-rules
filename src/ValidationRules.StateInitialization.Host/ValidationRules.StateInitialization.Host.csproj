@@ -10,9 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="2GIS.NuClear.Tracing.Log4Net" Version="2.2.3" />
-    <PackageReference Include="librdkafka.redist" Version="0.11.4">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Polly" Version="6.0.1" />
   </ItemGroup>
 

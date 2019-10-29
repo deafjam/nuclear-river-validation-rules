@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="2GIS.NuClear.OperationsProcessing.Transports.Kafka" Version="5.5.4" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
 

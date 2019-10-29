@@ -12,7 +12,7 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 {
     public sealed class VersioningService
     {
-        private static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(15);
+        private static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan WaitInterval = TimeSpan.FromSeconds(5);
 
         private readonly DataConnectionFactory _factory;

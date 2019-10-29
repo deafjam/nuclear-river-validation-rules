@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
-
+using Confluent.Kafka;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SqlServer;
 
@@ -25,6 +25,7 @@ using NuClear.Storage.API.Readings;
 using NuClear.Tracing.API;
 using NuClear.ValidationRules.Hosting.Common;
 using Polly;
+using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
 {
@@ -34,7 +35,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
         private readonly IDataObjectTypesProvider _dataObjectTypesProvider;
         private readonly IKafkaMessageFlowReceiverFactory _receiverFactory;
         private readonly KafkaMessageFlowInfoProvider _kafkaMessageFlowInfoProvider;
-        private readonly IReadOnlyCollection<IBulkCommandFactory<Confluent.Kafka.Message>> _commandFactories;
+        private readonly IReadOnlyCollection<IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>> _commandFactories;
         private readonly ITracer _tracer;
 
         private readonly IAccessorTypesProvider _accessorTypesProvider = new InMemoryAccessorTypesProvider();
@@ -45,7 +46,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
             IDataObjectTypesProvider dataObjectTypesProvider,
             IKafkaMessageFlowReceiverFactory kafkaMessageFlowReceiverFactory,
             KafkaMessageFlowInfoProvider kafkaMessageFlowInfoProvider,
-            IReadOnlyCollection<IBulkCommandFactory<Confluent.Kafka.Message>> commandFactories,
+            IReadOnlyCollection<IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>> commandFactories,
             ITracer tracer)
         {
             _connectionStringSettings = connectionStringSettings;
@@ -106,7 +107,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
             {
                 // retry добавлен из-за https://github.com/confluentinc/confluent-kafka-dotnet/issues/86
                 var lastTargetMessageOffset =
-                    Policy.Handle<Confluent.Kafka.KafkaException>(exception => exception.Error.Code == Confluent.Kafka.ErrorCode.LeaderNotAvailable)
+                    Policy.Handle<KafkaException>(exception => exception.Error.Code == ErrorCode.LeaderNotAvailable)
                           .WaitAndRetryForever(i => TimeSpan.FromSeconds(5),
                                                (exception, waitSpan) =>
                                                    _tracer.Warn(exception,
@@ -152,7 +153,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
 
                         scope.Complete();
                     }
-
+                    
                     receiver.CompleteBatch(batch);
                 }
 

@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.Hosting.Common
         public IKafkaMessageFlowReceiver Create(IMessageFlow messageFlow)
         {
             var settings = _kafkaSettingsFactory.CreateReceiverSettings(messageFlow);
-            return new KafkaTopicConsumerWrapper(settings, _tracer);
+            return new KafkaMessageFlowReceiver(settings, _tracer);
         }
     }
 }

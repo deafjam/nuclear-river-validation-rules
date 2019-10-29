@@ -48,13 +48,14 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
 
         private void SendAmsHeartbeat()
         {
-            if (!_kafkaMessageFlowInfoProvider.TryGetFlowLastMessage(AmsFactsFlow.Instance, out var amsLastMessage))
+            var result = _kafkaMessageFlowInfoProvider.TryGetFlowLastMessage(AmsFactsFlow.Instance); 
+            if (result == null || result.IsPartitionEOF)
             {
                 return;
             }
 
             var utcNow = DateTime.UtcNow;
-            var amsUtcNow = amsLastMessage.Timestamp.UtcDateTime;
+            var amsUtcNow = result.Timestamp.UtcDateTime;
             var amsIsDown = (utcNow - amsUtcNow).Duration() > AmsSyncInterval;
 
             var amsSystemStatus = _query.For<SystemStatus>().Single(x => x.Id == SystemStatus.SystemId.Ams);

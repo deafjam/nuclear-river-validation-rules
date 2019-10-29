@@ -196,9 +196,6 @@
   <ItemGroup>
     <PackageReference Include="2GIS.NuClear.Settings.Unity" Version="1.2.0" />
     <PackageReference Include="2GIS.NuClear.Tracing.Log4Net" Version="2.2.3" />
-    <PackageReference Include="librdkafka.redist" Version="0.11.4">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.7" />
   </ItemGroup>
   <PropertyGroup>
@@ -226,15 +223,6 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Target Name="BeforeBuild" Label="workaround для бага в пакете librdkafka.redist, меняем тип Content на тип None">
-    <ItemGroup>
-      <ContentFiltered Include="@(Content)" Condition="'%(Extension)' == '.dll'" />
-      <Content Remove="@(ContentFiltered)" />
-      <None Include="@(ContentFiltered)">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="AfterBuild">

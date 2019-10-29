@@ -1,5 +1,4 @@
 ﻿using NuClear.DataTest.Metamodel;
-using NuClear.DataTest.Metamodel;
 using NuClear.Metamodeling.Elements;
 using NuClear.Metamodeling.Provider.Sources;
 using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
