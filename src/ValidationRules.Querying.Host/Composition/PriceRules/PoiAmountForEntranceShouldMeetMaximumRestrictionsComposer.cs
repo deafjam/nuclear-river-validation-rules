@@ -21,6 +21,11 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
 
             var currentOrder = orders[0];
             var conflictingOrders = orders.Skip(1).ToList();
+            if (conflictingOrders.Count == 0)
+            {
+                // заказ противоречит сам себе
+                conflictingOrders.Add(currentOrder);
+            }
 
             var conflictingOrderPlaceholders = Enumerable.Range(4, conflictingOrders.Count).Select(i => $"{{{i}}}");
             var template = Resources.PoiLimitExceededForTheEntrance.Replace("{4}", string.Join(", ", conflictingOrderPlaceholders));
