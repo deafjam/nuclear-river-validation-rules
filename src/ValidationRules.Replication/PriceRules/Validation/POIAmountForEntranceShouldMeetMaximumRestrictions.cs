@@ -23,49 +23,50 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
 
         protected override IQueryable<Version.ValidationResult> GetValidationResults(IQuery query)
         {
-            var salePeriods = from period in query.For<Period>()
-                              from orderPeriod in query.For<Order.OrderPeriod>().Where(x => x.ProjectId == period.ProjectId && x.Start <= period.Start && period.End <= x.End)
-                              from position in query.For<Order.EntranceControlledPosition>().Where(x => orderPeriod.OrderId == x.OrderId)
-                              select new { period.Start, period.End, orderPeriod.Scope, orderPeriod.OrderId, position.EntranceCode, position.FirmAddressId };
+            var periods = 
+                from op in query.For<Order.OrderPeriod>()
+                from fa in query.For<Order.EntranceControlledPosition>().Where(x => x.OrderId == op.OrderId)
+                select new
+                {
+                    op.OrderId,
+                    op.ProjectId,
+                    op.Start,
+                    op.End,
+                    op.Scope,
+                    fa.OrderPositionId,
+                    fa.EntranceCode,
+                    fa.FirmAddressId
+                };
 
-            var violations = from salePeriod in salePeriods
-                             from conflictingSalePeriod in salePeriods.Where(x => x.EntranceCode == salePeriod.EntranceCode &&
-                                                                                  x.Start <= salePeriod.Start && salePeriod.End <= x.End &&
-                                                                                  x.OrderId != salePeriod.OrderId &&
-                                                                                  Scope.CanSee(salePeriod.Scope, x.Scope))
-                             select new
-                                 {
-                                     OrdersCountOnTheSameEntrance = salePeriods.Count(x => x.EntranceCode == salePeriod.EntranceCode &&
-                                                                                           x.Start <= salePeriod.Start && salePeriod.End <= x.End &&
-                                                                                           Scope.CanSee(salePeriod.Scope, x.Scope)),
-                                     salePeriod.OrderId,
-                                     ConflictingOrderId = conflictingSalePeriod.OrderId,
-                                     salePeriod.EntranceCode,
-                                     salePeriod.FirmAddressId,
-                                     salePeriod.Start,
-                                     salePeriod.End,
-                                 };
+            var result =
+                from period in periods
+                from conflictPeriod in periods
+                    .Where(x =>
+                        x.OrderPositionId != period.OrderPositionId &&
+                        x.EntranceCode == period.EntranceCode &&
+                        x.ProjectId == period.ProjectId &&
+                        x.Start <= period.Start && period.End <= x.End &&
+                        Scope.CanSee(period.Scope, x.Scope))
+                select new Version.ValidationResult
+                    {
+                        MessageParams =
+                            new MessageParams(new Dictionary<string, object>
+                                                  {
+                                                      { "start", period.Start },
+                                                      { "end", period.End },
+                                                      { "maxCount", MaxSalesOnEntrance },
+                                                      { "entranceCode", period.EntranceCode }
+                                                  },
+                                              new Reference<EntityTypeOrder>(conflictPeriod.OrderId),
+                                              new Reference<EntityTypeFirmAddress>(period.FirmAddressId))
+                                .ToXDocument(),
+                    
+                        PeriodStart = period.Start,
+                        PeriodEnd = period.End,
+                        OrderId = period.OrderId
+                    };
 
-            return from violation in violations
-                   where violation.OrdersCountOnTheSameEntrance > MaxSalesOnEntrance
-                   select new Version.ValidationResult
-                       {
-                           MessageParams =
-                               new MessageParams(new Dictionary<string, object>
-                                                     {
-                                                         { "start", violation.Start },
-                                                         { "end", violation.End },
-                                                         { "maxCount", MaxSalesOnEntrance },
-                                                         { "entranceCode", violation.EntranceCode }
-                                                     },
-                                                 new Reference<EntityTypeOrder>(violation.ConflictingOrderId),
-                                                 new Reference<EntityTypeFirmAddress>(violation.FirmAddressId))
-                                   .ToXDocument(),
-
-                           PeriodStart = violation.Start,
-                           PeriodEnd = violation.End,
-                           OrderId = violation.OrderId
-                       };
+            return result;
         }
     }
 }

@@ -80,6 +80,7 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules
         public sealed class EntranceControlledPosition
         {
             public long OrderId { get; set; }
+            public long OrderPositionId { get; set; }
             public long EntranceCode { get; set; }
             public long FirmAddressId { get; set; }
         }

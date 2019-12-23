@@ -281,15 +281,12 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             {
                 var result = 
                     (from opa in _query.For<Facts::OrderPositionAdvertisement>()
-                    join position in _query.For<Facts::Position>().Where(x =>
-                            Facts.Position.CategoryCodesPoiAddressCheck.Contains(x.CategoryCode)) on opa.PositionId
-                        equals
-                        position.Id
-                    join address in _query.For<Facts::FirmAddress>().Where(x => x.EntranceCode != null) on opa
-                        .FirmAddressId equals address.Id
+                    from position in _query.For<Facts::Position>().Where(x => Facts.Position.CategoryCodesPoiAddressCheck.Contains(x.CategoryCode)).Where(x => x.Id == opa.PositionId)
+                    from address in _query.For<Facts::FirmAddress>().Where(x => x.EntranceCode != null).Where(x => x.Id == opa.FirmAddressId)
                     select new Order.EntranceControlledPosition
                     {
                         OrderId = opa.OrderId,
+                        OrderPositionId = opa.OrderPositionId, 
                         EntranceCode = address.EntranceCode.Value,
                         FirmAddressId = address.Id,
                     }).Distinct();

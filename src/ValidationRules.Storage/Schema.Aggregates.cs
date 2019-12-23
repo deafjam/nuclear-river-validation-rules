@@ -172,8 +172,8 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<PriceAggregates::Order.EntranceControlledPosition>()
                    .HasSchemaName(PriceAggregatesSchema)
-                   .HasPrimaryKey(x => new { x.OrderId, x.FirmAddressId})
-                   .HasIndex(x => x.EntranceCode);
+                   .HasPrimaryKey(x => new { x.OrderPositionId, x.EntranceCode, x.FirmAddressId})
+                   .HasIndex(x => x.OrderId);
 
             builder.Entity<PriceAggregates::Period>()
                   .HasSchemaName(PriceAggregatesSchema)
