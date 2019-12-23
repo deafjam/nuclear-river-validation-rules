@@ -8,6 +8,9 @@ namespace NuClear.ValidationRules.Hosting.Common
     public sealed class KafkaMessageFlowInfoProvider
     {
         private readonly IKafkaSettingsFactory _kafkaSettingsFactory;
+        
+        // пока предполагается что partition только один
+        // потом надо будет переделать
         private static readonly Partition ZeroPartition = new Partition(0);
 
         public KafkaMessageFlowInfoProvider(IKafkaSettingsFactory kafkaSettingsFactory)

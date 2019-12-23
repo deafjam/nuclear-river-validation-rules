@@ -8,7 +8,6 @@ using NuClear.River.Hosting.Common.Settings;
 
 namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
 {
-    // offset думаю передавать не в конструкторе, а в connection string
     public sealed class KafkaSettingsFactory : IKafkaSettingsFactory
     {
         private readonly Dictionary<IMessageFlow, KafkaMessageFlowReceiverSettings> _flows2ConsumerSettingsMap = new Dictionary<IMessageFlow, KafkaMessageFlowReceiverSettings>();
@@ -22,7 +21,7 @@ namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
                 var kafkaConfig = ParseConnectionString(entry.Value);
                 
                 // example group.id: '4f04437a-2f10-4a37-bb49-03810346ae84-Test.11'
-                kafkaConfig.Config["group.id"] = entry.Key.Id.ToString() + '-' + environmentSettings.EnvironmentName;
+                kafkaConfig.Config["group.id"] = string.Concat(entry.Key.Id.ToString(), "-", environmentSettings.EnvironmentName);
 
                 _flows2ConsumerSettingsMap.Add(entry.Key, kafkaConfig);   
             }
@@ -40,8 +39,8 @@ namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
 
         private static KafkaMessageFlowReceiverSettings ParseConnectionString(string connectionString)
         {
-            const string topic = "topic";
-            const string pollTimeout = "pollTimeout";
+            const string Topic = "topic";
+            const string PollTimeout = "pollTimeout";
 
             var settings = new KafkaMessageFlowReceiverSettings
             {
@@ -49,19 +48,19 @@ namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
             };
 
             // Topic (required)
-            if (!settings.Config.TryGetValue(topic, out var rawTopic))
+            if (!settings.Config.TryGetValue(Topic, out var rawTopic))
             {
-                throw new InvalidOperationException($"Required parameter \"{topic}\" was not found. ConnectionString: {connectionString}");
+                throw new InvalidOperationException($"Required parameter \"{Topic}\" was not found. ConnectionString: {connectionString}");
             }
             
             settings.TopicPartitionOffset = ParseTopicPartitionOffset(rawTopic);
-            settings.Config.Remove(topic);
+            settings.Config.Remove(Topic);
 
             // PollTimeout (optional)
-            if (settings.Config.TryGetValue(pollTimeout, out var rawPollTimeout))
+            if (settings.Config.TryGetValue(PollTimeout, out var rawPollTimeout))
             {
                 settings.PollTimeout = TimeSpan.Parse(rawPollTimeout);
-                settings.Config.Remove(pollTimeout);
+                settings.Config.Remove(PollTimeout);
             }
 
             return settings;
@@ -71,16 +70,32 @@ namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
         {
             var split = rawTopic.Split(' ');
             var topic = split[0];
-            
-            var rawPartition = split[1].Trim('[').Trim(']');
-            var partition = string.Equals(rawPartition, "Any", StringComparison.OrdinalIgnoreCase) ? Partition.Any : (Partition)int.Parse(rawPartition);
 
-            var rawOffset = split[2].Trim('@');
+            Partition partition;
+            if (split.Length <= 1)
+            {
+                partition = Partition.Any;
+            }
+            else
+            {
+                var rawPartition = split[1].Trim('[').Trim(']');
+                partition = string.Equals(rawPartition, "Any", StringComparison.OrdinalIgnoreCase) ? Partition.Any : (Partition)int.Parse(rawPartition);
+            }
+
+            Offset offset;
+            if (split.Length <= 2)
+            {
+                offset = Offset.Unset; 
+            }
+            else
+            {
+                var rawOffset = split[2].Trim('@');
             
-            var offset = string.Equals(rawOffset, "Beginning", StringComparison.OrdinalIgnoreCase) ? Offset.Beginning :
-                string.Equals(rawOffset, "End", StringComparison.OrdinalIgnoreCase) ? Offset.End :
-                string.Equals(rawOffset, "Unset", StringComparison.OrdinalIgnoreCase) ? Offset.Unset :
-                throw new ArgumentOutOfRangeException();
+                offset = string.Equals(rawOffset, "Beginning", StringComparison.OrdinalIgnoreCase) ? Offset.Beginning :
+                    string.Equals(rawOffset, "End", StringComparison.OrdinalIgnoreCase) ? Offset.End :
+                    string.Equals(rawOffset, "Unset", StringComparison.OrdinalIgnoreCase) ? Offset.Unset :
+                    throw new ArgumentOutOfRangeException();
+            }
             
             return new TopicPartitionOffset(topic, partition, offset);
         }

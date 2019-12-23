@@ -38,7 +38,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             {
                 commands.Add(BulkReplicationCommands.ErmToFacts);
                 commands.Add(new KafkaReplicationCommand(AmsFactsFlow.Instance, BulkReplicationCommands.AmsToFacts));
-                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts));
+                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts, 100));
                 // TODO: отдельный schema init для erm\ams\ruleset facts
                 commands.Add(SchemaInitializationCommands.Facts);
             }
@@ -52,7 +52,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             if (args.Contains("-messages"))
             {
                 commands.Add(BulkReplicationCommands.ErmToMessages);
-//                commands.Add(BulkReplicationCommands.AggregatesToMessages);
+                commands.Add(BulkReplicationCommands.AggregatesToMessages);
                 commands.Add(SchemaInitializationCommands.Messages);
             }
 
@@ -73,7 +73,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 },
                 environmentSettings);
 
-            var kafkaMessageFlowReceiverFactory = new KafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
+            var kafkaMessageFlowReceiverFactory = new StateInitKafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
 
             var dataObjectTypesProvider = new DataObjectTypesProvider();
             var bulkReplicationActor = new BulkReplicationActor(dataObjectTypesProvider, connectionStringSettings);
@@ -81,7 +81,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                                                                   dataObjectTypesProvider,
                                                                   kafkaMessageFlowReceiverFactory,
                                                                   new KafkaMessageFlowInfoProvider(kafkaSettingsFactory),
-                                                                  new IBulkCommandFactory<ConsumeResult<byte[], byte[]>>[]
+                                                                  new IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>[]
                                                                       {
                                                                           new AmsFactsBulkCommandFactory(),
                                                                           new RulesetFactsBulkCommandFactory(businessModelSettings)

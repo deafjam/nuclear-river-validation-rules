@@ -14,6 +14,7 @@ using NuClear.Storage.API.Readings;
 
 namespace NuClear.StateInitialization.Core.Actors
 {
+    // TODO: перейти в stateinit для inmemory objects на это 
     internal sealed class FlowReplicator
     {
         private readonly IAccessorTypesProvider _accessorTypesProvider;
@@ -94,12 +95,9 @@ namespace NuClear.StateInitialization.Core.Actors
 
         private void ExecuteBulkCopy()
         {
-            foreach (var command in _flow)
+            foreach (var actor in _accessorDecorators)
             {
-                foreach (var actor in _accessorDecorators)
-                {
-                    actor.ExecuteCommand(command);
-                }
+                actor.ExecuteCommand(_flow);
             }
         }
     }
@@ -112,7 +110,7 @@ namespace NuClear.StateInitialization.Core.Actors
             return (AccessorDecorator)Activator.CreateInstance(typeof(AccessorDecoratorImpl<>).MakeGenericType(dataObjectType), accessor, targetDataConnection);
         }
 
-        public abstract void ExecuteCommand(ICommand command);
+        public abstract void ExecuteCommand(IEnumerable<ICommand> commands);
 
         private sealed class AccessorDecoratorImpl<T> : AccessorDecorator
             where T : class
@@ -126,9 +124,9 @@ namespace NuClear.StateInitialization.Core.Actors
                 _targetDataConnection = targetDataConnection;
             }
 
-            public override void ExecuteCommand(ICommand command)
+            public override void ExecuteCommand(IEnumerable<ICommand> commands)
             {
-                var dataObjects = _accessor.GetDataObjects(command);
+                var dataObjects = _accessor.GetDataObjects(commands);
                 if (dataObjects.Count != 0)
                 {
                     var temp = _targetDataConnection.CreateTable<T>("#temp");

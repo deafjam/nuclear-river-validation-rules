@@ -18,9 +18,9 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
         {
         }
 
-        public IReadOnlyCollection<Ruleset.AssociatedRule> GetDataObjects(ICommand command)
+        public IReadOnlyCollection<Ruleset.AssociatedRule> GetDataObjects(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<RulesetDto>();
+            var dtos = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<RulesetDto>();
             return dtos.SelectMany(ruleset => ruleset.AssociatedRules
                                                      .Select(rule => new Ruleset.AssociatedRule
                                                          {
@@ -32,10 +32,9 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
                        .ToList();
         }
 
-        public FindSpecification<Ruleset.AssociatedRule> GetFindSpecification(ICommand command)
+        public FindSpecification<Ruleset.AssociatedRule> GetFindSpecification(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<RulesetDto>();
-            var ids = dtos.Select(x => x.Id);
+            var ids = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<RulesetDto>().Select(x => x.Id).ToHashSet();
 
             return new FindSpecification<Ruleset.AssociatedRule>(x => ids.Contains(x.RulesetId));
         }

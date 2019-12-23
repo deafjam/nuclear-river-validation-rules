@@ -32,34 +32,34 @@ namespace NuClear.Replication.Core.Actors
         public IReadOnlyCollection<IEvent> ExecuteCommands(IReadOnlyCollection<ICommand> commands)
         {
             var commandsToExecute = commands.OfType<IReplaceDataObjectCommand>()
-                                           .Where(x => x.DataObjectType == typeof(TDataObject))
-                                           .Distinct()
-                                           .ToArray();
-
-            if (!commandsToExecute.Any())
+                                            .Where(x => x.DataObjectType == typeof(TDataObject))
+                                            .ToHashSet();
+            if (commandsToExecute.Count == 0)
             {
                 return Array.Empty<IEvent>();
             }
 
             var events = new List<IEvent>();
-            foreach (var command in commandsToExecute)
+            
+            using var transaction = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.Zero });
+            
+            var findSpecification = _memoryBasedDataObjectAccessor.GetFindSpecification(commandsToExecute);
+            var existingDataObjects = _query.For(findSpecification).ToList();
+            if (existingDataObjects.Count != 0)
             {
-                using (var transaction = new TransactionScope(
-                    TransactionScopeOption.Required,
-                    new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.Zero }))
-                {
-                    var findSpecification = _memoryBasedDataObjectAccessor.GetFindSpecification(command);
-                    _bulkRepository.Delete(_query.For(findSpecification));
-
-                    var dataObjects = _memoryBasedDataObjectAccessor.GetDataObjects(command);
-
-                    _bulkRepository.Create(dataObjects);
-                    events.AddRange(_dataChangesHandler.HandleCreates(dataObjects));
-                    events.AddRange(_dataChangesHandler.HandleRelates(dataObjects));
-
-                    transaction.Complete();
-                }
+                events.AddRange(_dataChangesHandler.HandleRelates(existingDataObjects));
+                _bulkRepository.Delete(existingDataObjects);
             }
+
+            var targetDataObjects = _memoryBasedDataObjectAccessor.GetDataObjects(commandsToExecute);
+            if (targetDataObjects.Count != 0)
+            {
+                _bulkRepository.Create(targetDataObjects);
+                events.AddRange(_dataChangesHandler.HandleCreates(targetDataObjects));
+                events.AddRange(_dataChangesHandler.HandleRelates(targetDataObjects));
+            }
+
+            transaction.Complete();
 
             return events;
         }

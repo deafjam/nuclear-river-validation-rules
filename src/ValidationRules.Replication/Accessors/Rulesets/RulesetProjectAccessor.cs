@@ -19,9 +19,9 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
 
         public RulesetProjectAccessor(IQuery query) => _query = query;
 
-        public IReadOnlyCollection<Ruleset.RulesetProject> GetDataObjects(ICommand command)
+        public IReadOnlyCollection<Ruleset.RulesetProject> GetDataObjects(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<RulesetDto>();
+            var dtos = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<RulesetDto>();
 
             return dtos.SelectMany(ruleset => ruleset.Projects
                                                      .Select(projectId => new Ruleset.RulesetProject
@@ -32,10 +32,9 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
                        .ToList();
         }
 
-        public FindSpecification<Ruleset.RulesetProject> GetFindSpecification(ICommand command)
+        public FindSpecification<Ruleset.RulesetProject> GetFindSpecification(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<RulesetDto>();
-            var ids = dtos.Select(x => x.Id);
+            var ids = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<RulesetDto>().Select(x => x.Id).ToHashSet();
 
             return new FindSpecification<Ruleset.RulesetProject>(x => ids.Contains(x.RulesetId));
         }

@@ -19,9 +19,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public AdvertisementAccessor(IQuery query) => _query = query;
 
-        public IReadOnlyCollection<Advertisement> GetDataObjects(ICommand command)
+        public IReadOnlyCollection<Advertisement> GetDataObjects(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<AdvertisementDto>();
+            var dtos = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<AdvertisementDto>();
 
             return dtos.Select(x => new Advertisement
             {
@@ -32,10 +32,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
             }).ToList();
         }
 
-        public FindSpecification<Advertisement> GetFindSpecification(ICommand command)
+        public FindSpecification<Advertisement> GetFindSpecification(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<AdvertisementDto>();
-            var ids = dtos.Select(x => x.Id);
+            var ids = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<AdvertisementDto>().Select(x => x.Id).ToHashSet();
 
             return new FindSpecification<Advertisement>(x => ids.Contains(x.Id));
         }

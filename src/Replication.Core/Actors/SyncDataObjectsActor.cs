@@ -28,12 +28,10 @@ namespace NuClear.Replication.Core.Actors
         {
             var commandsToExecute = commands.OfType<ISyncDataObjectCommand>()
                                             .Where(x => x.DataObjectType == typeof(TDataObject))
-                                            .Distinct()
-                                            .ToArray();
-
-            if (!commandsToExecute.Any())
+                                            .ToHashSet();
+            if (commandsToExecute.Count == 0)
             {
-                return Array.Empty<IEvent>();
+                return Array.Empty<IEvent>();    
             }
 
             var events = new List<IEvent>();

@@ -6,7 +6,7 @@ namespace NuClear.Replication.Core.DataObjects
 {
     public interface IMemoryBasedDataObjectAccessor<TDataObject>
     {
-        IReadOnlyCollection<TDataObject> GetDataObjects(ICommand command);
-        FindSpecification<TDataObject> GetFindSpecification(ICommand command);
+        IReadOnlyCollection<TDataObject> GetDataObjects(IEnumerable<ICommand> commands);
+        FindSpecification<TDataObject> GetFindSpecification(IEnumerable<ICommand> commands);
     }
 }

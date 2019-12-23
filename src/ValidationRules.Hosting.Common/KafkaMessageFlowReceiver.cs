@@ -35,19 +35,17 @@ namespace NuClear.ValidationRules.Hosting.Common
 
                 // manually store offsets
                 // https://github.com/edenhill/librdkafka/wiki/FAQ#why-committing-each-message-is-slow
+                // предполагаются что заданы дефолтные значения для параметров
+                // enable.auto.commit=true
                 EnableAutoOffsetStore = false,
                 
                 // do not retrieve topic name, headers, timestamps for each consumed message
                 // this will reduce memory allocation and increase performance
                 ConsumeResultFields = "none",
 
-                // FYI: предполагаются что заданы дефолтные значения для параметров
-                // enable.auto.commit=true
-                // enable.partition.eof=false
-                // так и есть исходя из документации librdkafka
-                // эти значения нормальны для job-сценариев
-                // для state-init сценариев мы эти значения оверрайдим в app конфиге
-                // т.к. если не включить partition eof, то тогда метод .Consume зависнет
+                // не ждём, пока наберётся необходимый batchsize
+                // если дошли до конца partition, то возвращаем столько сколько можем
+                EnablePartitionEof = true
             };
 
             // включить отладку

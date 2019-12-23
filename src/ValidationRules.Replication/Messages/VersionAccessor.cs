@@ -18,10 +18,11 @@ namespace NuClear.ValidationRules.Replication.Messages
         // ReSharper disable once UnusedParameter.Local
         public VersionAccessor(IQuery _) { }
 
-        public IQueryable<Version> GetSource()
+        IQueryable<Version> IStorageBasedDataObjectAccessor<Version>.GetSource()
             => new[] { new Version { Id = 0, UtcDateTime = DateTime.UtcNow } }.AsQueryable();
 
-        public FindSpecification<Version> GetFindSpecification(IReadOnlyCollection<ICommand> commands) => throw new NotSupportedException();
+        FindSpecification<Version> IStorageBasedDataObjectAccessor<Version>.GetFindSpecification(IReadOnlyCollection<ICommand> commands)
+            => throw new NotSupportedException();
     }
 
     // stateinit-only accessor
@@ -31,7 +32,7 @@ namespace NuClear.ValidationRules.Replication.Messages
 
         public ErmStateAccessor(IQuery query) => _query = query;
 
-        public IQueryable<Version.ErmState> GetSource() =>
+        IQueryable<Version.ErmState> IStorageBasedDataObjectAccessor<Version.ErmState>.GetSource() =>
             _query.For<UseCaseTrackingEvent>()
                 .Where(x => x.EventType == UseCaseTrackingEvent.Committed)
                 .OrderByDescending(x => x.CreatedOn)
@@ -43,6 +44,7 @@ namespace NuClear.ValidationRules.Replication.Messages
                     UtcDateTime = x.CreatedOn
                 });
 
-        public FindSpecification<Version.ErmState> GetFindSpecification(IReadOnlyCollection<ICommand> commands) => throw new NotSupportedException();
+        FindSpecification<Version.ErmState> IStorageBasedDataObjectAccessor<Version.ErmState>.GetFindSpecification(IReadOnlyCollection<ICommand> commands)
+            => throw new NotSupportedException();
     }
 }

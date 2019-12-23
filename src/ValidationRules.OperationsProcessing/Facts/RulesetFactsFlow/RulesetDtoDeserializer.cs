@@ -26,7 +26,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
             consumeResults
                 // filter heartbeat & tombstone messages
                 .Where(x => x.Value != null)
-                .AsParallel()
                 .Select(x =>
                 {
                     var rawXmlRulesetMessage = Encoding.UTF8.GetString(x.Value);
@@ -45,7 +44,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 
                     return ConvertToRulesetDto(xmlRulesetMessage);                    
                 })
-                .AsSequential()
                 .Where(x => x != null);
 
         private Option<string> ExtractBusinessModelSuffix(string rawValue)
@@ -68,7 +66,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                     Id = (long)rulesetXml.Attribute("Code"),
                     BeginDate = (DateTime)rulesetXml.Attribute("BeginDate"),
                     EndDate = (DateTime?)rulesetXml.Attribute("EndDate"),
-                    IsDeleted = ((bool?)rulesetXml.Attribute("IsDeleted")) ?? false,
+                    IsDeleted = (bool?)rulesetXml.Attribute("IsDeleted") ?? false,
                     Version = (int)rulesetXml.Attribute("Version"),
                     AssociatedRules = rulesElements.Element("Associated")
                                                    .Elements("Rule")
