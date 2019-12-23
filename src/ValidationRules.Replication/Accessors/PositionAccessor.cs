@@ -69,17 +69,9 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
             var orderIds = orderIdsFromOpa.Concat(orderIdsFromPricePosition).ToList();
 
-            var firmIds =
-                _query.For<Order>()
-                    .Where(x => orderIds.Contains(x.Id))
-                    .Select(x => x.FirmId)
-                    .Distinct()
-                    .ToList();
-
             return new[]
             {
-                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Order), orderIds),
-                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Firm), firmIds)
+                new RelatedDataObjectOutdatedEvent(typeof(Position), typeof(Order), orderIds)
             };
         }
     }
