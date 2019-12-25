@@ -78,6 +78,7 @@ namespace NuClear.ValidationRules.Querying.Host.CheckModes
 
                     Rule(MessageTypeCode.LinkedFirmAddressShouldBeValid,
                          single: RuleSeverityLevel.Error,
+                         manualReport: RuleSeverityLevel.Error,
                          prerelease: RuleSeverityLevel.Error,
                          release: RuleSeverityLevel.Error),
 
