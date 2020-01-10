@@ -38,7 +38,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             {
                 commands.Add(BulkReplicationCommands.ErmToFacts);
                 commands.Add(new KafkaReplicationCommand(AmsFactsFlow.Instance, BulkReplicationCommands.AmsToFacts));
-                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts, 100));
+                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts, 500));
                 // TODO: отдельный schema init для erm\ams\ruleset facts
                 commands.Add(SchemaInitializationCommands.Facts);
             }
