@@ -1,15 +1,12 @@
-﻿using System;
-using System.Transactions;
-
-using NuClear.Jobs;
-using NuClear.Security.API.Context;
+﻿using NuClear.Jobs;
 using NuClear.Security.API.Auth;
-using NuClear.Tracing.API;
+using NuClear.Security.API.Context;
 using NuClear.Telemetry.Probing;
 using NuClear.ValidationRules.Replication.Messages;
 using NuClear.ValidationRules.Replication.Settings;
-
 using Quartz;
+using System;
+using System.Transactions;
 
 namespace NuClear.ValidationRules.Replication.Host.Jobs
 {
@@ -26,8 +23,8 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
             IUserContextManager userContextManager,
             IUserAuthenticationService userAuthenticationService,
             IUserAuthorizationService userAuthorizationService,
-            ITracer tracer)
-            : base(userContextManager, userAuthenticationService, userAuthorizationService, tracer)
+            IJobExecutionObserver jobExecutionObserver)
+            : base(userContextManager, userAuthenticationService, userAuthorizationService, jobExecutionObserver)
         {
             _archiveVersionsService = archiveVersionsService;
             _settings = settings;

@@ -10,14 +10,11 @@
 
   <ItemGroup>
     <PackageReference Include="2GIS.NuClear.Tracing.Log4Net" Version="2.2.3" />
-    <PackageReference Include="librdkafka.redist" Version="0.11.4">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="NuClear.River.StateInitialization" Version="7.0.0" />
     <PackageReference Include="Polly" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StateInitialization.Core\StateInitialization.Core.csproj" />
     <ProjectReference Include="..\ValidationRules.OperationsProcessing\ValidationRules.OperationsProcessing.csproj" />
     <ProjectReference Include="..\ValidationRules.SingleCheck\ValidationRules.SingleCheck.csproj" />
   </ItemGroup>

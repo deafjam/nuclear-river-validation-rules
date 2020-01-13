@@ -2,9 +2,8 @@
 using NuClear.River.Hosting.Common.Settings;
 using NuClear.Settings.API;
 using NuClear.Storage.API.ConnectionStrings;
-using NuClear.ValidationRules.Storage.Connections;
-
-using ValidationRules.Hosting.Common.Settings.Connections;
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
+using NuClear.ValidationRules.Hosting.Common.Settings.Connections;
 
 namespace NuClear.ValidationRules.Querying.Host
 {

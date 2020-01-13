@@ -4,6 +4,6 @@ namespace NuClear.ValidationRules.OperationsProcessing
 {
     public interface IDeserializer<in TMessage, out TDto>
     {
-        IReadOnlyCollection<TDto> Deserialize(TMessage message);
+        IEnumerable<TDto> Deserialize(IEnumerable<TMessage> message);
     }
 }

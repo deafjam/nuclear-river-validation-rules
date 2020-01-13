@@ -2,17 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <RootNamespace>ValidationRules.Hosting.Common</RootNamespace>
-    <AssemblyName>ValidationRules.Hosting.Common</AssemblyName>
+    <RootNamespace>NuClear.ValidationRules.Hosting.Common</RootNamespace>
+    <AssemblyName>2GIS.NuClear.ValidationRules.Hosting.Common</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="2GIS.NuClear.Messaging.Transports.Kafka" Version="2.3.4" />
-    <PackageReference Include="Confluent.Kafka.StrongName" Version="0.11.4" />
-    <PackageReference Include="NuClear.River.Hosting.Common" Version="7.0.0" />
+    <PackageReference Include="2GIS.NuClear.Messaging.API" Version="2.146.0-sdk-based0001" />
+    <PackageReference Include="2GIS.NuClear.OperationsProcessing.API" Version="5.5.7-pullrequest6938-0004" />
+    <PackageReference Include="Confluent.Kafka" Version="1.3.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Hosting.Common\Hosting.Common.csproj" />
     <ProjectReference Include="..\ValidationRules.Storage\ValidationRules.Storage.csproj" />
   </ItemGroup>
 

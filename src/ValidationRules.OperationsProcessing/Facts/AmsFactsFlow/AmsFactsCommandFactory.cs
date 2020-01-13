@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
+using Confluent.Kafka;
 using NuClear.OperationsProcessing.Transports.Kafka;
 using NuClear.Replication.Core;
 using NuClear.ValidationRules.Replication;
@@ -11,13 +12,13 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
 {
     internal sealed class AmsFactsCommandFactory : ICommandFactory<KafkaMessage>
     {
-        private readonly IDeserializer<Confluent.Kafka.Message, AdvertisementDto> _deserializer = new AdvertisementDtoDeserializer();
+        private readonly IDeserializer<ConsumeResult<Ignore, byte[]>, AdvertisementDto> _deserializer = new AdvertisementDtoDeserializer();
 
         public IEnumerable<ICommand> CreateCommands(KafkaMessage kafkaMessage)
         {
-            yield return new IncrementAmsStateCommand(new AmsState(kafkaMessage.Message.Offset, kafkaMessage.Message.Timestamp.UtcDateTime));
-            
-            var dtos = _deserializer.Deserialize(kafkaMessage.Message);
+            yield return new IncrementAmsStateCommand(new AmsState(kafkaMessage.Result.Offset, kafkaMessage.Message.Timestamp.UtcDateTime));
+
+            var dtos = _deserializer.Deserialize(new[] {kafkaMessage.Result}).ToList(); 
             if (dtos.Count > 0)
             {
                 yield return new ReplaceDataObjectCommand(typeof(Advertisement), dtos);

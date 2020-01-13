@@ -11,17 +11,12 @@ namespace NuClear.ValidationRules.Replication.Messages
 {
     public sealed partial class ErmStateAccessor: IMemoryBasedDataObjectAccessor<Version.ErmState>, IDataChangesHandler<Version.ErmState>
     {
-        public IReadOnlyCollection<Version.ErmState> GetDataObjects(ICommand command)
-        {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<Version.ErmState>();
-            
-            return dtos.ToList();
-        }
+        IReadOnlyCollection<Version.ErmState> IMemoryBasedDataObjectAccessor<Version.ErmState>.GetDataObjects(IEnumerable<ICommand> commands)
+            => commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<Version.ErmState>().ToList();
 
-        public FindSpecification<Version.ErmState> GetFindSpecification(ICommand command)
+        FindSpecification<Version.ErmState> IMemoryBasedDataObjectAccessor<Version.ErmState>.GetFindSpecification(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<Version.ErmState>();
-            var ids = dtos.Select(x => x.Token);
+            var ids = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<Version.ErmState>().Select(x => x.Token).ToHashSet();
 
             return new FindSpecification<Version.ErmState>(x => ids.Contains(x.Token));
         }

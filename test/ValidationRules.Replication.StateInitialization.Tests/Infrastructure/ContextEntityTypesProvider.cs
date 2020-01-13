@@ -38,9 +38,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests.Infrastr
             _entitiesByContext = new Dictionary<string, IReadOnlyCollection<Type>>
                 {
                     [ContextName.Erm] = ermTypes,
-                    [ContextName.Facts] = DataObjectTypesProviderFactory.AllSourcesFactTypes,
-                    [ContextName.Aggregates] = DataObjectTypesProviderFactory.AggregateTypes,
-                    [ContextName.Messages] = DataObjectTypesProviderFactory.AllMessagesTypes
+                    [ContextName.Facts] = DataObjectTypesProvider.AllSourcesFactTypes,
+                    [ContextName.Aggregates] = DataObjectTypesProvider.AggregateTypes,
+                    [ContextName.Messages] = DataObjectTypesProvider.AllMessagesTypes
                 };
         }
 

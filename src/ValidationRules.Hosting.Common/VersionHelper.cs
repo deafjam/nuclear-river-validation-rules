@@ -3,7 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace ValidationRules.Hosting.Common
+namespace NuClear.ValidationRules.Hosting.Common
 {
     public sealed class VersionHelper
     {

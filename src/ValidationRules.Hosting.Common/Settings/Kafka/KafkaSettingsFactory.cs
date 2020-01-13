@@ -1,131 +1,112 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-
 using Confluent.Kafka;
-
 using Newtonsoft.Json;
-
 using NuClear.Messaging.API.Flows;
 using NuClear.Messaging.Transports.Kafka;
 using NuClear.River.Hosting.Common.Settings;
 
-namespace ValidationRules.Hosting.Common.Settings.Kafka
+namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
 {
     public sealed class KafkaSettingsFactory : IKafkaSettingsFactory
     {
-        private const int SingleSupportedPartition = 0;
-        private readonly Offset _offset;
-
-        private readonly IReadOnlyDictionary<string, object> _defaultKafkaClientSpecificSettings =
-            new Dictionary<string, object>
-                {
-                    ["socket.blocking.max.ms"] = 1,
-                    ["fetch.wait.max.ms"] = 5,
-                    ["fetch.error.backoff.ms"] = 5,
-                    ["fetch.message.max.bytes"] = 10240,
-                    ["queued.min.messages"] = 1000
-                };
-
-        private readonly Dictionary<IMessageFlow, KafkaConfigSettings> _flows2ConsumerSettingsMap;
-
+        private readonly Dictionary<IMessageFlow, KafkaMessageFlowReceiverSettings> _flows2ConsumerSettingsMap = new Dictionary<IMessageFlow, KafkaMessageFlowReceiverSettings>();
+        
         public KafkaSettingsFactory(
-            IReadOnlyDictionary<IMessageFlow, string> messageFlows2CoonectionStringsMap,
+            IReadOnlyDictionary<IMessageFlow, string> messageFlows2ConnectionStringsMap,
             IEnvironmentSettings environmentSettings)
-            : this(messageFlows2CoonectionStringsMap, environmentSettings, Offset.Invalid)
         {
-        }
-
-        public KafkaSettingsFactory(
-            IReadOnlyDictionary<IMessageFlow, string> messageFlows2CoonectionStringsMap,
-            IEnvironmentSettings environmentSettings,
-            Offset offset)
-        {
-            _offset = offset;
-
-            const string KafkaTargetTopicToken = "targetTopic";
-            const string KafkaPollTimeoutToken = "pollTimeout";
-            const string KafkaInfoTimeoutToken = "infoTimeout";
-
-            _flows2ConsumerSettingsMap = new Dictionary<IMessageFlow, KafkaConfigSettings>();
-            foreach (var entry in messageFlows2CoonectionStringsMap)
+            foreach (var entry in messageFlows2ConnectionStringsMap)
             {
-                var messageFlow = entry.Key;
-                var connectionString = entry.Value;
+                var kafkaConfig = ParseConnectionString(entry.Value);
+                
+                // example group.id: '4f04437a-2f10-4a37-bb49-03810346ae84-Test.11'
+                kafkaConfig.Config["group.id"] = string.Concat(entry.Key.Id.ToString(), "-", environmentSettings.EnvironmentName);
 
-                var kafkaConfig = new KafkaConfigSettings();
-
-                var configuredKafkaSettings = JsonConvert.DeserializeObject<Dictionary<string, object>>(connectionString);
-                if (!configuredKafkaSettings.TryGetValue(KafkaTargetTopicToken, out var rawtargetTopic))
-                {
-                    throw new InvalidOperationException($"Kafka config is invalid for message flow {messageFlow.GetType().Name}. Required parameter \"{KafkaTargetTopicToken}\" was not found. ConnectionString: {connectionString}");
-                }
-
-                kafkaConfig.Topic = (string)rawtargetTopic;
-                kafkaConfig.PoolTimeout = !configuredKafkaSettings.TryGetValue(KafkaPollTimeoutToken, out object rawPollTimeout)
-                                              ? TimeSpan.FromSeconds(5)
-                                              : TimeSpan.Parse((string)rawPollTimeout);
-                kafkaConfig.InfoTimeout = !configuredKafkaSettings.TryGetValue(KafkaInfoTimeoutToken, out object rawInfoTimeout)
-                                              ? TimeSpan.FromSeconds(5)
-                                              : TimeSpan.Parse((string)rawInfoTimeout);
-                var explicitlyProcessedTokens = new[] { KafkaTargetTopicToken, KafkaPollTimeoutToken, KafkaInfoTimeoutToken };
-                var kafkaClientSpecific = configuredKafkaSettings.Where(e => !explicitlyProcessedTokens.Contains(e.Key))
-                                                                 .ToDictionary(x => x.Key, x => x.Value);
-
-                kafkaClientSpecific["group.id"] = messageFlow.Id.ToString() + '-' + environmentSettings.EnvironmentName;
-
-                foreach (var defaultSetting in _defaultKafkaClientSpecificSettings)
-                {
-                    if (kafkaClientSpecific.ContainsKey(defaultSetting.Key))
-                    {
-                        continue;
-                    }
-
-                    kafkaClientSpecific.Add(defaultSetting.Key, defaultSetting.Value);
-                }
-
-                kafkaConfig.KafkaClientSpecific = kafkaClientSpecific;
-
-                _flows2ConsumerSettingsMap.Add(messageFlow, kafkaConfig);
+                _flows2ConsumerSettingsMap.Add(entry.Key, kafkaConfig);   
             }
         }
 
         public IKafkaMessageFlowReceiverSettings CreateReceiverSettings(IMessageFlow messageFlow)
         {
-            if (!_flows2ConsumerSettingsMap.TryGetValue(messageFlow, out var kafkaConfig))
-            {
-                throw new ArgumentOutOfRangeException($"Can't create kafka receiver settings. Specified message flow \"{messageFlow.GetType().Name}\" doesn't has appropriate config");
-            }
-
-            return new KafkaMessageFlowReceiverSettings
-            {
-                Config = kafkaConfig.KafkaClientSpecific,
-                TopicPartitionOffsets = new [] {  new TopicPartitionOffset(kafkaConfig.Topic, SingleSupportedPartition, _offset) },
-                PollTimeout = kafkaConfig.PoolTimeout
-            };
-        }
-
-        public IKafkaMessageFlowInfoSettings CreateInfoSettings(IMessageFlow messageFlow)
-        {
-            if (!_flows2ConsumerSettingsMap.TryGetValue(messageFlow, out var kafkaConfig))
+            if (!_flows2ConsumerSettingsMap.TryGetValue(messageFlow, out var settings))
             {
                 throw new ArgumentOutOfRangeException($"Can't create kafka info settings. Specified message flow \"{messageFlow.GetType().Name}\" doesn't has appropriate config");
             }
 
-            return new KafkaMessageFlowInfoSettings
-            {
-                Config = kafkaConfig.KafkaClientSpecific,
-                TopicPartition = new TopicPartition(kafkaConfig.Topic, SingleSupportedPartition),
-                InfoTimeout = kafkaConfig.InfoTimeout
-            };
+            return settings;
         }
 
-        private sealed class KafkaConfigSettings
+        private static KafkaMessageFlowReceiverSettings ParseConnectionString(string connectionString)
         {
-            public string Topic { get; set; }
-            public TimeSpan PoolTimeout { get; set; }
-            public TimeSpan InfoTimeout { get; set; }
-            public Dictionary<string, object> KafkaClientSpecific { get; set; }
+            const string Topic = "topic";
+            const string PollTimeout = "pollTimeout";
+
+            var settings = new KafkaMessageFlowReceiverSettings
+            {
+                Config = JsonConvert.DeserializeObject<Dictionary<string, string>>(connectionString)
+            };
+
+            // Topic (required)
+            if (!settings.Config.TryGetValue(Topic, out var rawTopic))
+            {
+                throw new InvalidOperationException($"Required parameter \"{Topic}\" was not found. ConnectionString: {connectionString}");
+            }
+            
+            settings.TopicPartitionOffset = ParseTopicPartitionOffset(rawTopic);
+            settings.Config.Remove(Topic);
+
+            // PollTimeout (optional)
+            if (settings.Config.TryGetValue(PollTimeout, out var rawPollTimeout))
+            {
+                settings.PollTimeout = TimeSpan.Parse(rawPollTimeout);
+                settings.Config.Remove(PollTimeout);
+            }
+
+            return settings;
+        }
+
+        private static TopicPartitionOffset ParseTopicPartitionOffset(string rawTopic)
+        {
+            var split = rawTopic.Split(' ');
+            var topic = split[0];
+
+            Partition partition;
+            if (split.Length <= 1)
+            {
+                partition = Partition.Any;
+            }
+            else
+            {
+                var rawPartition = split[1].Trim('[').Trim(']');
+                partition = string.Equals(rawPartition, "Any", StringComparison.OrdinalIgnoreCase) ? Partition.Any : (Partition)int.Parse(rawPartition);
+            }
+
+            Offset offset;
+            if (split.Length <= 2)
+            {
+                offset = Offset.Unset; 
+            }
+            else
+            {
+                var rawOffset = split[2].Trim('@');
+            
+                offset = string.Equals(rawOffset, "Beginning", StringComparison.OrdinalIgnoreCase) ? Offset.Beginning :
+                    string.Equals(rawOffset, "End", StringComparison.OrdinalIgnoreCase) ? Offset.End :
+                    string.Equals(rawOffset, "Unset", StringComparison.OrdinalIgnoreCase) ? Offset.Unset :
+                    throw new ArgumentOutOfRangeException();
+            }
+            
+            return new TopicPartitionOffset(topic, partition, offset);
+        }
+        
+        private sealed class KafkaMessageFlowReceiverSettings : IKafkaMessageFlowReceiverSettings
+        {
+            public Dictionary<string, string> Config { get; set; }
+            IReadOnlyDictionary<string, string> IKafkaMessageFlowReceiverSettings.Config => Config;
+            
+            public TopicPartitionOffset TopicPartitionOffset { get; set; }
+            public TimeSpan PollTimeout { get; set; } = TimeSpan.FromSeconds(5);
         }
     }
 }

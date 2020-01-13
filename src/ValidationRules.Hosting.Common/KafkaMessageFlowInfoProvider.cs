@@ -1,16 +1,17 @@
 ﻿using System.Linq;
-
 using Confluent.Kafka;
-
 using NuClear.Messaging.API.Flows;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 
-using ValidationRules.Hosting.Common.Settings.Kafka;
-
-namespace ValidationRules.Hosting.Common
+namespace NuClear.ValidationRules.Hosting.Common
 {
     public sealed class KafkaMessageFlowInfoProvider
     {
         private readonly IKafkaSettingsFactory _kafkaSettingsFactory;
+        
+        // пока предполагается что partition только один
+        // потом надо будет переделать
+        private static readonly Partition ZeroPartition = new Partition(0);
 
         public KafkaMessageFlowInfoProvider(IKafkaSettingsFactory kafkaSettingsFactory)
         {
@@ -19,35 +20,34 @@ namespace ValidationRules.Hosting.Common
 
         public long GetFlowSize(IMessageFlow messageFlow)
         {
-            var settings = _kafkaSettingsFactory.CreateInfoSettings(messageFlow);
-            using (var consumer = new Consumer(settings.Config))
-            {
-                var offsets = consumer.QueryWatermarkOffsets(settings.TopicPartition, settings.InfoTimeout);
-                return offsets.High;
-            }
+            var settings = _kafkaSettingsFactory.CreateReceiverSettings(messageFlow);
+            var topicPartition = new TopicPartition(settings.TopicPartitionOffset.Topic, ZeroPartition);
+
+            using var consumer = new ConsumerBuilder<Ignore, Ignore>(settings.Config).Build();
+            var offsets = consumer.QueryWatermarkOffsets(topicPartition, settings.PollTimeout);
+            return offsets.High;
         }
 
         public long GetFlowProcessedSize(IMessageFlow messageFlow)
         {
-            var settings = _kafkaSettingsFactory.CreateInfoSettings(messageFlow);
-            using (var consumer = new Consumer(settings.Config))
-            {
-                var committedOffset = consumer.Committed(new[] { settings.TopicPartition }, settings.InfoTimeout).First();
-                return committedOffset.Offset;
-            }
+            var settings = _kafkaSettingsFactory.CreateReceiverSettings(messageFlow);
+            var topicPartition = new TopicPartition(settings.TopicPartitionOffset.Topic, ZeroPartition);
+
+            using var consumer = new ConsumerBuilder<Ignore, Ignore>(settings.Config).Build();
+            var committedOffset = consumer.Committed(new[] { topicPartition }, settings.PollTimeout).First();
+            return committedOffset.Offset;
         }
 
-        public bool TryGetFlowLastMessage(IMessageFlow messageFlow, out Message message)
+        public ConsumeResult<Ignore, Ignore> TryGetFlowLastMessage(IMessageFlow messageFlow)
         {
-            var settings = _kafkaSettingsFactory.CreateInfoSettings(messageFlow);
+            var settings = _kafkaSettingsFactory.CreateReceiverSettings(messageFlow);
+            var topicPartition = new TopicPartition(settings.TopicPartitionOffset.Topic, ZeroPartition);
 
-            using (var consumer = new Consumer(settings.Config))
-            {
-                var offsets = consumer.QueryWatermarkOffsets(settings.TopicPartition, settings.InfoTimeout);
-                consumer.Assign(new[] { new TopicPartitionOffset(settings.TopicPartition, offsets.High - 1) });
+            using var consumer = new ConsumerBuilder<Ignore, Ignore>(settings.Config).Build();
+            var offsets = consumer.QueryWatermarkOffsets(topicPartition, settings.PollTimeout);
+            consumer.Assign(new[] { new TopicPartitionOffset(topicPartition, offsets.High - 1) });
 
-                return consumer.Consume(out message, settings.InfoTimeout);
-            }
+            return consumer.Consume(settings.PollTimeout);
         }
     }
 }

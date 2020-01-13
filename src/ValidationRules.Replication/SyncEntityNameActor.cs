@@ -63,21 +63,18 @@ namespace NuClear.ValidationRules.Replication
             {
                 foreach (var accessor in CreateMemoryAccessors())
                 {
-                    foreach (var replaceDataObjectCommand in replaceDataObjectCommands)
-                    {
-                        var specification = accessor.GetFindSpecification(replaceDataObjectCommand);
+                    var specification = accessor.GetFindSpecification(replaceDataObjectCommands);
 
-                        var dataChangesDetector = new TwoPhaseDataChangesDetector<EntityName>(
-                            _ => accessor.GetDataObjects(replaceDataObjectCommand),
-                            spec => _query.For<EntityName>().WhereMatched(spec),
-                            _identityComparer,
-                            _completeComparer);
+                    var dataChangesDetector = new TwoPhaseDataChangesDetector<EntityName>(
+                        _ => accessor.GetDataObjects(replaceDataObjectCommands),
+                        spec => _query.For<EntityName>().WhereMatched(spec),
+                        _identityComparer,
+                        _completeComparer);
 
-                        var changes = dataChangesDetector.DetectChanges(specification);
-                        _bulkRepository.Delete(changes.Complement);
-                        _bulkRepository.Create(changes.Difference);
-                        _bulkRepository.Update(changes.Intersection);
-                    }
+                    var changes = dataChangesDetector.DetectChanges(specification);
+                    _bulkRepository.Delete(changes.Complement);
+                    _bulkRepository.Create(changes.Difference);
+                    _bulkRepository.Update(changes.Intersection);
                 }
             }
 
@@ -305,9 +302,9 @@ namespace NuClear.ValidationRules.Replication
             // ReSharper disable once UnusedParameter.Local
             public AdvertisementNameAccessor(IQuery query) { }
 
-            public IReadOnlyCollection<EntityName> GetDataObjects(ICommand command)
+            public IReadOnlyCollection<EntityName> GetDataObjects(IEnumerable<ICommand> commands)
             {
-                var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<AdvertisementDto>();
+                var dtos = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<AdvertisementDto>();
 
                 return dtos.Select(x => new EntityName
                 {
@@ -317,11 +314,10 @@ namespace NuClear.ValidationRules.Replication
                 }).ToList();
             }
 
-            public FindSpecification<EntityName> GetFindSpecification(ICommand command)
+            public FindSpecification<EntityName> GetFindSpecification(IEnumerable<ICommand> commands)
             {
-                var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<AdvertisementDto>();
+                var ids = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<AdvertisementDto>().Select(x => x.Id).ToHashSet();
 
-                var ids = dtos.Select(x => x.Id);
                 return new FindSpecification<EntityName>(x => x.EntityType == EntityTypeIds.Advertisement && ids.Contains(x.Id));
             }
         }

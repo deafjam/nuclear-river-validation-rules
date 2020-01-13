@@ -1,8 +1,7 @@
 ﻿using NuClear.StateInitialization.Core.Commands;
 using NuClear.StateInitialization.Core.Storage;
-using NuClear.ValidationRules.StateInitialization.Host;
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
 using NuClear.ValidationRules.Storage;
-using NuClear.ValidationRules.Storage.Connections;
 
 namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 {

@@ -5,16 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using LinqToDB;
-
-using ValidationRules.Hosting.Common;
-
+using NuClear.ValidationRules.Hosting.Common;
 using Version = NuClear.ValidationRules.Storage.Model.Messages.Version;
 
 namespace NuClear.ValidationRules.Querying.Host.DataAccess
 {
     public sealed class VersioningService
     {
-        private static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(15);
+        private static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan WaitInterval = TimeSpan.FromSeconds(5);
 
         private readonly DataConnectionFactory _factory;

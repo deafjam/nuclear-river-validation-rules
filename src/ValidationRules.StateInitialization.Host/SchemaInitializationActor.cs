@@ -4,15 +4,15 @@ using LinqToDB.Mapping;
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.Actors;
 using NuClear.Storage.API.ConnectionStrings;
+using NuClear.ValidationRules.Hosting.Common;
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
 using NuClear.ValidationRules.SingleCheck.Store;
 using NuClear.ValidationRules.Storage;
-using NuClear.ValidationRules.Storage.Connections;
 using NuClear.ValidationRules.Storage.SchemaInitializer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-using ValidationRules.Hosting.Common;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
@@ -84,12 +84,12 @@ namespace NuClear.ValidationRules.StateInitialization.Host
     {
         public static SchemaInitializationCommand Facts { get; }
             = new SchemaInitializationCommand(Schema.Facts,
-                DataObjectTypesProviderFactory.AllSourcesFactTypes,
+                DataObjectTypesProvider.AllSourcesFactTypes,
                 ValidationRulesConnectionStringIdentity.Instance,
-                new[] {"Facts"});
+                new[] { "Facts" });
 
         public static SchemaInitializationCommand Aggregates { get; }
-            = new SchemaInitializationCommand(Schema.Aggregates, DataObjectTypesProviderFactory.AggregateTypes,
+            = new SchemaInitializationCommand(Schema.Aggregates, DataObjectTypesProvider.AggregateTypes,
                 ValidationRulesConnectionStringIdentity.Instance,
                 new[]
                 {
@@ -98,14 +98,14 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 });
 
         public static SchemaInitializationCommand Messages { get; }
-            = new SchemaInitializationCommand(Schema.Messages, DataObjectTypesProviderFactory.AllMessagesTypes,
+            = new SchemaInitializationCommand(Schema.Messages, DataObjectTypesProvider.AllMessagesTypes,
                 ValidationRulesConnectionStringIdentity.Instance,
-                new[] {"Messages", "MessagesCache"});
+                new[] { "Messages", "MessagesCache" });
 
         public static SchemaInitializationCommand WebApp { get; }
             = new SchemaInitializationCommand(
                 WebAppMappingSchemaHelper.GetWebAppMappingSchema(new VersionHelper().Version),
                 WebAppMappingSchemaHelper.DataObjectTypes, ValidationRulesConnectionStringIdentity.Instance,
-                new[] {"WebApp"});
+                new[] { "WebApp" });
     }
 }

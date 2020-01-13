@@ -1,12 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using NuClear.Jobs;
-using NuClear.Security.API.Context;
+﻿using NuClear.Jobs;
 using NuClear.Security.API.Auth;
-using NuClear.Tracing.API;
-
+using NuClear.Security.API.Context;
 using Quartz;
+using System.Threading.Tasks;
 
 namespace NuClear.ValidationRules.Replication.Host.Jobs
 {
@@ -15,16 +11,14 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
         public DebugTestJob(IUserContextManager userContextManager,
                             IUserAuthenticationService userAuthenticationService,
                             IUserAuthorizationService userAuthorizationService,
-                            ITracer tracer)
-            : base(userContextManager, userAuthenticationService, userAuthorizationService, tracer)
+                            IJobExecutionObserver jobExecutionObserver)
+            : base(userContextManager, userAuthenticationService, userAuthorizationService, jobExecutionObserver)
         {
         }
 
         protected override void ExecuteInternal(IJobExecutionContext context)
         {
-            Tracer.InfoFormat("Enter DebugTestJob, time: {0}", DateTime.UtcNow);
             Task.Delay(5000);
-            Tracer.InfoFormat("Exit DebugTestJob, time: {0}", DateTime.UtcNow);
         }
     }
 }

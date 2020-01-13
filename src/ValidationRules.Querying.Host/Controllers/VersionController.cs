@@ -1,5 +1,5 @@
 ﻿using System.Web.Http;
-using ValidationRules.Hosting.Common;
+using NuClear.ValidationRules.Hosting.Common;
 
 namespace NuClear.ValidationRules.Querying.Host.Controllers
 {

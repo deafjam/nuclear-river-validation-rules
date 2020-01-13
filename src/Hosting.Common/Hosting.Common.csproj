@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>NuClear.River.Hosting.Common</RootNamespace>
+    <AssemblyName>2GIS.NuClear.River.Hosting.Common</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="2GIS.NuClear.Settings" Version="1.2.0" />
+    <PackageReference Include="2GIS.NuClear.Storage.API" Version="2.1.1" />
+  </ItemGroup>
+
+</Project>

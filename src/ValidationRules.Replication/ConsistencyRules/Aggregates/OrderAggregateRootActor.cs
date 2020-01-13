@@ -151,7 +151,7 @@ namespace NuClear.ValidationRules.Replication.ConsistencyRules.Aggregates
                         IsPartnerAddress = isPartnerAddress
                     };
 
-                return result;
+                return result.Distinct();
             }
 
             public FindSpecification<Order.InvalidFirmAddress> GetFindSpecification(IReadOnlyCollection<ICommand> commands)

@@ -8,21 +8,21 @@ using NuClear.Storage.API.ConnectionStrings;
 using NuClear.Tracing.API;
 using NuClear.Tracing.Environment;
 using NuClear.Tracing.Log4Net.Config;
+using NuClear.ValidationRules.Hosting.Common;
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
+using NuClear.ValidationRules.Hosting.Common.Settings;
+using NuClear.ValidationRules.Hosting.Common.Settings.Connections;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
 using NuClear.ValidationRules.StateInitialization.Host.Assembling;
 using NuClear.ValidationRules.StateInitialization.Host.Kafka;
 using NuClear.ValidationRules.StateInitialization.Host.Kafka.Ams;
 using NuClear.ValidationRules.StateInitialization.Host.Kafka.Rulesets;
-using NuClear.ValidationRules.Storage.Connections;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ValidationRules.Hosting.Common;
-using ValidationRules.Hosting.Common.Settings;
-using ValidationRules.Hosting.Common.Settings.Connections;
-using ValidationRules.Hosting.Common.Settings.Kafka;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
@@ -38,7 +38,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             {
                 commands.Add(BulkReplicationCommands.ErmToFacts);
                 commands.Add(new KafkaReplicationCommand(AmsFactsFlow.Instance, BulkReplicationCommands.AmsToFacts));
-                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts));
+                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts, 500));
                 // TODO: отдельный schema init для erm\ams\ruleset facts
                 commands.Add(SchemaInitializationCommands.Facts);
             }
@@ -71,18 +71,17 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                     {AmsFactsFlow.Instance, connectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance)},
                     {RulesetFactsFlow.Instance, connectionStringSettings.GetConnectionString(RulesetConnectionStringIdentity.Instance)}
                 },
-                environmentSettings,
-                Offset.Beginning);
+                environmentSettings);
 
-            var kafkaMessageFlowReceiverFactory = new KafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
+            var kafkaMessageFlowReceiverFactory = new StateInitKafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
 
-            var dataObjectTypesProviderFactory = new DataObjectTypesProviderFactory();
-            var bulkReplicationActor = new BulkReplicationActor(dataObjectTypesProviderFactory, connectionStringSettings);
+            var dataObjectTypesProvider = new DataObjectTypesProvider();
+            var bulkReplicationActor = new BulkReplicationActor(dataObjectTypesProvider, connectionStringSettings);
             var kafkaReplicationActor = new KafkaReplicationActor(connectionStringSettings,
-                                                                  dataObjectTypesProviderFactory,
+                                                                  dataObjectTypesProvider,
                                                                   kafkaMessageFlowReceiverFactory,
                                                                   new KafkaMessageFlowInfoProvider(kafkaSettingsFactory),
-                                                                  new IBulkCommandFactory<Message>[]
+                                                                  new IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>[]
                                                                       {
                                                                           new AmsFactsBulkCommandFactory(),
                                                                           new RulesetFactsBulkCommandFactory(businessModelSettings)

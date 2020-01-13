@@ -19,9 +19,9 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
         {
         }
 
-        public IReadOnlyCollection<Ruleset.QuantitativeRule> GetDataObjects(ICommand command)
+        public IReadOnlyCollection<Ruleset.QuantitativeRule> GetDataObjects(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<RulesetDto>();
+            var dtos = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<RulesetDto>();
 
             return dtos.SelectMany(ruleset => ruleset.QuantitativeRules
                                                      .Select(rule => new Ruleset.QuantitativeRule
@@ -34,10 +34,9 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
                        .ToList();
         }
 
-        public FindSpecification<Ruleset.QuantitativeRule> GetFindSpecification(ICommand command)
+        public FindSpecification<Ruleset.QuantitativeRule> GetFindSpecification(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<RulesetDto>();
-            var ids = dtos.Select(x => x.Id);
+            var ids = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<RulesetDto>().Select(x => x.Id).ToHashSet();
 
             return new FindSpecification<Ruleset.QuantitativeRule>(x => ids.Contains(x.RulesetId));
         }

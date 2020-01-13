@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-
 using NuClear.River.Hosting.Common.Identities.Connections;
 using NuClear.Storage.API.ConnectionStrings;
-using NuClear.ValidationRules.Storage.Connections;
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
 
-namespace ValidationRules.Hosting.Common.Settings.Connections
+namespace NuClear.ValidationRules.Hosting.Common.Settings.Connections
 {
     public static class ConnectionStrings
     {

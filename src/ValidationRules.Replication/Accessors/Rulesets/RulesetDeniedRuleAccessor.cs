@@ -18,9 +18,9 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
         {
         }
 
-        public IReadOnlyCollection<Ruleset.DeniedRule> GetDataObjects(ICommand command)
+        public IReadOnlyCollection<Ruleset.DeniedRule> GetDataObjects(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<RulesetDto>();
+            var dtos = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<RulesetDto>();
 
             var targetRules = dtos.SelectMany(ruleset => ruleset.DeniedRules
                                                                 .Select(rule => new Ruleset.DeniedRule
@@ -44,10 +44,9 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
                               .ToList();
         }
 
-        public FindSpecification<Ruleset.DeniedRule> GetFindSpecification(ICommand command)
+        public FindSpecification<Ruleset.DeniedRule> GetFindSpecification(IEnumerable<ICommand> commands)
         {
-            var dtos = ((ReplaceDataObjectCommand)command).Dtos.Cast<RulesetDto>();
-            var ids = dtos.Select(x => x.Id);
+            var ids = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<RulesetDto>().Select(x => x.Id).ToHashSet();
 
             return new FindSpecification<Ruleset.DeniedRule>(x => ids.Contains(x.RulesetId));
         }

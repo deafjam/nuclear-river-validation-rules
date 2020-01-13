@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="2GIS.NuClear.Aggregates.Storage.DI.Unity" Version="2.1.0" />
-    <PackageReference Include="2GIS.NuClear.Jobs.RemoteControl" Version="2.1.4" />
-    <PackageReference Include="2GIS.NuClear.Jobs.Unity" Version="2.1.4" />
+    <PackageReference Include="2GIS.NuClear.Aggregates.Storage.DI.Unity" Version="2.1.1" />
+    <PackageReference Include="2GIS.NuClear.Jobs.RemoteControl" Version="2.2.0" />
+    <PackageReference Include="2GIS.NuClear.Jobs.Unity" Version="2.2.0" />
     <PackageReference Include="2GIS.NuClear.Messaging.DI.Factories.Unity" Version="2.3.4" />
     <PackageReference Include="2GIS.NuClear.Metamodeling.Basics" Version="2.1.0" />
     <PackageReference Include="2GIS.NuClear.OperationsLogging" Version="5.5.4" />
@@ -21,9 +21,6 @@
     <PackageReference Include="2GIS.NuClear.Settings.Unity" Version="1.2.0" />
     <PackageReference Include="2GIS.NuClear.Tracing.Log4Net" Version="2.2.3" />
     <PackageReference Include="Common.Logging.Log4Net1213" Version="3.1.0" />
-    <PackageReference Include="librdkafka.redist" Version="0.11.4">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

@@ -18,7 +18,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 {
     public sealed class RulesetFactsFlowHandler : IMessageProcessingHandler
     {
-        private readonly IDataObjectsActorFactoryRefactored _dataObjectsActorFactory;
+        private readonly IDataObjectsActorFactory _dataObjectsActorFactory;
         private readonly IEventLogger _eventLogger;
         private readonly ITracer _tracer;
 
@@ -29,7 +29,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
             };
 
         public RulesetFactsFlowHandler(
-            IDataObjectsActorFactoryRefactored dataObjectsActorFactory,
+            IDataObjectsActorFactory dataObjectsActorFactory,
             IEventLogger eventLogger,
             ITracer tracer)
         {

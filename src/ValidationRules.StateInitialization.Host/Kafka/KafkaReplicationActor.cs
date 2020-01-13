@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
-
+using Confluent.Kafka;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SqlServer;
 
@@ -13,8 +13,7 @@ using NuClear.Messaging.API.Flows;
 using NuClear.Messaging.Transports.Kafka;
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.Actors;
-using NuClear.Settings;
-using NuClear.Settings.API;
+using NuClear.Replication.Core.DataObjects;
 using NuClear.StateInitialization.Core;
 using NuClear.StateInitialization.Core.Commands;
 using NuClear.StateInitialization.Core.Factories;
@@ -22,35 +21,33 @@ using NuClear.StateInitialization.Core.Storage;
 using NuClear.Storage.API.ConnectionStrings;
 using NuClear.Storage.API.Readings;
 using NuClear.Tracing.API;
-
+using NuClear.ValidationRules.Hosting.Common;
 using Polly;
-
-using ValidationRules.Hosting.Common;
+using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
 {
     internal sealed class KafkaReplicationActor : IActor
     {
         private readonly IConnectionStringSettings _connectionStringSettings;
-        private readonly IDataObjectTypesProviderFactory _dataObjectTypesProviderFactory;
+        private readonly IDataObjectTypesProvider _dataObjectTypesProvider;
         private readonly IKafkaMessageFlowReceiverFactory _receiverFactory;
         private readonly KafkaMessageFlowInfoProvider _kafkaMessageFlowInfoProvider;
-        private readonly IReadOnlyCollection<IBulkCommandFactory<Confluent.Kafka.Message>> _commandFactories;
+        private readonly IReadOnlyCollection<IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>> _commandFactories;
         private readonly ITracer _tracer;
 
         private readonly IAccessorTypesProvider _accessorTypesProvider = new InMemoryAccessorTypesProvider();
-        private readonly DefaultKafkaBatchSizeSettings _batchSizeSettings = new DefaultKafkaBatchSizeSettings();
 
         public KafkaReplicationActor(
             IConnectionStringSettings connectionStringSettings,
-            IDataObjectTypesProviderFactory dataObjectTypesProviderFactory,
+            IDataObjectTypesProvider dataObjectTypesProvider,
             IKafkaMessageFlowReceiverFactory kafkaMessageFlowReceiverFactory,
             KafkaMessageFlowInfoProvider kafkaMessageFlowInfoProvider,
-            IReadOnlyCollection<IBulkCommandFactory<Confluent.Kafka.Message>> commandFactories,
+            IReadOnlyCollection<IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>> commandFactories,
             ITracer tracer)
         {
             _connectionStringSettings = connectionStringSettings;
-            _dataObjectTypesProviderFactory = dataObjectTypesProviderFactory;
+            _dataObjectTypesProvider = dataObjectTypesProvider;
             _receiverFactory = kafkaMessageFlowReceiverFactory;
             _kafkaMessageFlowInfoProvider = kafkaMessageFlowInfoProvider;
             _commandFactories = commandFactories;
@@ -61,30 +58,29 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
         {
             foreach (var kafkaCommand in commands.OfType<KafkaReplicationCommand>())
             {
-                var command = kafkaCommand.ReplicateInBulkCommand;
-                var dataObjectTypes = GetDataObjectTypes(command);
+                var dataObjectTypes = _dataObjectTypesProvider.Get(kafkaCommand);
 
-                using (var targetConnection = CreateDataConnection(command.TargetStorageDescriptor))
+                using var targetConnection = CreateDataConnection(kafkaCommand.ReplicateInBulkCommand.TargetStorageDescriptor);
+                
+                LoadDataFromKafka2Db(kafkaCommand.MessageFlow,
+                    dataObjectTypes,
+                    targetConnection,
+                    kafkaCommand.BatchSize,
+                    (int)kafkaCommand.ReplicateInBulkCommand.BulkCopyTimeout.TotalSeconds);
+
+                if (!kafkaCommand.ReplicateInBulkCommand.DbManagementMode.HasFlag(DbManagementMode.UpdateTableStatistics))
                 {
-                    LoadDataFromKafka2Db(kafkaCommand.MessageFlow,
-                                         dataObjectTypes,
-                                         targetConnection,
-                                         (int)command.BulkCopyTimeout.TotalSeconds);
-
-                    if (!command.DbManagementMode.HasFlag(DbManagementMode.UpdateTableStatistics))
-                    {
-                        continue;
-                    }
-
-                    IReadOnlyCollection<ICommand> updateStatisticsCommands =
-                        dataObjectTypes.Select(t => command.TargetStorageDescriptor.MappingSchema.GetTableName(t))
-                                       .Select(table => new UpdateTableStatisticsActor.UpdateTableStatisticsCommand(table,
-                                                                                                                    StatisticsTarget.All,
-                                                                                                                    StatisticsScanType.FullScan))
-                                       .ToList();
-                    var updateStatisticsActor = new UpdateTableStatisticsActor((SqlConnection)targetConnection.Connection);
-                    updateStatisticsActor.ExecuteCommands(updateStatisticsCommands);
+                    continue;
                 }
+
+                IReadOnlyCollection<ICommand> updateStatisticsCommands =
+                    dataObjectTypes.Select(t => kafkaCommand.ReplicateInBulkCommand.TargetStorageDescriptor.MappingSchema.GetTableName(t))
+                        .Select(table => new UpdateTableStatisticsActor.UpdateTableStatisticsCommand(table,
+                            StatisticsTarget.All,
+                            StatisticsScanType.FullScan))
+                        .ToList();
+                var updateStatisticsActor = new UpdateTableStatisticsActor((SqlConnection)targetConnection.Connection);
+                updateStatisticsActor.ExecuteCommands(updateStatisticsCommands);
             }
 
             return Array.Empty<IEvent>();
@@ -93,6 +89,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
         private void LoadDataFromKafka2Db(IMessageFlow messageFlowForKafkaTopic,
                                           IReadOnlyCollection<Type> dataObjectTypes,
                                           DataConnection dataConnection,
+                                          int batchSize,
                                           int bulkReplaceCommandTimeoutSec)
         {
             var targetMessageFlowDescription = messageFlowForKafkaTopic.GetType().Name;
@@ -104,68 +101,46 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
                                           BulkCopyTimeout = bulkReplaceCommandTimeoutSec
                                       });
 
-            using (var receiver = _receiverFactory.Create(messageFlowForKafkaTopic))
+            using var receiver = _receiverFactory.Create(messageFlowForKafkaTopic);
+            // retry добавлен из-за https://github.com/confluentinc/confluent-kafka-dotnet/issues/86
+            var lastTargetMessageOffset =
+                Policy.Handle<KafkaException>(exception => exception.Error.Code == ErrorCode.LeaderNotAvailable)
+                    .WaitAndRetryForever(i => TimeSpan.FromSeconds(5),
+                        (exception, waitSpan) =>
+                            _tracer.Warn(exception,
+                                $"Can't get size of kafka topic. Message flow: {targetMessageFlowDescription}. Wait span: {waitSpan}"))
+                    .ExecuteAndCapture(() => _kafkaMessageFlowInfoProvider.GetFlowSize(messageFlowForKafkaTopic) - 1)
+                    .Result;
+
+            _tracer.Info($"Receiving messages from kafka for flow: {targetMessageFlowDescription}. Last target message offset: {lastTargetMessageOffset}");
+
+            var resolvedCommandFactories = _commandFactories.Where(f => f.AppropriateFlows.Contains(messageFlowForKafkaTopic))
+                .ToList();
+
+            for (var distance = lastTargetMessageOffset; distance > 0;)
             {
-                // retry добавлен из-за https://github.com/confluentinc/confluent-kafka-dotnet/issues/86
-                var lastTargetMessageOffset =
-                    Policy.Handle<Confluent.Kafka.KafkaException>(exception => exception.Error.Code == Confluent.Kafka.ErrorCode.LeaderNotAvailable)
-                          .WaitAndRetryForever(i => TimeSpan.FromSeconds(5),
-                                               (exception, waitSpan) =>
-                                                   _tracer.Warn(exception,
-                                                                $"Can't get size of kafka topic. Message flow: {targetMessageFlowDescription}. Wait span: {waitSpan}"))
-                          .ExecuteAndCapture(() => _kafkaMessageFlowInfoProvider.GetFlowSize(messageFlowForKafkaTopic) - 1)
-                          .Result;
+                var batch = receiver.ReceiveBatch(batchSize);
 
-                _tracer.Info($"Receiving messages from kafka for flow: {targetMessageFlowDescription}. Last target message offset: {lastTargetMessageOffset}");
+                var lastMessageOffset = batch.Last().Offset.Value;
+                distance = lastTargetMessageOffset - lastMessageOffset;
 
-                var resolvedCommandFactories = _commandFactories.Where(f => f.AppropriateFlows.Contains(messageFlowForKafkaTopic))
-                                                                .ToList();
+                _tracer.Info($"Flow: {targetMessageFlowDescription}. Received messages: {batch.Count}. Last message offset for received batch: {lastMessageOffset}. Target and current offsets distance: {distance}");
 
-                long currentMessageOffset = 0;
-                int receivedMessagesQuantity = 0;
-                while (currentMessageOffset < lastTargetMessageOffset)
+                var bulkCommands = resolvedCommandFactories.SelectMany(factory => factory.CreateCommands(batch)).ToList();
+                if (bulkCommands.Count > 0)
                 {
-                    var batch = receiver.ReceiveBatch(_batchSizeSettings.BatchSize);
-                    // крутим цикл пока не получим сообщения от kafka,
-                    // т.к. у клиента kafka есть некоторое время прогрева, то после запуска некоторое время могут возвращаться пустые batch,
-                    // несмотря на фактическое наличие сообщений в topic\partition
-                    if (batch.Count == 0)
+                    using var scope = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.Serializable, Timeout = TimeSpan.Zero });
+                    foreach (var actor in actors)
                     {
-                        continue;
+                        actor.ExecuteCommands(bulkCommands);
                     }
-
-                    receivedMessagesQuantity += batch.Count;
-                    currentMessageOffset = batch.Last().Offset.Value;
-
-                    _tracer.Info($"Flow: {targetMessageFlowDescription}. Received messages: {batch.Count}. Last message offset for received batch: {currentMessageOffset}. Target and current offsets distance: {lastTargetMessageOffset - currentMessageOffset}");
-
-                    var bulkCommands = resolvedCommandFactories.SelectMany(factory => factory.CreateCommands(batch))
-                                                               .ToList();
-
-                    using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.Serializable, Timeout = TimeSpan.Zero }))
-                    {
-                        if (bulkCommands.Count > 0)
-                        {
-                            foreach (var actor in actors)
-                            {
-                                actor.ExecuteCommands(bulkCommands);
-                            }
-                        }
-
-                        scope.Complete();
-                    }
-
-                    receiver.CompleteBatch(batch);
+                    scope.Complete();
                 }
 
-                _tracer.Info($"Receiving messages from kafka for flow: {targetMessageFlowDescription} finished. Received messages quantity: {receivedMessagesQuantity}");
+                receiver.CompleteBatch(batch);
             }
-        }
 
-        private IReadOnlyCollection<Type> GetDataObjectTypes(ReplicateInBulkCommand command)
-        {
-            var dataObjectTypesProvider = (DataObjectTypesProviderFactory.DataObjectTypesProvider)_dataObjectTypesProviderFactory.Create(command);
-            return dataObjectTypesProvider.DataObjectTypes;
+            _tracer.Info($"Receiving messages from kafka for flow: {targetMessageFlowDescription} finished");
         }
 
         private IReadOnlyCollection<IActor> CreateActors(IReadOnlyCollection<Type> dataObjectTypes,
@@ -197,13 +172,6 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
             connection.AddMappingSchema(storageDescriptor.MappingSchema);
             connection.CommandTimeout = (int)storageDescriptor.CommandTimeout.TotalMilliseconds;
             return connection;
-        }
-
-        private sealed class DefaultKafkaBatchSizeSettings
-        {
-            private readonly IntSetting _batchSize = ConfigFileSetting.Int.Optional("DefaultKafkaBatchSize", 5000);
-
-            public int BatchSize => _batchSize.Value;
         }
     }
 }

@@ -15,15 +15,13 @@ using NuClear.Settings.Unity;
 using NuClear.Tracing.API;
 using NuClear.Tracing.Environment;
 using NuClear.Tracing.Log4Net.Config;
+using NuClear.ValidationRules.Hosting.Common;
+using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using NuClear.ValidationRules.Querying.Host.Composition;
 using NuClear.ValidationRules.Querying.Host.DataAccess;
 using NuClear.ValidationRules.SingleCheck;
-using NuClear.ValidationRules.Storage.Connections;
 using NuClear.ValidationRules.Storage.Identitites.EntityTypes;
-
-using ValidationRules.Hosting.Common;
-using ValidationRules.Hosting.Common.Settings.Kafka;
-
 using IConnectionStringSettings = NuClear.Storage.API.ConnectionStrings.IConnectionStringSettings;
 
 namespace NuClear.ValidationRules.Querying.Host.DI

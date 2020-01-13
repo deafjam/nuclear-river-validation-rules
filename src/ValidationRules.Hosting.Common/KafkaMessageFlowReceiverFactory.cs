@@ -1,11 +1,9 @@
-﻿
-using NuClear.Messaging.API.Flows;
+﻿using NuClear.Messaging.API.Flows;
 using NuClear.Messaging.Transports.Kafka;
 using NuClear.Tracing.API;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 
-using ValidationRules.Hosting.Common.Settings.Kafka;
-
-namespace ValidationRules.Hosting.Common
+namespace NuClear.ValidationRules.Hosting.Common
 {
     public sealed class KafkaMessageFlowReceiverFactory : IKafkaMessageFlowReceiverFactory
     {
@@ -21,7 +19,7 @@ namespace ValidationRules.Hosting.Common
         public IKafkaMessageFlowReceiver Create(IMessageFlow messageFlow)
         {
             var settings = _kafkaSettingsFactory.CreateReceiverSettings(messageFlow);
-            return new KafkaTopicConsumerWrapper(settings, _tracer);
+            return new KafkaMessageFlowReceiver(settings, _tracer);
         }
     }
 }

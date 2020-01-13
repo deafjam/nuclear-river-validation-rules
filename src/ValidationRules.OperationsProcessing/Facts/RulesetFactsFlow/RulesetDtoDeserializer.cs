@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-
+using Confluent.Kafka;
+using NuClear.ValidationRules.Hosting.Common.Settings;
 using NuClear.ValidationRules.Replication.Dto;
 
 using Optional;
 
-using ValidationRules.Hosting.Common.Settings;
-
 namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 {
-    public sealed class RulesetDtoDeserializer : IDeserializer<Confluent.Kafka.Message, RulesetDto>
+    public sealed class RulesetDtoDeserializer : IDeserializer<ConsumeResult<Ignore, byte[]>, RulesetDto>
     {
         private readonly string _targetBusinessModelAlias;
         private static readonly Regex ExtractBusinessModelSuffixRegex = new Regex(@"(?:.+\.)+(?<suffix>\w+)", RegexOptions.Compiled);
@@ -23,31 +22,29 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
             _targetBusinessModelAlias = Convert2SourceCode(businessModelSettings.BusinessModel);
         }
 
-        public IReadOnlyCollection<RulesetDto> Deserialize(Confluent.Kafka.Message kafkaMessage)
-        {
-            // filter tombstone messages
-            var kafkaMessagePayload = kafkaMessage.Value;
-            if (kafkaMessagePayload == null)
-            {
-                return Array.Empty<RulesetDto>();
-            }
+        public IEnumerable<RulesetDto> Deserialize(IEnumerable<ConsumeResult<Ignore, byte[]>> consumeResults) =>
+            consumeResults
+                // filter heartbeat & tombstone messages
+                .Where(x => x.Value != null)
+                .Select(x =>
+                {
+                    var rawXmlRulesetMessage = Encoding.UTF8.GetString(x.Value);
+                    var xmlRulesetMessage = XElement.Parse(rawXmlRulesetMessage);
 
-            var rawXmlRulesetMessage = Encoding.UTF8.GetString(kafkaMessagePayload);
-            var xmlRulesetMessage = XElement.Parse(rawXmlRulesetMessage);
+                    var sourceBusinessModel = xmlRulesetMessage.Attribute("SourceCode")
+                        .SomeNotNull()
+                        .Map(a => a.Value)
+                        .FlatMap(ExtractBusinessModelSuffix)
+                        .ValueOr(() => throw new InvalidOperationException("Required attribute \"SourceCode\" was not found"));
+                    if (!string.Equals(sourceBusinessModel, _targetBusinessModelAlias, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        // сообщение предназначено для другой businessmodel
+                        return (RulesetDto) null;
+                    }
 
-            var sourceBusinessModel = xmlRulesetMessage.Attribute("SourceCode")
-                                                       .SomeNotNull()
-                                                       .Map(a => a.Value)
-                                                       .FlatMap(ExtractBusinessModelSuffix)
-                                                       .ValueOr(() => throw new InvalidOperationException("Required attribute \"SourceCode\" was not found"));
-            if (string.Compare(sourceBusinessModel, _targetBusinessModelAlias, StringComparison.InvariantCultureIgnoreCase) != 0)
-            {
-                // сообщение предназначено для другой businessmodel
-                return Array.Empty<RulesetDto>();
-            }
-
-            return new[] { ConvertToRulesetDto(xmlRulesetMessage) };
-        }
+                    return ConvertToRulesetDto(xmlRulesetMessage);                    
+                })
+                .Where(x => x != null);
 
         private Option<string> ExtractBusinessModelSuffix(string rawValue)
         {
@@ -69,7 +66,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                     Id = (long)rulesetXml.Attribute("Code"),
                     BeginDate = (DateTime)rulesetXml.Attribute("BeginDate"),
                     EndDate = (DateTime?)rulesetXml.Attribute("EndDate"),
-                    IsDeleted = ((bool?)rulesetXml.Attribute("IsDeleted")) ?? false,
+                    IsDeleted = (bool?)rulesetXml.Attribute("IsDeleted") ?? false,
                     Version = (int)rulesetXml.Attribute("Version"),
                     AssociatedRules = rulesElements.Element("Associated")
                                                    .Elements("Rule")
@@ -90,15 +87,13 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                 };
         }
 
-        private static RulesetDto.AssociatedRule Convert2AssociatedRule(XElement ruleElement)
-        {
-            return new RulesetDto.AssociatedRule
-                {
-                    NomeclatureId = (long)ruleElement.Attribute("PrincipalNomenclatureCode"),
-                    AssociatedNomenclatureId = (long)ruleElement.Attribute("AssociatedNomenclatureCode"),
-                    ConsideringBindingObject = (bool)ruleElement.Attribute("IsConsiderBindingObject")
-                };
-        }
+        private static RulesetDto.AssociatedRule Convert2AssociatedRule(XElement ruleElement) =>
+            new RulesetDto.AssociatedRule
+            {
+                NomeclatureId = (long)ruleElement.Attribute("PrincipalNomenclatureCode"),
+                AssociatedNomenclatureId = (long)ruleElement.Attribute("AssociatedNomenclatureCode"),
+                ConsideringBindingObject = (bool)ruleElement.Attribute("IsConsiderBindingObject")
+            };
 
         private static RulesetDto.DeniedRule Convert2DeniedRule(XElement ruleElement)
         {
@@ -120,57 +115,37 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                 };
         }
 
-        private static RulesetDto.QuantitativeRule Convert2QuantitativeRule(XElement ruleElement)
-        {
-            return new RulesetDto.QuantitativeRule
-                {
-                    NomenclatureCategoryCode = (long)ruleElement.Attribute("NomenclatureCategoryCode"),
-                    Min = (int)ruleElement.Attribute("Min"),
-                    Max = (int)ruleElement.Attribute("Max"),
-                };
-        }
-
-        private static int ConvertBindingObjectStrategy(string rawValue)
-        {
-            switch (rawValue)
+        private static RulesetDto.QuantitativeRule Convert2QuantitativeRule(XElement ruleElement) =>
+            new RulesetDto.QuantitativeRule
             {
-                case "Match":
-                    return 1;
-                case "NoDependency":
-                    return 2;
-                case "Different":
-                    return 3;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(rawValue), rawValue);
-            }
-        }
+                NomenclatureCategoryCode = (long)ruleElement.Attribute("NomenclatureCategoryCode"),
+                Min = (int)ruleElement.Attribute("Min"),
+                Max = (int)ruleElement.Attribute("Max"),
+            };
 
-        private static string Convert2SourceCode(string businessModel)
-        {
-            switch (businessModel)
+        private static int ConvertBindingObjectStrategy(string rawValue) =>
+            rawValue switch
             {
-                case "Russia":
-                case "Flamp":
-                    return "RU";
-                case "Cyprus":
-                    return "CY";
-                case "Czech":
-                    return "CZ";
-                case "Ukraine":
-                    return "UA";
-                case "Emirates":
-                    return "AE";
-                case "Kazakhstan":
-                    return "KZ";
-                case "Kyrgyzstan":
-                    return "KG";
-                case "Uzbekistan":
-                    return "UZ";
-                case "Azerbaijan":
-                    return "AZ";
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+                "Match" => 1,
+                "NoDependency" => 2,
+                "Different" => 3,
+                _ => throw new ArgumentOutOfRangeException(nameof(rawValue), rawValue)
+            };
+
+        private static string Convert2SourceCode(string businessModel) =>
+            businessModel switch
+            {
+                "Russia" => "RU",
+                "Flamp" => "RU",
+                "Cyprus" => "CY",
+                "Czech" => "CZ",
+                "Ukraine" => "UA",
+                "Emirates" => "AE",
+                "Kazakhstan" => "KZ",
+                "Kyrgyzstan" => "KG",
+                "Uzbekistan" => "UZ",
+                "Azerbaijan" => "AZ",
+                _ => throw new ArgumentOutOfRangeException()
+            };
     }
 }

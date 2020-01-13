@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Threading;
-
-using NuClear.Jobs.Schedulers;
-
+﻿using NuClear.Jobs.Schedulers;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Plugin.Xml;
 using Quartz.Simpl;
 using Quartz.Spi;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Threading;
 
 namespace NuClear.ValidationRules.Replication.Host.Jobs
 {
@@ -45,7 +43,7 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
                 };
             threadPool.Initialize();
 
-            var jobstore = new RAMJobStore
+            var jobStore = new RAMJobStore
             {
                 InstanceName = SchedulerName,
                 InstanceId = instanceId,
@@ -65,7 +63,7 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
                 SchedulerName,
                 instanceId,
                 threadPool,
-                jobstore,
+                jobStore,
                 new Dictionary<string, ISchedulerPlugin>
                 {
                     { SchedulerName, jobInitializationPlugin }
@@ -88,10 +86,10 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
         // copy\paste from 'jobs' repo
         private sealed class ConfigFileProcessorPlugin : XMLSchedulingDataProcessorPlugin
         {
-            public override void Initialize(string pluginName, IScheduler sched)
+            public override void Initialize(string pluginName, IScheduler scheduler)
             {
-                sched.Clear();
-                base.Initialize(pluginName, sched);
+                scheduler.Clear();
+                base.Initialize(pluginName, scheduler);
             }
         }
     }

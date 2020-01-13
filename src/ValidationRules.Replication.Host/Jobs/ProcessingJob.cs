@@ -1,6 +1,4 @@
-﻿using System;
-
-using NuClear.Jobs;
+﻿using NuClear.Jobs;
 using NuClear.Messaging.API.Flows.Metadata;
 using NuClear.Messaging.API.Processing.Processors;
 using NuClear.Messaging.API.Processing.Stages;
@@ -8,13 +6,12 @@ using NuClear.Metamodeling.Provider;
 using NuClear.OperationsProcessing.API;
 using NuClear.OperationsProcessing.API.Metadata;
 using NuClear.OperationsProcessing.API.Primary;
-using NuClear.Security.API.Context;
 using NuClear.Security.API.Auth;
+using NuClear.Security.API.Context;
 using NuClear.Telemetry;
-using NuClear.Tracing.API;
 using NuClear.Telemetry.Probing;
-
 using Quartz;
+using System;
 
 namespace NuClear.ValidationRules.Replication.Host.Jobs
 {
@@ -33,8 +30,8 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
             IUserAuthenticationService userAuthenticationService,
             IUserAuthorizationService userAuthorizationService,
             ITelemetryPublisher telemetry,
-            ITracer tracer)
-            : base(userContextManager, userAuthenticationService, userAuthorizationService, tracer)
+            IJobExecutionObserver jobExecutionObserver)
+            : base(userContextManager, userAuthenticationService, userAuthorizationService, jobExecutionObserver)
         {
             _metadataProvider = metadataProvider;
             _messageFlowProcessorFactory = messageFlowProcessorFactory;
@@ -53,7 +50,6 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
             if (string.IsNullOrEmpty(Flow))
             {
                 var msg = $"Required job arg {nameof(Flow)} is not specified, check job config";
-                Tracer.Fatal(msg);
                 throw new InvalidOperationException(msg);
             }
 
@@ -95,46 +91,26 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
             if (!_metadataProvider.TryGetMetadata(Flow.AsPrimaryProcessingFlowId(), out MessageFlowMetadata messageFlowMetadata))
             {
                 var msg = "Unsupported flow specified for processing: " + Flow;
-                Tracer.Fatal(msg);
                 throw new InvalidOperationException(msg);
             }
 
-            Tracer.Debug("Launching message flow processing. Target message flow: " + messageFlowMetadata);
-
-            ISyncMessageFlowProcessor messageFlowProcessor;
-
-            try
+            var processorSettings = new PerformedOperationsPrimaryFlowProcessorSettings
             {
-                var processorSettings = new PerformedOperationsPrimaryFlowProcessorSettings
+                MessageBatchSize = BatchSizeAccordingFailures,
+                AppropriatedStages = new[]
                 {
-                    MessageBatchSize = BatchSizeAccordingFailures,
-                    AppropriatedStages = new[]
-                            {
-                                MessageProcessingStage.Transformation,
-                                MessageProcessingStage.Accumulation,
-                                MessageProcessingStage.Handling
-                            },
-                    FirstFaultTolerantStage = MessageProcessingStage.None
-                };
+                    MessageProcessingStage.Transformation,
+                    MessageProcessingStage.Accumulation,
+                    MessageProcessingStage.Handling
+                },
+                FirstFaultTolerantStage = MessageProcessingStage.None
+            };
 
-                messageFlowProcessor = _messageFlowProcessorFactory.CreateSync<IPerformedOperationsFlowProcessorSettings>(messageFlowMetadata, processorSettings);
-            }
-            catch (Exception ex)
-            {
-                Tracer.Error(ex, "Can't create processor for specified flow " + messageFlowMetadata);
-                throw;
-            }
+            var messageFlowProcessor = _messageFlowProcessorFactory.CreateSync<IPerformedOperationsFlowProcessorSettings>(messageFlowMetadata, processorSettings);
 
             try
             {
-                Tracer.Debug("Message flow processor starting. Target message flow: " + messageFlowMetadata);
                 messageFlowProcessor.Process();
-                Tracer.Debug("Message flow processor finished. Target message flow: " + messageFlowMetadata);
-            }
-            catch (Exception ex)
-            {
-                Tracer.Fatal(ex, "Message flow processor unexpectedly interrupted. Target message flow: " + messageFlowMetadata);
-                throw;
             }
             finally
             {

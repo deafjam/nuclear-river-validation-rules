@@ -1,7 +1,4 @@
-﻿using System;
-
-using Microsoft.ServiceBus;
-
+﻿using Microsoft.ServiceBus;
 using NuClear.Jobs;
 using NuClear.Messaging.API.Flows;
 using NuClear.Replication.OperationsProcessing.Telemetry;
@@ -9,15 +6,13 @@ using NuClear.Replication.OperationsProcessing.Transports.ServiceBus.Factories;
 using NuClear.Security.API.Auth;
 using NuClear.Security.API.Context;
 using NuClear.Telemetry;
-using NuClear.Tracing.API;
+using NuClear.ValidationRules.Hosting.Common;
 using NuClear.ValidationRules.OperationsProcessing.AggregatesFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.MessagesFlow;
-
 using Quartz;
-
-using ValidationRules.Hosting.Common;
+using System;
 
 namespace NuClear.ValidationRules.Replication.Host.Jobs
 {
@@ -28,8 +23,6 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
         private readonly IServiceBusSettingsFactory _serviceBusSettingsFactory;
         private readonly KafkaMessageFlowInfoProvider _kafkaMessageFlowInfoProvider;
 
-        private readonly ITracer _tracer;
-
         public ReportingJob(
             ITelemetryPublisher telemetry,
             IServiceBusSettingsFactory serviceBusSettingsFactory,
@@ -37,10 +30,9 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
             IUserContextManager userContextManager,
             IUserAuthenticationService userAuthenticationService,
             IUserAuthorizationService userAuthorizationService,
-            ITracer tracer)
-            : base(userContextManager, userAuthenticationService, userAuthorizationService, tracer)
+            IJobExecutionObserver jobExecutionObserver)
+            : base(userContextManager, userAuthenticationService, userAuthorizationService, jobExecutionObserver)
         {
-            _tracer = tracer;
             _kafkaMessageFlowInfoProvider = kafkaMessageFlowInfoProvider;
             _telemetry = telemetry;
             _serviceBusSettingsFactory = serviceBusSettingsFactory;
@@ -57,14 +49,7 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
 
         private void WithinErrorLogging(Action action)
         {
-            try
-            {
-                action.Invoke();
-            }
-            catch (Exception ex)
-            {
-                _tracer.Error(ex, "Exception in ReportingJob");
-            }
+            action.Invoke();
         }
 
         private void ReportMemoryUsage()
