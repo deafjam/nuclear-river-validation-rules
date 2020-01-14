@@ -28,12 +28,18 @@ function Get-TargetHostsMetadata ($Context) {
 			return @{ 
 			'TargetHosts' = @('uk-erm-iis03', 'uk-erm-iis01', 'uk-erm-iis02', 'uk-erm-iis04')
 				'HAProxyUris' = @('tcp://uk-erm-hap01:2000', 'tcp://uk-erm-hap02:2000')
+				# интервал 5 минут
+				'Attempts' = 30
+				'Interval' = 10
 			}
 		}
 		'Load' {
 			return @{
 				'TargetHosts' = @('uk-erm-iis12', 'uk-erm-iis11', 'uk-erm-iis10') 
 				'HAProxyUris' = @('tcp://uk-erm-hap10:2000', 'tcp://uk-erm-hap11:2000')
+				# интервал 5 минут
+				'Attempts' = 30
+				'Interval' = 10
 			}
 		}
 		'Appveyor' {
