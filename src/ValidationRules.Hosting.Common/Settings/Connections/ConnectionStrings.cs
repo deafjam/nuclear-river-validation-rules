@@ -14,8 +14,7 @@ namespace NuClear.ValidationRules.Hosting.Common.Settings.Connections
             new Dictionary<IConnectionStringIdentity, string>
             {
                 {ErmConnectionStringIdentity.Instance, Names.Erm},
-                {AmsConnectionStringIdentity.Instance,  Names.Ams},
-                {RulesetConnectionStringIdentity.Instance, Names.Rulesets},
+                {KafkaConnectionStringIdentity.Instance, Names.Kafka},
                 {ValidationRulesConnectionStringIdentity.Instance, Names.ValidationRules},
                 {ServiceBusConnectionStringIdentity.Instance, Names.ServiceBus},
                 {InfrastructureConnectionStringIdentity.Instance, Names.Infrastructure},
@@ -25,8 +24,7 @@ namespace NuClear.ValidationRules.Hosting.Common.Settings.Connections
         public static class Names
         {
             public const string Erm = "Erm";
-            public const string Ams = "Ams";
-            public const string Rulesets = "Rulesets";
+            public const string Kafka = "Kafka";
             public const string ValidationRules = "ValidationRules";
             public const string ServiceBus = "ServiceBus";
             public const string Infrastructure = "Infrastructure";

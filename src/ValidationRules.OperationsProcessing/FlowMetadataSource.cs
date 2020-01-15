@@ -6,10 +6,11 @@ using NuClear.Metamodeling.Elements;
 using NuClear.Metamodeling.Elements.Concrete.Hierarchy;
 using NuClear.Metamodeling.Provider.Sources;
 using NuClear.OperationsProcessing.API.Metadata;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using NuClear.ValidationRules.OperationsProcessing.AggregatesFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
+using NuClear.ValidationRules.OperationsProcessing.Facts.Ams;
+using NuClear.ValidationRules.OperationsProcessing.Facts.Erm;
+using NuClear.ValidationRules.OperationsProcessing.Facts.Ruleset;
 using NuClear.ValidationRules.OperationsProcessing.MessagesFlow;
 using NuClear.ValidationRules.OperationsProcessing.Transports;
 

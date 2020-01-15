@@ -3,7 +3,7 @@ using NuClear.Storage.API.ConnectionStrings;
 
 namespace NuClear.River.Hosting.Common.Identities.Connections
 {
-    public class ServiceBusConnectionStringIdentity : IdentityBase<ServiceBusConnectionStringIdentity>, IConnectionStringIdentity
+    public sealed class ServiceBusConnectionStringIdentity : IdentityBase<ServiceBusConnectionStringIdentity>, IConnectionStringIdentity
     {
         public override int Id => 5;
 

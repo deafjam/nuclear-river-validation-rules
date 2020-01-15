@@ -8,7 +8,7 @@ using NuClear.Settings;
 using NuClear.Settings.API;
 using NuClear.Storage.API.ConnectionStrings;
 using NuClear.ValidationRules.OperationsProcessing.AggregatesFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow;
+using NuClear.ValidationRules.OperationsProcessing.Facts.Erm;
 using NuClear.ValidationRules.OperationsProcessing.MessagesFlow;
 
 namespace NuClear.ValidationRules.Replication.Host.Factories
@@ -17,9 +17,9 @@ namespace NuClear.ValidationRules.Replication.Host.Factories
     {
         private readonly string _serviceBusConnectionString;
 
-        private readonly StringSetting _ermOperationsFlowTopic = ConfigFileSetting.String.Optional("ErmEventsFlowTopic", "topic.performedoperations");
-        private readonly StringSetting _commonEventsFlowTopic = ConfigFileSetting.String.Optional("CommonEventsFlowTopic", "topic.river.validationrules.common");
-        private readonly StringSetting _mesageEventsFlowTopic = ConfigFileSetting.String.Optional("MessageEventsFlowTopic", "topic.river.validationrules.messages");
+        private readonly StringSetting _ermFactsTopic = ConfigFileSetting.String.Required("ErmFactsTopic");
+        private readonly StringSetting _aggregatesTopic = ConfigFileSetting.String.Optional("AggregatesTopic", "topic.river.validationrules.common");
+        private readonly StringSetting _messagesTopic = ConfigFileSetting.String.Optional("MessagesTopic", "topic.river.validationrules.messages");
 
         public ServiceBusSettingsFactory(IConnectionStringSettings connectionStringSettings)
         {
@@ -32,21 +32,21 @@ namespace NuClear.ValidationRules.Replication.Host.Factories
                 return new Settings
                 {
                     ConnectionString = _serviceBusConnectionString,
-                    TransportEntityPath = _ermOperationsFlowTopic.Value,
+                    TransportEntityPath = _ermFactsTopic.Value,
                 };
 
             if (AggregatesFlow.Instance.Equals(messageFlow))
                 return new Settings
                 {
                     ConnectionString = _serviceBusConnectionString,
-                    TransportEntityPath = _commonEventsFlowTopic.Value,
+                    TransportEntityPath = _aggregatesTopic.Value,
                 };
 
             if (MessagesFlow.Instance.Equals(messageFlow))
                 return new Settings
                 {
                     ConnectionString = _serviceBusConnectionString,
-                    TransportEntityPath = _mesageEventsFlowTopic.Value,
+                    TransportEntityPath = _messagesTopic.Value,
                 };
 
             throw new ArgumentException($"Flow '{messageFlow.Description}' settings for MS ServiceBus are undefined");
@@ -58,14 +58,14 @@ namespace NuClear.ValidationRules.Replication.Host.Factories
                 return new Settings
                 {
                     ConnectionString = _serviceBusConnectionString,
-                    TransportEntityPath = _commonEventsFlowTopic.Value,
+                    TransportEntityPath = _aggregatesTopic.Value,
                 };
 
             if (MessagesFlow.Instance.Equals(messageFlow))
                 return new Settings
                 {
                     ConnectionString = _serviceBusConnectionString,
-                    TransportEntityPath = _mesageEventsFlowTopic.Value,
+                    TransportEntityPath = _messagesTopic.Value,
                 };
 
             throw new ArgumentException($"Flow '{messageFlow.Description}' settings for MS ServiceBus are undefined");

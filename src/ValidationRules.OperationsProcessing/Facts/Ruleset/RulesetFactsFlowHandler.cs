@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-
 using NuClear.Messaging.API.Processing;
 using NuClear.Messaging.API.Processing.Actors.Handlers;
 using NuClear.Messaging.API.Processing.Stages;
@@ -11,10 +10,9 @@ using NuClear.Replication.Core;
 using NuClear.Replication.Core.Commands;
 using NuClear.Replication.OperationsProcessing;
 using NuClear.Tracing.API;
-using NuClear.ValidationRules.Replication;
-using NuClear.ValidationRules.Replication.Events;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Ruleset
 {
     public sealed class RulesetFactsFlowHandler : IMessageProcessingHandler
     {

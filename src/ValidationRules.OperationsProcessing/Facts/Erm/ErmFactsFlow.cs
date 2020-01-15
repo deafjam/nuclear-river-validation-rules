@@ -1,8 +1,7 @@
 ﻿using System;
-
 using NuClear.Messaging.API.Flows;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Erm
 {
     public sealed class ErmFactsFlow : MessageFlowBase<ErmFactsFlow>
     {

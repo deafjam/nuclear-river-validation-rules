@@ -6,7 +6,6 @@ using System.Web.Http.ExceptionHandling;
 
 using Microsoft.Practices.Unity;
 
-using NuClear.Messaging.API.Flows;
 using NuClear.Model.Common.Entities;
 using NuClear.River.Hosting.Common.Identities.Connections;
 using NuClear.River.Hosting.Common.Settings;
@@ -16,7 +15,6 @@ using NuClear.Tracing.API;
 using NuClear.Tracing.Environment;
 using NuClear.Tracing.Log4Net.Config;
 using NuClear.ValidationRules.Hosting.Common;
-using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
 using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using NuClear.ValidationRules.Querying.Host.Composition;
 using NuClear.ValidationRules.Querying.Host.DataAccess;
@@ -44,7 +42,7 @@ namespace NuClear.ValidationRules.Querying.Host.DI
                    .ConfigureSeverityProvider()
                    .ConfigureNameResolvingService()
                    .ConfigureSingleCheck()
-                   .ConfigureOperationsProcessing(environmentSettings, connectionStringSettings);
+                   .ConfigureOperationsProcessing(connectionStringSettings);
         }
 
         private static IUnityContainer ConfigureTracer(
@@ -113,15 +111,9 @@ namespace NuClear.ValidationRules.Querying.Host.DI
         }
 
         private static IUnityContainer ConfigureOperationsProcessing(this IUnityContainer container,
-                                                                     IEnvironmentSettings environmentSettings,
                                                                      IConnectionStringSettings connectionStringSettings)
         {
-            var kafkaSettingsFactory =
-                new KafkaSettingsFactory(new Dictionary<IMessageFlow, string>
-                                             {
-                                                 [AliasForAmsFactsFlow.Instance] = connectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance)
-                                             },
-                                         environmentSettings);
+            var kafkaSettingsFactory = new KafkaSettingsFactory(connectionStringSettings);
 
             return container.RegisterInstance<IKafkaSettingsFactory>(kafkaSettingsFactory)
                             .RegisterType<KafkaMessageFlowInfoProvider>(new ContainerControlledLifetimeManager());

@@ -4,7 +4,7 @@ using NuClear.OperationsTracking.API.UseCases;
 using NuClear.Replication.Core;
 using NuClear.Replication.OperationsProcessing;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Erm
 {
     public sealed class ErmFactsFlowAccumulator : MessageProcessingContextAccumulatorBase<ErmFactsFlow, TrackedUseCase, AggregatableMessage<ICommand>>
     {

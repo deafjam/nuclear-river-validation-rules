@@ -76,7 +76,6 @@
     <Compile Include="Composition\FirmRules\PartnerAdvertisementMustNotCauseProblemsToTheAdvertiserMessageComposer.cs" />
     <Compile Include="Composition\PriceRules\PoiAmountForEntranceShouldMeetMaximumRestrictionsComposer.cs" />
     <Compile Include="Composition\IMessageSeverityProvider.cs" />
-    <Compile Include="DataAccess\AliasForAmsFactsFlow.cs" />
     <Compile Include="QueryingServiceSettings.cs" />
     <Compile Include="Composition\PriceRules\AdvertisementAmountShouldMeetMaximumRestrictionsMessageComposer.cs" />
     <Compile Include="Composition\SystemRules\AmsMessagesShouldBeNewMessageComposer.cs" />

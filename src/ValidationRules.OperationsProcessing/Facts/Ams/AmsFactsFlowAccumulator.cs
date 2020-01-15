@@ -3,8 +3,9 @@ using NuClear.Messaging.API.Processing.Actors.Accumulators;
 using NuClear.OperationsProcessing.Transports.Kafka;
 using NuClear.Replication.Core;
 using NuClear.Replication.OperationsProcessing;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Ams
 {
     public sealed class AmsFactsFlowAccumulator : MessageProcessingContextAccumulatorBase<AmsFactsFlow, KafkaMessage, AggregatableMessage<ICommand>>
     {

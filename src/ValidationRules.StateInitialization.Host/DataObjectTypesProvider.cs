@@ -165,7 +165,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(Messages::Version.ErmState),
             };
 
-        public static IReadOnlyCollection<Type> AllFactTypes =
+        public static readonly IReadOnlyCollection<Type> AllFactTypes =
             ErmFactTypes.Concat(AmsFactTypes).Concat(RulesetFactTypes).Distinct().ToList();
 
         public static readonly IReadOnlyCollection<Type> AllMessagesTypes =

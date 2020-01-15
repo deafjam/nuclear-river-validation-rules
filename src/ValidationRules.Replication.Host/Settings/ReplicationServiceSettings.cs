@@ -26,8 +26,7 @@ namespace NuClear.ValidationRules.Replication.Host.Settings
         public ReplicationServiceSettings()
         {
             var connectionStrings = ConnectionStrings.For(ErmConnectionStringIdentity.Instance,
-                                                          AmsConnectionStringIdentity.Instance,
-                                                          RulesetConnectionStringIdentity.Instance,
+                                                          KafkaConnectionStringIdentity.Instance,
                                                           ValidationRulesConnectionStringIdentity.Instance,
                                                           ServiceBusConnectionStringIdentity.Instance,
                                                           InfrastructureConnectionStringIdentity.Instance,

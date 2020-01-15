@@ -96,8 +96,8 @@ using NuClear.ValidationRules.Hosting.Common;
 using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
 using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using NuClear.ValidationRules.OperationsProcessing.AggregatesFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
+using NuClear.ValidationRules.OperationsProcessing.Facts.Ams;
+using NuClear.ValidationRules.OperationsProcessing.Facts.Ruleset;
 using NuClear.ValidationRules.Storage.Model.Facts;
 using NuClear.ValidationRules.Replication.Accessors;
 using NuClear.ValidationRules.Replication.Accessors.Rulesets;
@@ -123,7 +123,6 @@ namespace NuClear.ValidationRules.Replication.Host.DI
             var storageSettings = settingsContainer.AsSettings<ISqlStoreSettingsAspect>();
 
             var connectionStringSettings = settingsContainer.AsSettings<IConnectionStringSettings>();
-            var environmentSettings = settingsContainer.AsSettings<IEnvironmentSettings>();
 
             container.AttachQueryableContainerExtension()
                      .UseParameterResolvers(ParameterResolvers.Defaults)
@@ -132,7 +131,7 @@ namespace NuClear.ValidationRules.Replication.Host.DI
                      .ConfigureTracing(tracer)
                      .ConfigureSecurityAspects()
                      .ConfigureQuartz()
-                     .ConfigureOperationsProcessing(connectionStringSettings, environmentSettings)
+                     .ConfigureOperationsProcessing(connectionStringSettings)
                      .ConfigureStorage(storageSettings, EntryPointSpecificLifetimeManagerFactory)
                      .ConfigureReplication(EntryPointSpecificLifetimeManagerFactory);
 
@@ -222,8 +221,7 @@ namespace NuClear.ValidationRules.Replication.Host.DI
 
         private static IUnityContainer ConfigureOperationsProcessing(
             this IUnityContainer container,
-            IConnectionStringSettings connectionStringSettings,
-            IEnvironmentSettings environmentSettings)
+            IConnectionStringSettings connectionStringSettings)
         {
 
 #if DEBUG
@@ -248,16 +246,7 @@ namespace NuClear.ValidationRules.Replication.Host.DI
                      .RegisterType<IEventLogger, SequentialEventLogger>()
                      .RegisterType<IServiceBusMessageSender, BatchingServiceBusMessageSender>();
 
-            var kafkaSettingsFactory =
-                new KafkaSettingsFactory(new Dictionary<IMessageFlow, string>
-                                             {
-                                                 [AmsFactsFlow.Instance] =
-                                                     connectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance),
-                                                 [RulesetFactsFlow.Instance] =
-                                                     connectionStringSettings.GetConnectionString(RulesetConnectionStringIdentity.Instance)
-                                             },
-                                         environmentSettings
-                                        );
+            var kafkaSettingsFactory = new KafkaSettingsFactory(connectionStringSettings);
 
             // kafka receiver
             container

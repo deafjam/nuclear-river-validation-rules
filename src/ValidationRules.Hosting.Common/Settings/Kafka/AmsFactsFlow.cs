@@ -1,8 +1,7 @@
 ﻿using System;
-
 using NuClear.Messaging.API.Flows;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
+namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
 {
     public sealed class AmsFactsFlow : MessageFlowBase<AmsFactsFlow>
     {

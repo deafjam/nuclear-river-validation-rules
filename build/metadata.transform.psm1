@@ -73,47 +73,42 @@ function Get-DBHostMetadata($Context){
 	return @{ 'DBHost' = $dbHost }
 }
 
-function Get-AmsFactsTopicMetadata($Context){
+function Get-KafkaMetadata($Context){
+	
+	$kafkaGroupId = "erm_vr_$($Context.EnvType.ToLowerInvariant())_$($Context.Country.ToLowerInvariant())"
+	if ($Context['Index']){
+		$kafkaGroupId += "_$($Context.Index)"
+	}
+	
+	$metadata = @{
+		'KafkaGroupId' = $kafkaGroupId 
+	}
+	
 	switch($Context.EnvType){
 		{$_ -in ('Test', 'Production', 'Load')} {
-			 return @{
+			$metadata += @{
 				 'AmsFactsTopic' = 'ams_okapi_prod.am.validity'
+				 'RulesetFactsTopic' = 'casino_staging_flowRulesets_compacted'
 			 }
 		}
 		'Business' {
-			return @{ 'AmsFactsTopic' = "ams_okapi_business$($Context['Index']).am.validity" }
+			$metadata += @{
+				'AmsFactsTopic' = "ams_okapi_business$($Context['Index']).am.validity"
+				'RulesetFactsTopic' = 'erm_business01_flowRulesets'
+			}
 		}
 		'Edu' {
-			return @{ 'AmsFactsTopic' = "ams_okapi_edu$($Context['Index']).am.validity" }
+			$metadata += @{
+				'AmsFactsTopic' = "ams_okapi_edu$($Context['Index']).am.validity"
+				'RulesetFactsTopic' = 'casino_staging_flowRulesets_compacted'
+			}
 		}
 		default {
 			return @{}
 		}
 	}
-}
-
-function Get-RulesetsFactsTopicsMetadata($Context){
-	switch($Context.EnvType){
-		'Test' {
-			return @{
-				'RulesetsFactsTopic' = 'casino_staging_flowRulesets_compacted'
-			}
-		 }
-		'Business' {
-			if ($Context['Index'] -eq '1'){
-				return @{'RulesetsFactsTopic' = 'erm_business01_flowRulesets'}
-			}
-			return @{ 'RulesetsFactsTopic' = 'casino_staging_flowRulesets_compacted' }
-		}
-		{$_ -in ('Edu', 'Production', 'Load')} {
-			 return @{
-				 'RulesetsFactsTopic' = 'casino_staging_flowRulesets_compacted'
-			 }
-		}
-		default {
-			return @{}
-		}
-	}
+	
+	return $metadata; 
 }
 
 function Get-XdtMetadata($Context){
@@ -169,8 +164,7 @@ function Get-RegexMetadata($Context){
 
 	$keyValuePairs = @{}
 	$keyValuePairs += Get-DBHostMetadata $Context
-	$keyValuePairs += Get-AmsFactsTopicMetadata $Context
-	$keyValuePairs += Get-RulesetsFactsTopicsMetadata $Context
+	$keyValuePairs += Get-KafkaMetadata $Context
 
 	foreach($keyValuePair in $keyValuePairs.GetEnumerator()){
 		$regex["{$($keyValuePair.Key)}"] = $keyValuePair.Value

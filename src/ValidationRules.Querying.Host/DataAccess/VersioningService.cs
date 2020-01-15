@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using LinqToDB;
 using NuClear.ValidationRules.Hosting.Common;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using Version = NuClear.ValidationRules.Storage.Model.Messages.Version;
 
 namespace NuClear.ValidationRules.Querying.Host.DataAccess
@@ -34,7 +35,7 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 
         public Task<long> WaitForVersion(Guid ermToken)
         {
-            var amsCount = _kafkaMessageFlowInfoProvider.GetFlowSize(AliasForAmsFactsFlow.Instance);
+            var amsCount = _kafkaMessageFlowInfoProvider.GetFlowStats(AmsFactsFlow.Instance).Single().End;
 
             return WaitForVersion(ermToken, amsCount, WaitInterval, WaitTimeout);
         }

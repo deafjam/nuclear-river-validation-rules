@@ -7,11 +7,11 @@ using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Writings;
 using NuClear.ValidationRules.Hosting.Common;
 using NuClear.ValidationRules.OperationsProcessing;
-using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
 using NuClear.ValidationRules.Replication.Events;
 using Quartz;
 using System;
 using System.Linq;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using SystemStatus = NuClear.ValidationRules.Storage.Model.Facts.SystemStatus;
 
 namespace NuClear.ValidationRules.Replication.Host.Jobs

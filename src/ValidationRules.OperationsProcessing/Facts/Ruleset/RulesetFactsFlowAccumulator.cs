@@ -4,8 +4,9 @@ using NuClear.OperationsProcessing.Transports.Kafka;
 using NuClear.Replication.Core;
 using NuClear.Replication.OperationsProcessing;
 using NuClear.ValidationRules.Hosting.Common.Settings;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Ruleset
 {
     public sealed class RulesetFactsFlowAccumulator : MessageProcessingContextAccumulatorBase<RulesetFactsFlow, KafkaMessage, AggregatableMessage<ICommand>>
     {

@@ -6,9 +6,8 @@ using NuClear.Replication.Core;
 using NuClear.ValidationRules.Hosting.Common.Settings;
 using NuClear.ValidationRules.Replication.Commands;
 using NuClear.ValidationRules.Replication.Dto;
-using NuClear.ValidationRules.Storage.Model.Facts;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Ruleset
 {
     internal sealed class RulesetFactsCommandFactory : ICommandFactory<KafkaMessage>
     {
@@ -24,11 +23,11 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
             var deserializedDtos = _deserializer.Deserialize(new [] {kafkaMessage.Result}).ToList();
             if (deserializedDtos.Count != 0)
             {
-                yield return new ReplaceDataObjectCommand(typeof(Ruleset), deserializedDtos);
-                yield return new ReplaceDataObjectCommand(typeof(Ruleset.AssociatedRule), deserializedDtos);
-                yield return new ReplaceDataObjectCommand(typeof(Ruleset.DeniedRule), deserializedDtos);
-                yield return new ReplaceDataObjectCommand(typeof(Ruleset.QuantitativeRule), deserializedDtos);
-                yield return new ReplaceDataObjectCommand(typeof(Ruleset.RulesetProject), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Storage.Model.Facts.Ruleset), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Storage.Model.Facts.Ruleset.AssociatedRule), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Storage.Model.Facts.Ruleset.DeniedRule), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Storage.Model.Facts.Ruleset.QuantitativeRule), deserializedDtos);
+                yield return new ReplaceDataObjectCommand(typeof(Storage.Model.Facts.Ruleset.RulesetProject), deserializedDtos);
             }
         }
     }

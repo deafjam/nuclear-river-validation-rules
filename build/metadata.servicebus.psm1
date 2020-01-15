@@ -38,17 +38,17 @@ function Get-TopicsMetadata ($Context) {
 			$metadata = @{
 				'CreateTopics' = @{
 
-					'ErmEventsFlowTopic' = @{
+					'ErmFactsTopic' = @{
 						'Name' = 'topic.performedoperations'
 						'ConnectionStringName' = 'ServiceBus'
 					} + $topicProperties
 					
-					'CommonEventsFlowTopic' = @{
+					'AggregatesTopic' = @{
 						'Name' = 'topic.river.validationrules.common'
 						'ConnectionStringName' = 'ServiceBus'
 					} + $topicProperties
 
-					'MessageEventsFlowTopic' = @{
+					'MessagesTopic' = @{
 						'Name' = 'topic.river.validationrules.messages'
 						'ConnectionStringName' = 'ServiceBus'
 					} + $topicProperties
@@ -57,19 +57,19 @@ function Get-TopicsMetadata ($Context) {
 
 				'CreateSubscriptions' = @{
 					
-					'ErmEventsFlowSubscription' = @{
+					'ErmFactsFlowSubscription' = @{
 						'TopicName' = 'topic.performedoperations'
 						'Name' = '6A75B8B4-74A6-4523-9388-84E4DFFD5B06'
 						'ConnectionStringName' = 'ServiceBus'
 					} + $subscriptionProperties
 
-					'CommonEventsFlowSubscription' = @{
+					'AggregatesFlowSubscription' = @{
 						'TopicName' = 'topic.river.validationrules.common'
 						'Name' = 'CB1434CA-D575-4470-8616-4F08D074C8DA'
 						'ConnectionStringName' = 'ServiceBus'
 					} + $subscriptionProperties
 
-					'MessageEventsFlowSubscription' = @{
+					'MessageFlowSubscription' = @{
 						'TopicName' = 'topic.river.validationrules.messages'
 						'Name' = '2B3D30F7-6E59-4510-B680-D7FDD9DEFE0F'
 						'ConnectionStringName' = 'ServiceBus'

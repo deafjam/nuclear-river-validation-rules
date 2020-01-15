@@ -12,7 +12,7 @@ namespace NuClear.ValidationRules.Querying.Host
         public QueryingServiceSettings()
         {
             var connectionString = ConnectionStrings.For(ErmConnectionStringIdentity.Instance,
-                                                         AmsConnectionStringIdentity.Instance,
+                                                         KafkaConnectionStringIdentity.Instance,
                                                          ValidationRulesConnectionStringIdentity.Instance,
                                                          LoggingConnectionStringIdentity.Instance);
 

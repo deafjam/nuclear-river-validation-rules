@@ -13,9 +13,6 @@
         public const int Category = 160;
         public const int CategoryOrganizationUnit = 161;
         public const int Deal = 199;
-        public const int Firm = 146;
-        public const int FirmAddress = 164;
-        public const int FirmContact = 165;
         public const int LegalPerson = 147;
         public const int LegalPersonProfile = 219;
         public const int NomenclatureCategory = 285;
@@ -30,9 +27,13 @@
         public const int Theme = 221;
         public const int ThemeCategory = 223;
         public const int ThemeOrganizationUnit = 224;
-
-        // internal entity types
-        public const int Advertisement = 186;
         public const int OrderPositionAdvertisement = 216;
+        
+        // AMS entity types
+        public const int Advertisement = 186;
+        
+        // IR entity types
+        public const int Firm = 146;
+        public const int FirmAddress = 164;
     }
 }

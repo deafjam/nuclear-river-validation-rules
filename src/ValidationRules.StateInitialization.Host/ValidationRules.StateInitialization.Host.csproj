@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="2GIS.NuClear.Tracing.Log4Net" Version="2.2.3" />
-    <PackageReference Include="Polly" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>

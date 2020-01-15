@@ -7,19 +7,22 @@ using NuClear.Settings.API;
 namespace NuClear.Messaging.Transports.Kafka
 {
     // TODO: перенести в репозиторий messaging
-    public interface IKafkaMessageFlowReceiverSettings : ISettings
+    public sealed class KafkaAdminSettings : ISettings
     {
-        IReadOnlyDictionary<string, string> Config { get; }
+        public IReadOnlyDictionary<string, string> Config { get; set; }
+    }
 
-        // no multi-topic support
-        TopicPartitionOffset TopicPartitionOffset { get; }
-
-        TimeSpan PollTimeout { get; }
+    public sealed class KafkaMessageFlowReceiverSettings : ISettings
+    {
+        public IReadOnlyDictionary<string, string> Config { get; set; }
+        public IEnumerable<string> Topics { get; set; }
+        public Offset Offset { get; set; } = Offset.Unset;
+        public TimeSpan PollTimeout { get; set; } = TimeSpan.FromSeconds(5);
     }
 
     public interface IKafkaMessageFlowReceiverFactory
     {
-        IKafkaMessageFlowReceiver Create(IMessageFlow messageFlow);
+        IKafkaMessageFlowReceiver Create(params IMessageFlow[] messageFlows);
     }
 
     public interface IKafkaMessageFlowReceiver : IDisposable

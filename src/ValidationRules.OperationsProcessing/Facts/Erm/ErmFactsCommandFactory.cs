@@ -5,7 +5,7 @@ using NuClear.Replication.Core;
 using NuClear.ValidationRules.Replication;
 using NuClear.ValidationRules.Replication.Commands;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Erm
 {
     internal sealed class ErmFactsCommandFactory : ICommandFactory<TrackedUseCase>
     {

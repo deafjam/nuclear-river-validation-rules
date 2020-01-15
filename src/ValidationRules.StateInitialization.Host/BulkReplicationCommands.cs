@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NuClear.Replication.Core.Tenancy;
+using NuClear.River.Hosting.Common.Identities.Connections;
 using NuClear.StateInitialization.Core.Commands;
 using NuClear.StateInitialization.Core.Storage;
 using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
@@ -41,18 +42,12 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                         new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts)))
                 .ToArray();
 
-        public static ReplicateInBulkCommand AmsToFacts { get; } =
+        public static ReplicateInBulkCommand KafkaToFacts { get; } =
             new ReplicateInBulkCommand(
-                DataObjectTypesProvider.AmsFactTypes,
-                new StorageDescriptor(AmsConnectionStringIdentity.Instance, null),
-                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts));
-
-        public static ReplicateInBulkCommand RulesetsToFacts { get; } =
-            new ReplicateInBulkCommand(
-                DataObjectTypesProvider.RulesetFactTypes,
-                new StorageDescriptor(RulesetConnectionStringIdentity.Instance, null),
+                DataObjectTypesProvider.AmsFactTypes.Concat(DataObjectTypesProvider.RulesetFactTypes).ToList(),
+                new StorageDescriptor(KafkaConnectionStringIdentity.Instance, null),
                 new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
-                databaseManagementMode: DbManagementMode.UpdateTableStatistics);
+                DbManagementMode.UpdateTableStatistics);
 
         /// <summary>
         /// В databaseManagementMode исключен updatestatistics - причина, т.к. будет выполнен rebuild индексов, то

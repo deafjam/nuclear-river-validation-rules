@@ -16,7 +16,7 @@ namespace NuClear.ValidationRules.Hosting.Common
         private readonly TimeSpan _pollTimeout;
         private readonly ITracer _tracer;
 
-        public KafkaMessageFlowReceiver(IKafkaMessageFlowReceiverSettings settings, ITracer tracer)
+        public KafkaMessageFlowReceiver(KafkaMessageFlowReceiverSettings settings, ITracer tracer)
         {
             _pollTimeout = settings.PollTimeout;
             _tracer = tracer;
@@ -24,7 +24,7 @@ namespace NuClear.ValidationRules.Hosting.Common
             _consumer = CreateConsumer(settings, _tracer);
         }
 
-        private static IConsumer<Ignore, byte[]> CreateConsumer(IKafkaMessageFlowReceiverSettings settings, ITracer tracer)
+        private static IConsumer<Ignore, byte[]> CreateConsumer(KafkaMessageFlowReceiverSettings settings, ITracer tracer)
         {
             var config = new ConsumerConfig((IDictionary<string, string>)settings.Config)
             {
@@ -48,12 +48,12 @@ namespace NuClear.ValidationRules.Hosting.Common
             var consumer = new ConsumerBuilder<Ignore, byte[]>(config)
                 .SetLogHandler((_, x) => OnLog(tracer, x))
                 .SetErrorHandler((_, x) => OnError(tracer, x))
-                .SetPartitionsAssignedHandler((_, x) => OnPartitionsAssigned(tracer, x, settings.TopicPartitionOffset.Offset))
+                .SetPartitionsAssignedHandler((_, x) => OnPartitionsAssigned(tracer, x, settings.Offset))
                 .SetPartitionsRevokedHandler((_, x) => OnPartitionsRevoked(tracer, x))
                 .SetOffsetsCommittedHandler((_, x) => OnOffsetsCommitted(tracer, x))
                 .Build();
 
-            consumer.Subscribe(settings.TopicPartitionOffset.Topic);
+            consumer.Subscribe(settings.Topics);
 
             tracer.Info("KafkaAudit. Topic consumer created");
 
@@ -95,11 +95,14 @@ namespace NuClear.ValidationRules.Hosting.Common
 
         void IKafkaMessageFlowReceiver.CompleteBatch(IEnumerable<ConsumeResult<Ignore, byte[]>> batch)
         {
-            var result = batch.OrderByDescending(x => x.Offset.Value).FirstOrDefault();
-            if (result != null)
+            var maxResults = batch
+                .GroupBy(x => x.Topic)
+                .Select(x => x.OrderByDescending(y => y.Offset.Value).First());
+
+            foreach (var maxResult in maxResults)
             {
-                _consumer.StoreOffset(result);
-                _tracer.Info($"KafkaAudit - offset stored {result.TopicPartitionOffset}");
+                _consumer.StoreOffset(maxResult);
+                _tracer.Info($"KafkaAudit - offset stored {maxResult.TopicPartitionOffset}");
             }
         }
 

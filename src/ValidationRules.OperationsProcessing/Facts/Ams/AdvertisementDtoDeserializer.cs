@@ -3,10 +3,9 @@ using System.Linq;
 using System.Text;
 using Confluent.Kafka;
 using Newtonsoft.Json;
-
 using NuClear.ValidationRules.Replication.Dto;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Ams
 {
     public sealed class AdvertisementDtoDeserializer : IDeserializer<ConsumeResult<Ignore, byte[]>, AdvertisementDto>
     {

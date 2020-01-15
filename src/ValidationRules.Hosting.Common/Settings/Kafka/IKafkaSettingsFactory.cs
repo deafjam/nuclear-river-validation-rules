@@ -5,6 +5,7 @@ namespace NuClear.ValidationRules.Hosting.Common.Settings.Kafka
 {
     public interface IKafkaSettingsFactory
     {
-        IKafkaMessageFlowReceiverSettings CreateReceiverSettings(IMessageFlow messageFlow);
+        KafkaAdminSettings CreateAdminSettings();
+        KafkaMessageFlowReceiverSettings CreateReceiverSettings(params IMessageFlow[] messageFlows);
     }
 }

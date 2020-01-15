@@ -1,6 +1,6 @@
 ﻿using NuClear.Telemetry;
 
-namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
+namespace NuClear.ValidationRules.OperationsProcessing.Facts.Ams
 {
     public sealed class AmsFactsFlowTelemetryPublisher : IFlowTelemetryPublisher
     {

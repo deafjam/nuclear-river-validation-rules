@@ -1,6 +1,5 @@
 ﻿using Confluent.Kafka;
 using NuClear.Assembling.TypeProcessing;
-using NuClear.Messaging.API.Flows;
 using NuClear.Replication.Core;
 using NuClear.River.Hosting.Common.Settings;
 using NuClear.StateInitialization.Core.Actors;
@@ -8,10 +7,7 @@ using NuClear.Tracing.API;
 using NuClear.Tracing.Environment;
 using NuClear.Tracing.Log4Net.Config;
 using NuClear.ValidationRules.Hosting.Common;
-using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
 using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
-using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
 using NuClear.ValidationRules.StateInitialization.Host.Assembling;
 using NuClear.ValidationRules.StateInitialization.Host.Kafka;
 using NuClear.ValidationRules.StateInitialization.Host.Kafka.Ams;
@@ -21,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using NuClear.StateInitialization.Core.Storage;
+using NuClear.Messaging.API.Flows;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
@@ -40,8 +37,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             {
                 commands.AddRange(BulkReplicationCommands.ErmToFacts
                     .Where(x => IsConfigured(x.SourceStorageDescriptor)));
-                commands.Add(new KafkaReplicationCommand(AmsFactsFlow.Instance, BulkReplicationCommands.AmsToFacts));
-                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts, 500));
+                commands.Add(new KafkaReplicationCommand(new IMessageFlow[] {AmsFactsFlow.Instance, RulesetFactsFlow.Instance}, BulkReplicationCommands.KafkaToFacts));
                 // TODO: отдельный schema init для erm\ams\ruleset facts
                 commands.Add(SchemaInitializationCommands.Facts);
             }
@@ -63,21 +59,8 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             var environmentSettings = new EnvironmentSettingsAspect();
             var tracer = CreateTracer(environmentSettings);
 
-            var kafkaSettingsFactory = new KafkaSettingsFactory(new Dictionary<IMessageFlow, string>
-                {
-                    {
-                        AmsFactsFlow.Instance,
-                        ConnectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance)
-                    },
-                    {
-                        RulesetFactsFlow.Instance,
-                        ConnectionStringSettings.GetConnectionString(RulesetConnectionStringIdentity.Instance)
-                    }
-                },
-                environmentSettings);
-
-            var kafkaMessageFlowReceiverFactory =
-                new StateInitKafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
+            var kafkaSettingsFactory = new StateInitKafkaSettingsFactory(new KafkaSettingsFactory(ConnectionStringSettings));
+            var kafkaMessageFlowReceiverFactory = new KafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
 
             var bulkReplicationActor = new BulkReplicationActor(ConnectionStringSettings);
             var kafkaReplicationActor = new KafkaReplicationActor(ConnectionStringSettings,
@@ -85,8 +68,8 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 new KafkaMessageFlowInfoProvider(kafkaSettingsFactory),
                 new IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>[]
                 {
-                    new AmsFactsBulkCommandFactory(),
-                    new RulesetFactsBulkCommandFactory()
+                    new AmsFactsBulkCommandFactory(kafkaSettingsFactory),
+                    new RulesetFactsBulkCommandFactory(kafkaSettingsFactory)
                 },
                 tracer);
 

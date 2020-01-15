@@ -8,11 +8,12 @@ using NuClear.Security.API.Context;
 using NuClear.Telemetry;
 using NuClear.ValidationRules.Hosting.Common;
 using NuClear.ValidationRules.OperationsProcessing.AggregatesFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
-using NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.MessagesFlow;
 using Quartz;
 using System;
+using System.Linq;
+using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
+using NuClear.ValidationRules.OperationsProcessing.Facts.Erm;
 
 namespace NuClear.ValidationRules.Replication.Host.Jobs
 {
@@ -76,10 +77,8 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
         {
             var flow = MessageFlowBase<TFlow>.Instance;
 
-            var size = _kafkaMessageFlowInfoProvider.GetFlowSize(flow);
-            var processedSize = _kafkaMessageFlowInfoProvider.GetFlowProcessedSize(flow);
-
-            _telemetry.Publish<TTelemetryIdentity>(size - processedSize);
+            var lag = _kafkaMessageFlowInfoProvider.GetFlowStats(flow).Single().Lag;
+            _telemetry.Publish<TTelemetryIdentity>(lag);
         }
 
         private sealed class MessagesQueueLengthIdentity : TelemetryIdentityBase<MessagesQueueLengthIdentity>
