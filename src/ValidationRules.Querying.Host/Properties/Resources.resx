@@ -325,7 +325,7 @@
     <value>Рекламный материал {0} одобрен с замечаниями</value>
   </data>
   <data name="FirmAddressMustNotHaveMultipleCallToAction" xml:space="preserve">
-    <value>На адрес {0} фирмы {1} продано более одной кнопки в заголовок карточки в периоды: {2}</value>
+    <value>На адрес {0} фирмы {1} продано более одной кнопки в заголовок карточки в периоды: {2}. Конфликтующий заказ: {3}</value>
   </data>
   <data name="FirmAddressShouldNotHaveMultiplePartnerAdvertisement" xml:space="preserve">
     <value>На адрес {0} фирмы {1} продано более одной позиции 'Реклама в профилях партнёров' в периоды: {2}</value>

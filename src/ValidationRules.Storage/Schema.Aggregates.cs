@@ -88,7 +88,7 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<FirmAggregates::Order>()
                    .HasSchemaName(FirmAggregatesSchema)
                    .HasPrimaryKey(x => x.Id)
-                   .HasIndex(x => new { x.Start, x.End }, x => new { x.Scope, x.FirmId });
+                   .HasIndex(x => new { x.Start, x.End }, x => x.Scope);
 
             builder.Entity<FirmAggregates::Order.FirmOrganizationUnitMismatch>()
                    .HasSchemaName(FirmAggregatesSchema)
@@ -112,6 +112,27 @@ namespace NuClear.ValidationRules.Storage
                    .HasSchemaName(FirmAggregatesSchema)
                    .HasPrimaryKey(x => x.OrderId);
 
+            builder.Entity<FirmAggregates::Order.AddressAdvertisementNonOnTheMap>()
+                   .HasSchemaName(FirmAggregatesSchema)
+                   .HasPrimaryKey(x => new { x.OrderId, x.OrderPositionId, x.PositionId, x.AddressId });
+            
+            // таблица маленькая, нет PK
+            builder.Entity<FirmAggregates::Order.MissingValidPartnerFirmAddresses>()
+                   .HasSchemaName(FirmAggregatesSchema)
+                   .HasIndex(x => x.OrderId);
+
+            builder.Entity<FirmAggregates::Order.InvalidFirmAddress>()
+                   .HasSchemaName(FirmAggregatesSchema)
+                   .HasPrimaryKey(x => new { x.OrderId, x.OrderPositionId, x.PositionId, x.FirmAddressId });
+
+            builder.Entity<FirmAggregates::Order.InvalidCategory>()
+                   .HasSchemaName(FirmAggregatesSchema)
+                   .HasPrimaryKey(x => new { x.OrderId, x.OrderPositionId, x.PositionId, x.CategoryId });
+
+            // таблица маленькая, можно обойтись без индексов
+            builder.Entity<FirmAggregates::Order.CategoryNotBelongsToAddress>()
+                   .HasSchemaName(FirmAggregatesSchema);
+            
             return builder;
         }
 
@@ -198,10 +219,6 @@ namespace NuClear.ValidationRules.Storage
                    .HasPrimaryKey(x => x.Id)
                    .HasIndex(x => x.IsDraft, x => new {x.ProjectId, x.Start, x.End})
                    .HasIndex(x => new { x.ProjectId, x.Start }, x => x.End);
-
-            builder.Entity<ProjectAggregates::Order.AddressAdvertisementNonOnTheMap>()
-                   .HasSchemaName(ProjectAggregatesSchema)
-                   .HasPrimaryKey(x => new { x.OrderId, x.OrderPositionId, x.PositionId, x.AddressId });
 
             builder.Entity<ProjectAggregates::Order.CategoryAdvertisement>()
                    .HasSchemaName(ProjectAggregatesSchema)
@@ -295,18 +312,6 @@ namespace NuClear.ValidationRules.Storage
                   .HasSchemaName(ConsistencyAggregatesSchema)
                   .HasPrimaryKey(x => x.OrderId);
 
-            builder.Entity<ConsistencyAggregates::Order.InvalidFirmAddress>()
-                  .HasSchemaName(ConsistencyAggregatesSchema)
-                  .HasPrimaryKey(x => new { x.OrderId, x.OrderPositionId, x.PositionId, x.FirmAddressId });
-
-            // таблица маленькая, можно обойтись без индексов
-            builder.Entity<ConsistencyAggregates::Order.CategoryNotBelongsToAddress>()
-                  .HasSchemaName(ConsistencyAggregatesSchema);
-
-            builder.Entity<ConsistencyAggregates::Order.InvalidCategory>()
-                  .HasSchemaName(ConsistencyAggregatesSchema)
-                  .HasPrimaryKey(x => new { x.OrderId, x.OrderPositionId, x.PositionId, x.CategoryId });
-
             builder.Entity<ConsistencyAggregates::Order.HasNoAnyLegalPersonProfile>()
                   .HasSchemaName(ConsistencyAggregatesSchema)
                   .HasPrimaryKey(x => x.OrderId);
@@ -346,11 +351,6 @@ namespace NuClear.ValidationRules.Storage
             builder.Entity<ConsistencyAggregates::Order.MissingOrderScan>()
                   .HasSchemaName(ConsistencyAggregatesSchema)
                   .HasPrimaryKey(x => x.OrderId);
-
-            // таблица маленькая
-            builder.Entity<ConsistencyAggregates::Order.MissingValidPartnerFirmAddresses>()
-                   .HasSchemaName(ConsistencyAggregatesSchema)
-                   .HasIndex(x => x.OrderId);
 
             return builder;
         }

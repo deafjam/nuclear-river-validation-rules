@@ -307,14 +307,10 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
 
         private static void LoadAmountControlledSales(DataConnection query, Order order, IReadOnlyCollection<long> priceIds, IStore store)
         {
-            // Такая хитрая номенклатура, которая не прописана как регулируемая количеством, но по факту является таковой: AdvertisementCountPerCategoryShouldBeLimited
-            // todo: какого чёрта?
-            const int TargetCategoryCode = 38;
-
             var categoryCodes =
                 (from orderPosition in query.GetTable<OrderPosition>().Where(x => x.IsActive && !x.IsDeleted).Where(x => x.OrderId == order.Id)
                  from opa in query.GetTable<OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
-                 from position in query.GetTable<Position>().Where(x => (x.IsControlledByAmount || x.CategoryCode == TargetCategoryCode) && x.Id == opa.PositionId)
+                 from position in query.GetTable<Position>().Where(x => (x.IsControlledByAmount || x.CategoryCode == Storage.Model.Facts.Position.CategoryCodeAdvertisementInCategory) && x.Id == opa.PositionId)
                  select position.CategoryCode).Distinct().Execute();
 
             var orders =
@@ -322,7 +318,7 @@ namespace NuClear.ValidationRules.SingleCheck.DataLoaders
                                                 .Where(x => x.DestOrganizationUnitId == order.DestOrganizationUnitId && x.AgileDistributionStartDate < order.AgileDistributionEndPlanDate && order.AgileDistributionStartDate < x.AgileDistributionEndPlanDate)
                  from orderPosition in query.GetTable<OrderPosition>().Where(x => x.IsActive && !x.IsDeleted).Where(x => x.OrderId == interferringOrder.Id)
                  from opa in query.GetTable<OrderPositionAdvertisement>().Where(x => x.OrderPositionId == orderPosition.Id)
-                 from position in query.GetTable<Position>().Where(x => (x.IsControlledByAmount || x.CategoryCode == TargetCategoryCode) && x.Id == opa.PositionId && categoryCodes.Contains(x.CategoryCode))
+                 from position in query.GetTable<Position>().Where(x => (x.IsControlledByAmount || x.CategoryCode == Storage.Model.Facts.Position.CategoryCodeAdvertisementInCategory) && x.Id == opa.PositionId && categoryCodes.Contains(x.CategoryCode))
                  from pricePosition in query.GetTable<PricePosition>().Where(x => x.Id == orderPosition.PricePositionId)
                  select new { interferringOrder, orderPosition, opa, position, pricePosition };
 

@@ -27,9 +27,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                 select new Version.ValidationResult
                     {
                         MessageParams =
-                            new MessageParams(
-                                    new Reference<EntityTypeFirm>(order.FirmId),
-                                    new Reference<EntityTypeOrder>(order.Id))
+                            new MessageParams(new Reference<EntityTypeOrder>(order.Id))
                                 .ToXDocument(),
 
                         PeriodStart = order.Start,

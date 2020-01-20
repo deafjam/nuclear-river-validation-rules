@@ -59,15 +59,14 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
             var orderIdsFromOpa = _query.For<OrderPositionAdvertisement>()
                 .Where(x => positionIds.Contains(x.PositionId))
-                .Select(x => x.OrderId)
-                .Distinct();
+                .Select(x => x.OrderId);
 
             var orderIdsFromPricePosition =
-                  (from pricePosition in _query.For<PricePosition>().Where(x => positionIds.Contains(x.PositionId))
+                  from pricePosition in _query.For<PricePosition>().Where(x => positionIds.Contains(x.PositionId))
                   from orderPosition in _query.For<OrderPosition>().Where(x => x.PricePositionId == pricePosition.Id)
-                  select orderPosition.OrderId).Distinct();
+                  select orderPosition.OrderId;
 
-            var orderIds = orderIdsFromOpa.Concat(orderIdsFromPricePosition).ToList();
+            var orderIds = orderIdsFromOpa.Concat(orderIdsFromPricePosition).Distinct().ToList();
 
             return new[]
             {

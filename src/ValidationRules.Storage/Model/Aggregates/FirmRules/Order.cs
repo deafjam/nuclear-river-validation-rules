@@ -10,6 +10,24 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules
         ClosedForAscertainment,
         HasNoAddresses
     }
+    
+    public enum InvalidFirmAddressState
+    {
+        NotSet = 0,
+        Deleted,
+        NotActive,
+        ClosedForAscertainment,
+        NotBelongToFirm,
+        MissingEntrance,
+        InvalidBuildingPurpose
+    }
+    
+    public enum InvalidCategoryState
+    {
+        NotSet = 0,
+        Inactive,
+        NotBelongToFirm
+    }
 
     public sealed class Order
     {
@@ -42,11 +60,55 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.FirmRules
             public long OrderId { get; set; }
         }
 
+        public sealed class AddressAdvertisementNonOnTheMap
+        {
+            public long OrderId { get; set; }
+            public long OrderPositionId { get; set; }
+            public long PositionId { get; set; }
+            public long AddressId { get; set; }
+        }
+        
+        public sealed class MissingValidPartnerFirmAddresses
+        {
+            public long OrderId { get; set; }
+            public long OrderPositionId { get; set; }
+            public long PositionId { get; set; }
+        }
+        
         public sealed class InvalidFirm
         {
             public long OrderId { get; set; }
             public long FirmId { get; set; }
             public InvalidFirmState State { get; set; }
+        }
+
+        public sealed class InvalidFirmAddress
+        {
+            public long OrderId { get; set; }
+            public long FirmAddressId { get; set; }
+            public long OrderPositionId { get; set; }
+            public long PositionId { get; set; }
+            public InvalidFirmAddressState State { get; set; }
+            public bool IsPartnerAddress { get; set; }
+        }
+        
+        public sealed class InvalidCategory
+        {
+            public long OrderId { get; set; }
+            public long CategoryId { get; set; }
+            public long OrderPositionId { get; set; }
+            public long PositionId { get; set; }
+            public InvalidCategoryState State { get; set; }
+            public bool MayNotBelongToFirm { get; set; }
+        }
+        
+        public sealed class CategoryNotBelongsToAddress
+        {
+            public long OrderId { get; set; }
+            public long FirmAddressId { get; set; }
+            public long CategoryId { get; set; }
+            public long OrderPositionId { get; set; }
+            public long PositionId { get; set; }
         }
     }
 }

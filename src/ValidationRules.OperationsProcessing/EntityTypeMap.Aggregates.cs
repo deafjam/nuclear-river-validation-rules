@@ -54,17 +54,11 @@ namespace NuClear.ValidationRules.OperationsProcessing
                           .DependOn<Facts::Bill>()
                           .DependOn<Facts::BranchOffice>()
                           .DependOn<Facts::BranchOfficeOrganizationUnit>()
-                          .DependOn<Facts::Category>()
                           .DependOn<Facts::Deal>()
-                          .DependOn<Facts::FirmAddress>()
-                          .DependOn<Facts::FirmAddressInactive>()
-                          .DependOn<Facts::FirmAddressCategory>()
                           .DependOn<Facts::LegalPerson>()
                           .DependOn<Facts::LegalPersonProfile>()
                           .DependOn<Facts::OrderPosition>()
-                          .DependOn<Facts::OrderPositionAdvertisement>()
                           .DependOn<Facts::OrderScanFile>()
-                          .DependOn<Facts::Position>()
                           .DependOn<Facts::ReleaseWithdrawal>())
 
                 // FirmAggregates
@@ -76,12 +70,16 @@ namespace NuClear.ValidationRules.OperationsProcessing
                 .Aggregate<FirmAggregates::Order>(
                     x => x.Match<Facts::Order>()
                           .DependOn<Facts::OrderWorkflow>()
+                          .DependOn<Facts::OrderPosition>()
+                          .DependOn<Facts::OrderPositionAdvertisement>()
+                          .DependOn<Facts::Category>()
                           .DependOn<Facts::Firm>()
                           .DependOn<Facts::FirmInactive>()
                           .DependOn<Facts::FirmAddress>()
-                          .DependOn<Facts::OrderPosition>()
-                          .DependOn<Facts::OrderPositionAdvertisement>()
-                          .DependOn<Facts::Position>())
+                          .DependOn<Facts::FirmAddressInactive>()
+                          .DependOn<Facts::FirmAddressCategory>()
+                          .DependOn<Facts::Position>()
+                          .DependOn<Facts::PricePosition>())
 
                 // PriceAggregates
                 .Aggregate<PriceAggregates::Order>(
@@ -112,7 +110,6 @@ namespace NuClear.ValidationRules.OperationsProcessing
                     x => x.Match<Facts::Order>()
                           .DependOn<Facts::OrderWorkflow>()
                           .DependOn<Facts::Category>()
-                          .DependOn<Facts::FirmAddress>()
                           .DependOn<Facts::OrderPosition>()
                           .DependOn<Facts::OrderPositionCostPerClick>()
                           .DependOn<Facts::OrderPositionAdvertisement>()

@@ -57,6 +57,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                                 new MessageParams(
                                                 new Dictionary<string, object> { { "start", MonthStart(2) } },
                                                 new Reference<EntityTypeCategory>(13),
+                                                new Reference<EntityTypeOrder>(2),
                                                 new Reference<EntityTypeProject>(0))
                                     .ToXDocument(),
                             MessageType = (int)MessageTypeCode.ProjectMustContainCostPerClickMinimumRestriction,

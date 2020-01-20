@@ -69,7 +69,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
             var orderIds =
                 (from firmAddress in _query.For<FirmAddress>().Where(x => firmAddressIds.Contains(x.Id))
-                from order in _query.For<OrderConsistency>().Where(x => x.FirmId == firmAddress.FirmId)
+                from order in _query.For<Order>().Where(x => x.FirmId == firmAddress.FirmId)
                 select order.Id)
                 .Distinct()
                 .ToList();

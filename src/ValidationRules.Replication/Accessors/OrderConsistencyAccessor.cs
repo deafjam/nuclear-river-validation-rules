@@ -25,7 +25,6 @@ namespace NuClear.ValidationRules.Replication.Accessors
             select new OrderConsistency
             {
                 Id = order.Id,
-                FirmId = order.FirmId,
 
                 SignupDate = order.SignupDate,
                 LegalPersonId = order.LegalPersonId,

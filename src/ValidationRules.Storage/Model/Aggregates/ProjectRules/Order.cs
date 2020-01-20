@@ -10,14 +10,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules
         public DateTime End { get; set; }
         public bool IsDraft { get; set; }
 
-        public sealed class AddressAdvertisementNonOnTheMap
-        {
-            public long OrderId { get; set; }
-            public long OrderPositionId { get; set; }
-            public long PositionId { get; set; }
-            public long AddressId { get; set; }
-        }
-
         public sealed class CategoryAdvertisement
         {
             public const int CostPerClickSalesModel = 12; // erm: MultiPlannedProvision

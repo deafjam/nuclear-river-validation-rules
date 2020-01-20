@@ -5,18 +5,11 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
     public sealed class Position
     {
         public const long CategoryCodeAdvertisementInCategory = 38; // Объявление в рубрике (Объявление под списком выдачи)
-        public const long CategoryCodeBasicPackage = 303; // пакет "Базовый" ???
-        public const long CategoryCodeMediaContextBanner = 395122163464046280; // Баннер в поисковой выдаче (онлайн-версия)
-        public const long CategoryCodeContextBanner = 809065011136692318; // Баннер в поисковой выдаче (мобильная версия)
-        public const long CategoryCodeAdvertisementLink = 11; // Рекламная ссылка
-        public const long CategoryCodeBargains2Gis = 14; // Выгодные покупки с 2ГИС
-        public const long CategoryCodeAddressComment = 26; // Комментарий к адресу
-        public const long CategoryCodePartnerAdvertising = 809065011136692320; // Реклама компании в карточках партнёров (партнеры)
-        public const long CategoryCodePremiumPartnerAdvertising = 809065011136692321; // Реклама компании в карточках партнёров (партнеры FMCG)_
-        public const long CategoryCodePremiumPartnerAdvertising2 = 809065011136692333; // Реклама компании в карточках партнёров (партнеры FMCG)
+
+        private const long CategoryCodePartnerAdvertising = 809065011136692320; // Реклама компании в карточках партнёров (партнеры)
+        private const long CategoryCodePremiumPartnerAdvertising = 809065011136692321; // Реклама компании в карточках партнёров (партнеры FMCG)_
+        private const long CategoryCodePremiumPartnerAdvertising2 = 809065011136692333; // Реклама компании в карточках партнёров (партнеры FMCG)
         public const long CategoryCodePartnerAdvertisingAddress = 809065011136692326; // Реклама компании в карточках партнёров (адреса)
-        public const long CategoryCodeLogo = 448239782219049217; // Логотипы на карте_Online_old
-        public const long CategoryCodeLogo2 = 809065011136692327; // Логотипы на карте
 
         public const int BindingObjectTypeCategoryMultipleAsterisk = 1;
         public const int BindingObjectTypeAddressMultiple = 35;
@@ -26,15 +19,22 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
         public const int ContentSalesWithoutContent = 1;
         public const int ContentSalesContentIsNotRequired = 2;
 
+        public static readonly IReadOnlyCollection<long> CategoryCodesFmcgCutout = new[]
+        {
+            303, // пакет "Базовый" ???
+            395122163464046280, // Баннер в поисковой выдаче (онлайн-версия)
+            809065011136692318 // Баннер в поисковой выдаче (мобильная версия)
+        };
+        
         public static readonly IReadOnlyCollection<long> CategoryCodesAllowNotLocatedOnTheMap = new[]
         {
-            CategoryCodeAdvertisementLink,
-            CategoryCodeBargains2Gis,
-            CategoryCodeAddressComment,
+            11, // Рекламная ссылка
+            14, // Выгодные покупки с 2ГИС
+            26, // Комментарий к адресу
             CategoryCodePartnerAdvertisingAddress
         };
 
-        public static readonly IReadOnlyCollection<long> CategoryCodesCategoryCodePremiumPartnerAdvertising = new[]
+        public static readonly IReadOnlyCollection<long> CategoryCodesPremiumPartnerAdvertising = new[]
         {
             CategoryCodePremiumPartnerAdvertising,
             CategoryCodePremiumPartnerAdvertising2
@@ -53,8 +53,8 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
 
         public static readonly IReadOnlyCollection<long> CategoryCodesPoiAddressCheck = new[]
         {
-            CategoryCodeLogo,
-            CategoryCodeLogo2,
+            448239782219049217, // Логотипы на карте_Online_old
+            809065011136692327, // Логотипы на карте
         };
 
         public long Id { get; set; }

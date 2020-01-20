@@ -51,10 +51,7 @@ function Get-DBSuffix($Context){
 function Get-DBHostMetadata($Context){
 	switch($Context.EnvType){
 		'Test' {
-			switch($Context.Country){
-				'Russia' { $dbHost = 'uk-sql01' }
-				default { $dbHost = 'uk-erm-sql02' }
-			}
+			$dbHost = 'uk-erm-sql02'
 		}
 		'Business' {
 			$dbHost = 'uk-erm-edu03'
@@ -98,11 +95,6 @@ function Get-AmsFactsTopicMetadata($Context){
 function Get-RulesetsFactsTopicsMetadata($Context){
 	switch($Context.EnvType){
 		'Test' {
-			if (($Context.RulesetsFactsTopic -ne $null) -And ($Context.RulesetsFactsTopic -ne "")){
-				return @{
-					'RulesetsFactsTopic' = $Context.RulesetsFactsTopic
-				}
-			}
 			return @{
 				'RulesetsFactsTopic' = 'casino_staging_flowRulesets_compacted'
 			}

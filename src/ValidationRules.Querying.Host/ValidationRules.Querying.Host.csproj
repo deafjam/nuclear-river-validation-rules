@@ -63,7 +63,13 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="CheckModes\CheckModeDescriptorFactory.cs" />
     <Compile Include="CheckModes\CheckModeRegistry.cs" />
-    <Compile Include="Composition\ConsistencyRules\AtLeastOneLinkedPartnerFirmAddressShouldBeValidMessageComposer.cs" />
+    <Compile Include="Composition\FirmRules\AtLeastOneLinkedPartnerFirmAddressShouldBeValidMessageComposer.cs" />
+    <Compile Include="Composition\FirmRules\FirmAddressMustBeLocatedOnTheMapMessageComposer.cs" />
+    <Compile Include="Composition\FirmRules\LinkedCategoryAsteriskMayBelongToFirmMessageComposer.cs" />
+    <Compile Include="Composition\FirmRules\LinkedCategoryFirmAddressShouldBeValidMessageComposer.cs" />
+    <Compile Include="Composition\FirmRules\LinkedCategoryShouldBeActiveMessageComposer.cs" />
+    <Compile Include="Composition\FirmRules\LinkedCategoryShouldBelongToFirmMessageComposer.cs" />
+    <Compile Include="Composition\FirmRules\LinkedFirmAddressShouldBeValidMessageComposer.cs" />
     <Compile Include="Composition\MessageSeverityProvider.cs" />
     <Compile Include="Composition\AdvertisementRules\OptionalAdvertisementMustPassReviewMessageComposer.cs" />
     <Compile Include="Composition\AdvertisementRules\OrderPositionAdvertisementMustHaveOptionalAdvertisementMessageComposer.cs" />
@@ -77,8 +83,7 @@
     <Compile Include="Composition\AdvertisementRules\AdvertisementShouldNotHaveCommentsMessageComposer.cs" />
     <Compile Include="Composition\AdvertisementRules\AdvertisementMustPassReviewMessageComposer.cs" />
     <Compile Include="Composition\AdvertisementRules\AdvertisementMustBelongToFirmMessageComposer.cs" />
-    <Compile Include="Composition\ProjectRules\FirmAddressMustBeLocatedOnTheMapMessageComposer.cs" />
-    <Compile Include="Composition\FirmRules\FirmAddressShouldNotHaveMultiplePartnerAdvertisementMessageComposer.cs" />
+    <Compile Include="Composition\FirmRules\FirmAddressMustNotHaveMultiplePremiumPartnerAdvertisementMessageComposer.cs" />
     <Compile Include="Composition\ConsistencyRules\OrderMustHaveActiveDealMessageComposer.cs" />
     <Compile Include="Composition\AdvertisementRules\OrderPositionAdvertisementMustHaveAdvertisementMessageComposer.cs" />
     <Compile Include="Composition\PriceRules\OrderPositionMustCorrespontToActualPriceMessageComposer.cs" />
@@ -136,11 +141,6 @@
     <Compile Include="Composition\ConsistencyRules\LegalPersonProfileBargainShouldNotBeExpiredMessageComposer.cs" />
     <Compile Include="Composition\ConsistencyRules\LegalPersonProfileWarrantyShouldNotBeExpiredMessageComposer.cs" />
     <Compile Include="Composition\ConsistencyRules\LegalPersonShouldHaveAtLeastOneProfileMessageComposer.cs" />
-    <Compile Include="Composition\ConsistencyRules\LinkedCategoryAsteriskMayBelongToFirmMessageComposer.cs" />
-    <Compile Include="Composition\ConsistencyRules\LinkedCategoryFirmAddressShouldBeValidMessageComposer.cs" />
-    <Compile Include="Composition\ConsistencyRules\LinkedCategoryShouldBeActiveMessageComposer.cs" />
-    <Compile Include="Composition\ConsistencyRules\LinkedCategoryShouldBelongToFirmMessageComposer.cs" />
-    <Compile Include="Composition\ConsistencyRules\LinkedFirmAddressShouldBeValidMessageComposer.cs" />
     <Compile Include="Composition\FirmRules\LinkedFirmShouldBeValidMessageComposer.cs" />
     <Compile Include="Composition\PriceRules\LinkedObjectsMissedInPrincipalsMessageComposer.cs" />
     <Compile Include="Composition\PriceRules\AdvertisementAmountShouldMeetRestrictionsMassMessageComposer.cs" />

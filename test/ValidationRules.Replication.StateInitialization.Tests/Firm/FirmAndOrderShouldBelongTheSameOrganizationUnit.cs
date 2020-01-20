@@ -27,7 +27,6 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new Version.ValidationResult
                         {
                             MessageParams = new MessageParams(
-                                    new Reference<EntityTypeFirm>(1),
                                     new Reference<EntityTypeOrder>(2)).ToXDocument(),
                             MessageType = (int)MessageTypeCode.FirmAndOrderShouldBelongTheSameOrganizationUnit,
                             PeriodStart = FirstDayJan,

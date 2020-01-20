@@ -203,7 +203,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
             .Fact(
                 new Order { Id = 1, AgileDistributionStartDate = FirstDayJan, AgileDistributionEndFactDate = LastSecondJan.AddSeconds(1), AgileDistributionEndPlanDate = LastSecondMar.AddSeconds(1), ProjectId = 3, FirmId = 5, IsSelfAds = true },
                 new OrderWorkflow {Id = 1, Step = 8},
-                new OrderConsistency { Id = 1, FirmId = 5, HasCurrency = true, IsFreeOfCharge = true });
+                new OrderConsistency { Id = 1, HasCurrency = true, IsFreeOfCharge = true });
 
         // ReSharper disable once UnusedMember.Local
         private static ArrangeMetadataElement OrderPositionFacts

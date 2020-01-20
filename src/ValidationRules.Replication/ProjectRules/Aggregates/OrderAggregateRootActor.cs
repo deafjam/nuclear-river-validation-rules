@@ -19,13 +19,11 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             IQuery query,
             IEqualityComparerFactory equalityComparerFactory,
             IBulkRepository<Order> bulkRepository,
-            IBulkRepository<Order.AddressAdvertisementNonOnTheMap> addressAdvertisementRepository,
             IBulkRepository<Order.CategoryAdvertisement> categoryAdvertisementRepository,
             IBulkRepository<Order.CostPerClickAdvertisement> costPerClickAdvertisementRepository)
             : base(query, equalityComparerFactory)
         {
             HasRootEntity(new OrderAccessor(query), bulkRepository,
-               HasValueObject(new AddressAdvertisementNonOnTheMapAccessor(query), addressAdvertisementRepository),
                HasValueObject(new CategoryAdvertisementAccessor(query), categoryAdvertisementRepository),
                HasValueObject(new CostPerClickAdvertisementAccessor(query), costPerClickAdvertisementRepository));
         }
@@ -39,7 +37,6 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             private static IRuleInvalidator CreateInvalidator()
                 => new RuleInvalidator
                     {
-                        {MessageTypeCode.FirmAddressMustBeLocatedOnTheMap, GetRelatedOrders},
                         {MessageTypeCode.OrderMustUseCategoriesOnlyAvailableInProject, GetRelatedOrders},
                         {MessageTypeCode.OrderPositionCostPerClickMustBeSpecified, GetRelatedOrders},
                         {MessageTypeCode.OrderPositionCostPerClickMustNotBeLessMinimum, GetRelatedOrders},
@@ -66,50 +63,6 @@ namespace NuClear.ValidationRules.Replication.ProjectRules.Aggregates
             {
                 var aggregateIds = commands.OfType<SyncDataObjectCommand>().SelectMany(c => c.DataObjectIds).ToHashSet();
                 return new FindSpecification<Order>(x => aggregateIds.Contains(x.Id));
-            }
-        }
-
-        public sealed class AddressAdvertisementNonOnTheMapAccessor : DataChangesHandler<Order.AddressAdvertisementNonOnTheMap>, IStorageBasedDataObjectAccessor<Order.AddressAdvertisementNonOnTheMap>
-        {
-            private readonly IQuery _query;
-
-            public AddressAdvertisementNonOnTheMapAccessor(IQuery query) : base(CreateInvalidator()) => _query = query;
-
-            private static IRuleInvalidator CreateInvalidator()
-                => new RuleInvalidator
-                    {
-                        {MessageTypeCode.FirmAddressMustBeLocatedOnTheMap, GetRelatedOrders},
-                    };
-
-            private static IEnumerable<long> GetRelatedOrders(IReadOnlyCollection<Order.AddressAdvertisementNonOnTheMap> dataObjects) =>
-                dataObjects.Select(x => x.OrderId);
-            
-            public IQueryable<Order.AddressAdvertisementNonOnTheMap> GetSource()
-            {
-                var result = 
-                    (
-                    from opa in _query.For<Facts::OrderPositionAdvertisement>().Where(x => x.FirmAddressId.HasValue)
-                    from position in _query.For<Facts::Position>()
-                        .Where(x => !x.IsDeleted &&
-                                    !Facts::Position.CategoryCodesAllowNotLocatedOnTheMap.Contains(x.CategoryCode))
-                        .Where(x => x.Id == opa.PositionId)
-                    from firmAddress in _query.For<Facts::FirmAddress>().Where(x => !x.IsLocatedOnTheMap)
-                        .Where(x => x.Id == opa.FirmAddressId.Value)
-                    select new Order.AddressAdvertisementNonOnTheMap
-                    {
-                        OrderId = opa.OrderId,
-                        OrderPositionId = opa.OrderPositionId,
-                        PositionId = opa.PositionId,
-                        AddressId = opa.FirmAddressId.Value,
-                    }).Distinct();
-
-                return result;
-            }
-
-            public FindSpecification<Order.AddressAdvertisementNonOnTheMap> GetFindSpecification(IReadOnlyCollection<ICommand> commands)
-            {
-                var aggregateIds = commands.Cast<ReplaceValueObjectCommand>().SelectMany(c => c.AggregateRootIds).ToHashSet();
-                return new FindSpecification<Order.AddressAdvertisementNonOnTheMap>(x => aggregateIds.Contains(x.OrderId));
             }
         }
 

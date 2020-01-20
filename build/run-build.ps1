@@ -6,7 +6,9 @@ if ($TaskList.Count -eq 0){
 }
 
 if ($Properties.Count -eq 0){
- 	$Properties.EnvironmentName = 'Test.20'
+	$Properties.EnvironmentType = 'Test'
+	$Properties.BusinessModel = 'Russia'
+	$Properties.EnvironmentIndex = '20'
 	$Properties.EntryPoints = @(
 		'ValidationRules.Querying.Host'
 		'ValidationRules.Replication.Host'

@@ -46,9 +46,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
             var createDatabases = _container.Resolve<CreateDatabasesCommand>();
             var createSchemata = _container.Resolve<CreateDatabaseSchemataCommand>();
 
-            dropDatabases.Execute();
-            createDatabases.Execute();
-            createSchemata.Execute();
+            //dropDatabases.Execute();
+            //createDatabases.Execute();
+            //createSchemata.Execute();
 
             _testRunner = _container.Resolve<TestRunner>();
         }

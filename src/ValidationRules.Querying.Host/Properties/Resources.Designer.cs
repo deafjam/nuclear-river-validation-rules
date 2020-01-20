@@ -250,7 +250,7 @@ namespace NuClear.ValidationRules.Querying.Host.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to На адрес {0} фирмы {1} продано более одной кнопки в заголовок карточки в периоды: {2}.
+        ///   Looks up a localized string similar to На адрес {0} фирмы {1} продано более одной кнопки в заголовок карточки в периоды: {2}. Конфликтующий заказ: {3}.
         /// </summary>
         internal static string FirmAddressMustNotHaveMultipleCallToAction {
             get {

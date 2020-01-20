@@ -262,6 +262,10 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Aggregates
             }
         }
 
+        // TODO: надо перенести этот accessor в FirmRules
+        // насколько я понимаю сейчас это мешает сделать только концепция OrderPeriod, которая существует лишь в PriceRules
+        // на самом деле это общая концепция, имеет смысл вынести OrderPeriod прямо в facts
+        // а это правило вынести в FirmRules (т.к. фирмы импортируются из IR, динамика изменений отлична от динамики изменений в ERM)
         public sealed class EntranceControlledPositionAccessor : DataChangesHandler<Order.EntranceControlledPosition>, IStorageBasedDataObjectAccessor<Order.EntranceControlledPosition>
         {
             private readonly IQuery _query;

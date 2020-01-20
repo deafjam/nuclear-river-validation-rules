@@ -2,24 +2,6 @@
 
 namespace NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules
 {
-    public enum InvalidFirmAddressState
-    {
-        NotSet = 0,
-        Deleted,
-        NotActive,
-        ClosedForAscertainment,
-        NotBelongToFirm,
-        MissingEntrance,
-        InvalidBuildingPurpose
-    }
-
-    public enum InvalidCategoryState
-    {
-        NotSet = 0,
-        Inactive,
-        NotBelongToFirm
-    }
-
     public enum DealState
     {
         NotSet = 0,
@@ -41,35 +23,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules
             public bool LegalPersonProfile { get; set; }
             public bool BranchOfficeOrganizationUnit { get; set; }
             public bool BranchOffice { get; set; }
-        }
-
-        public sealed class InvalidFirmAddress
-        {
-            public long OrderId { get; set; }
-            public long FirmAddressId { get; set; }
-            public long OrderPositionId { get; set; }
-            public long PositionId { get; set; }
-            public InvalidFirmAddressState State { get; set; }
-            public bool IsPartnerAddress { get; set; }
-        }
-
-        public sealed class CategoryNotBelongsToAddress
-        {
-            public long OrderId { get; set; }
-            public long FirmAddressId { get; set; }
-            public long CategoryId { get; set; }
-            public long OrderPositionId { get; set; }
-            public long PositionId { get; set; }
-        }
-
-        public sealed class InvalidCategory
-        {
-            public long OrderId { get; set; }
-            public long CategoryId { get; set; }
-            public long OrderPositionId { get; set; }
-            public long PositionId { get; set; }
-            public InvalidCategoryState State { get; set; }
-            public bool MayNotBelongToFirm { get; set; }
         }
 
         public sealed class LegalPersonProfileBargainExpired
@@ -127,13 +80,6 @@ namespace NuClear.ValidationRules.Storage.Model.Aggregates.ConsistencyRules
             public bool BranchOfficeOrganizationUnit { get; set; }
             public bool Currency { get; set; }
             public bool Deal { get; set; }
-        }
-
-        public sealed class MissingValidPartnerFirmAddresses
-        {
-            public long OrderId { get; set; }
-            public long OrderPositionId { get; set; }
-            public long PositionId { get; set; }
         }
     }
 }

@@ -115,9 +115,6 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
                 typeof(ConsistencyAggregates::Order),
                 typeof(ConsistencyAggregates::Order.BargainSignedLaterThanOrder),
-                typeof(ConsistencyAggregates::Order.InvalidFirmAddress),
-                typeof(ConsistencyAggregates::Order.InvalidCategory),
-                typeof(ConsistencyAggregates::Order.CategoryNotBelongsToAddress),
                 typeof(ConsistencyAggregates::Order.HasNoAnyLegalPersonProfile),
                 typeof(ConsistencyAggregates::Order.HasNoAnyPosition),
                 typeof(ConsistencyAggregates::Order.InactiveReference),
@@ -128,19 +125,22 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(ConsistencyAggregates::Order.MissingBills),
                 typeof(ConsistencyAggregates::Order.MissingRequiredField),
                 typeof(ConsistencyAggregates::Order.MissingOrderScan),
-                typeof(ConsistencyAggregates::Order.MissingValidPartnerFirmAddresses),
 
                 typeof(FirmAggregates::Firm),
                 typeof(FirmAggregates::Firm.CategoryPurchase),
                 typeof(FirmAggregates::Order),
                 typeof(FirmAggregates::Order.FirmOrganizationUnitMismatch),
                 typeof(FirmAggregates::Order.InvalidFirm),
+                typeof(FirmAggregates::Order.InvalidFirmAddress),
+                typeof(FirmAggregates::Order.InvalidCategory),
+                typeof(FirmAggregates::Order.CategoryNotBelongsToAddress),
                 typeof(FirmAggregates::Order.PartnerPosition),
                 typeof(FirmAggregates::Order.PremiumPartnerPosition),
                 typeof(FirmAggregates::Order.FmcgCutoutPosition),
+                typeof(FirmAggregates::Order.AddressAdvertisementNonOnTheMap),
+                typeof(FirmAggregates::Order.MissingValidPartnerFirmAddresses),
 
                 typeof(ProjectAggregates::Order),
-                typeof(ProjectAggregates::Order.AddressAdvertisementNonOnTheMap),
                 typeof(ProjectAggregates::Order.CategoryAdvertisement),
                 typeof(ProjectAggregates::Order.CostPerClickAdvertisement),
                 typeof(ProjectAggregates::Project),
@@ -181,19 +181,23 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             {
                 case ReplicateInBulkCommand replicateInBulkCommand:
                 {
-                    if (replicateInBulkCommand == BulkReplicationCommands.ErmToFacts)
+                    if (replicateInBulkCommand.SourceStorageDescriptor.MappingSchema == Storage.Schema.Erm &&
+                        replicateInBulkCommand.TargetStorageDescriptor.MappingSchema == Storage.Schema.Facts)
                     {
                         return ErmFactTypes;
                     }
-                    if (replicateInBulkCommand == BulkReplicationCommands.FactsToAggregates)
+                    if (replicateInBulkCommand.SourceStorageDescriptor.MappingSchema == Storage.Schema.Facts &&
+                        replicateInBulkCommand.TargetStorageDescriptor.MappingSchema == Storage.Schema.Aggregates)
                     {
                         return AggregateTypes;
                     }
-                    if (replicateInBulkCommand == BulkReplicationCommands.AggregatesToMessages)
+                    if (replicateInBulkCommand.SourceStorageDescriptor.MappingSchema == Storage.Schema.Aggregates &&
+                        replicateInBulkCommand.TargetStorageDescriptor.MappingSchema == Storage.Schema.Messages)
                     {
                         return MessagesTypes;
                     }
-                    if (replicateInBulkCommand == BulkReplicationCommands.ErmToMessages)
+                    if (replicateInBulkCommand.SourceStorageDescriptor.MappingSchema == Storage.Schema.Erm &&
+                        replicateInBulkCommand.TargetStorageDescriptor.MappingSchema == Storage.Schema.Messages)
                     {
                         return ErmMessagesTypes;
                     }
@@ -217,7 +221,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 }
             }
 
-            throw new ArgumentException($"Data object types cannot be created");
+            throw new ArgumentException("Data object types cannot be created");
         }
     }
 }

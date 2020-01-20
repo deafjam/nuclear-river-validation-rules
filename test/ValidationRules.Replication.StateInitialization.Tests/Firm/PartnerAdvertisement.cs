@@ -93,6 +93,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                             new MessageParams(
                                     new Dictionary<string, object> { { "start", MonthStart(2) }, { "end", MonthStart(3) } },
                                     new Reference<EntityTypeOrder>(2),
+                                    new Reference<EntityTypeOrder>(1),
                                     new Reference<EntityTypeFirm>(3),
                                     new Reference<EntityTypeFirmAddress>(3))
                                 .ToXDocument(),

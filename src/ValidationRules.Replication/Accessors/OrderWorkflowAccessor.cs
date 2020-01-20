@@ -39,19 +39,21 @@ namespace NuClear.ValidationRules.Replication.Accessors
         public IReadOnlyCollection<IEvent> HandleRelates(IReadOnlyCollection<OrderWorkflow> dataObjects)
         {
             var orderIds = dataObjects.Select(x => x.Id).ToHashSet();
+
+            var firmIds = _query.For<Order>().Where(x => orderIds.Contains(x.Id)).Select(x => x.FirmId).Distinct().ToList();
             
-            var orderDtos =
+            var accountIds =
                 (from order in _query.For<OrderConsistency>().Where(x => orderIds.Contains(x.Id))
                  from account in _query.For<Account>().Where(x => x.LegalPersonId == order.LegalPersonId && x.BranchOfficeOrganizationUnitId == order.BranchOfficeOrganizationUnitId)
-                 select new { order.FirmId, AccountId = account.Id  })
+                 select account.Id)
                 .Distinct()
                 .ToList();
             
             return new IEvent[]
             {
                 new RelatedDataObjectOutdatedEvent(typeof(OrderWorkflow), typeof(Order), orderIds),
-                new RelatedDataObjectOutdatedEvent(typeof(OrderWorkflow), typeof(Account), orderDtos.Select(x => x.AccountId).ToHashSet()),
-                new RelatedDataObjectOutdatedEvent(typeof(OrderWorkflow), typeof(Firm), orderDtos.Select(x => x.FirmId).ToHashSet()),
+                new RelatedDataObjectOutdatedEvent(typeof(OrderWorkflow), typeof(Account), accountIds),
+                new RelatedDataObjectOutdatedEvent(typeof(OrderWorkflow), typeof(Firm), firmIds),
             };
         }
     }

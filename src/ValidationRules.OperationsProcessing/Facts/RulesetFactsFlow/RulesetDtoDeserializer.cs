@@ -136,7 +136,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
             businessModel switch
             {
                 "Russia" => "RU",
-                "Flamp" => "RU",
                 "Cyprus" => "CY",
                 "Czech" => "CZ",
                 "Ukraine" => "UA",

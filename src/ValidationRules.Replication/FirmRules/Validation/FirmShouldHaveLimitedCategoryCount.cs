@@ -41,7 +41,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                                  .Distinct()
                                  .Count()
                 where count > MaxCategoriesAlowedForFirm
-                select new { OrderId = order.Id, order.FirmId, period.Start, period.End, Count = count };
+                select new { OrderId = order.Id, period.FirmId, period.Start, period.End, Count = count };
 
             var messages =
                 from oversale in oversales

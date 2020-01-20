@@ -14,13 +14,11 @@ namespace NuClear.ValidationRules.Hosting.Common
     {
         private readonly IConsumer<Ignore, byte[]> _consumer;
         private readonly TimeSpan _pollTimeout;
-        private readonly string  _topic;
         private readonly ITracer _tracer;
 
         public KafkaMessageFlowReceiver(IKafkaMessageFlowReceiverSettings settings, ITracer tracer)
         {
             _pollTimeout = settings.PollTimeout;
-            _topic = settings.TopicPartitionOffset.Topic;
             _tracer = tracer;
             
             _consumer = CreateConsumer(settings, _tracer);
@@ -39,10 +37,6 @@ namespace NuClear.ValidationRules.Hosting.Common
                 // enable.auto.commit=true
                 EnableAutoOffsetStore = false,
                 
-                // do not retrieve topic name, headers, timestamps for each consumed message
-                // this will reduce memory allocation and increase performance
-                ConsumeResultFields = "none",
-
                 // не ждём, пока наберётся необходимый batchsize
                 // если дошли до конца partition, то возвращаем столько сколько можем
                 EnablePartitionEof = true
@@ -104,8 +98,6 @@ namespace NuClear.ValidationRules.Hosting.Common
             var result = batch.OrderByDescending(x => x.Offset.Value).FirstOrDefault();
             if (result != null)
             {
-                // set topic name explicitly since we dont consume it
-                result.Topic = _topic;
                 _consumer.StoreOffset(result);
                 _tracer.Info($"KafkaAudit - offset stored {result.TopicPartitionOffset}");
             }

@@ -40,7 +40,9 @@ namespace NuClear.ValidationRules.SingleCheck.Store
         public void Dispose()
         {
             // не коммитим транзакцию
+            //_connection.CommitTransaction();
             _connection.RollbackTransaction();
+            
             _connection.Dispose();
         }
 

@@ -6,7 +6,6 @@ namespace NuClear.ValidationRules.Storage.Model.Facts
     public sealed class OrderConsistency
     {
         public long Id { get; set; }
-        public long FirmId { get; set; }
         
         public DateTime SignupDate { get; set; }
         public long? LegalPersonId { get; set; }

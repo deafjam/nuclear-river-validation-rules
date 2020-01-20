@@ -31,9 +31,12 @@
         OrderRequiredFieldsShouldBeSpecified = 28,
         LinkedFirmAddressShouldBeValid = 29,
         LinkedCategoryFirmAddressShouldBeValid = 30,
+        
+        // TODO: свести три проверки в одну для более лучшей производительности
         LinkedCategoryShouldBelongToFirm = 32,
         LinkedCategoryAsteriskMayBelongToFirm = 33,
         LinkedCategoryShouldBeActive = 34,
+        
         LinkedFirmShouldBeValid = 35,
         BillsSumShouldMatchOrder = 36,
         BillsShouldBeCreated = 37,

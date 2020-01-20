@@ -12,6 +12,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
     /// <summary>
     /// Для заказов, при наличии нескольких позиций премиумной партнёрской рекламы (ЗМК-Premium подобные, FMCG) на один адрес, должна выводиться ошибка.
     /// "На адрес {0} фирмы {1} продано более одной кнопки в заголовок карточки в периоды: {2}"
+    /// Цель: не купить случайно два раза премиум на один и тот же адрес 
     /// </summary>
     public sealed class FirmAddressMustNotHaveMultiplePremiumPartnerAdvertisement : ValidationResultAccessorBase
     {
@@ -31,7 +32,15 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                 from sale in sales
                 from conflict in sales.Where(x => x.FirmAddressId == sale.FirmAddressId && x.OrderPositionId != sale.OrderPositionId)
                 where sale.Start < conflict.End && conflict.Start < sale.End && Scope.CanSee(sale.Scope, conflict.Scope)
-                select new { sale.OrderId, sale.FirmAddressId, sale.FirmId, Start = sale.Start < conflict.Start ? conflict.Start : sale.Start, End = sale.End < conflict.End ? sale.End : conflict.End };
+                select new
+                {
+                    sale.OrderId,
+                    sale.FirmAddressId,
+                    sale.FirmId,
+                    Start = sale.Start < conflict.Start ? conflict.Start : sale.Start,
+                    End = sale.End < conflict.End ? sale.End : conflict.End,
+                    ConflictOrderId = conflict.OrderId
+                };
 
             var messages =
                 from sale in multipleSales
@@ -41,6 +50,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                             new MessageParams(
                                     new Dictionary<string, object> { { "start", sale.Start }, { "end", sale.End } },
                                     new Reference<EntityTypeOrder>(sale.OrderId),
+                                    new Reference<EntityTypeOrder>(sale.ConflictOrderId),
                                     new Reference<EntityTypeFirm>(sale.FirmId),
                                     new Reference<EntityTypeFirmAddress>(sale.FirmAddressId))
                                 .ToXDocument(),

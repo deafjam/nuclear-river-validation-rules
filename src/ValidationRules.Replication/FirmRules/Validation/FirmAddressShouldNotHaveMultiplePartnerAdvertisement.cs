@@ -14,6 +14,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
     /// <summary>
     /// Для заказов, размещающих рекламу в карточке другой фирмы (исключая премиум), если для одного адреса есть более одной продажи, должно выводиться предупреждение.
     /// "На адрес {0} фирмы {1} продано более одной позиции 'Реклама в профилях партнёров' в периоды: {2}"
+    /// Цель: сообщить МПП, что его ЗМК-реклама будет не единственной в карточке адреса
     /// </summary>
     public sealed class FirmAddressShouldNotHaveMultiplePartnerAdvertisement : ValidationResultAccessorBase
     {
@@ -33,7 +34,7 @@ namespace NuClear.ValidationRules.Replication.FirmRules.Validation
                 from sale in sales
                 from conflict in sales.Where(x => x.FirmAddressId == sale.FirmAddressId && x.OrderPositionId != sale.OrderPositionId)
                 where sale.Start < conflict.End && conflict.Start < sale.End && Scope.CanSee(sale.Scope, conflict.Scope)
-                    && (!sale.IsPremium || !conflict.IsPremium) // Если обе премиум-позиции - то это уже ответственность другой проверки
+                    && !(sale.IsPremium && conflict.IsPremium) // Если обе премиум-позиции - то это уже ответственность другой проверки (71-ой)
                 select new { sale.OrderId, sale.FirmAddressId, sale.FirmId, Start = sale.Start < conflict.Start ? conflict.Start : sale.Start, End = sale.End < conflict.End ? sale.End : conflict.End };
 
             multipleSales =
