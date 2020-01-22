@@ -4,6 +4,6 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
 {
     public interface IMessageSeverityProvider
     {
-        RuleSeverityLevel GetLevel(Message message, ICheckModeDescriptor checkModeDescriptor);
+        RuleSeverityLevel GetSeverityLevel(CheckMode checkMode, Message message);
     }
 }

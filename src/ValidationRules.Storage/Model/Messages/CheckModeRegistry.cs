@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using NuClear.ValidationRules.Storage.Model.Messages;
-
-namespace NuClear.ValidationRules.Querying.Host.CheckModes
+namespace NuClear.ValidationRules.Storage.Model.Messages
 {
     // Если хочешь включить single-режим у проверки, то проверь загружены ли в ErmDataLoader все нужные данные
-    internal static class CheckModeRegistry
+    public static class CheckModeRegistry
     {
-        public static readonly IReadOnlyCollection<Tuple<MessageTypeCode, IReadOnlyDictionary<CheckMode, RuleSeverityLevel>>> Map =
+         private static readonly IReadOnlyCollection<Tuple<MessageTypeCode, IReadOnlyDictionary<CheckMode, RuleSeverityLevel>>> Map =
             new[]
                 {
                     Rule(MessageTypeCode.AccountBalanceShouldBePositive,
@@ -317,6 +315,36 @@ namespace NuClear.ValidationRules.Querying.Host.CheckModes
                          prerelease: RuleSeverityLevel.Error,
                          release: RuleSeverityLevel.Error)
                 };
+
+        private static readonly IReadOnlyDictionary<CheckMode, Dictionary<MessageTypeCode, RuleSeverityLevel>> CheckModes =
+             Map.SelectMany(x => x.Item2.Select(y => new { MessageTypeCode = x.Item1, CheckMode = y.Key, RuleSeverityLevel = y.Value }))
+                  .GroupBy(x => x.CheckMode)
+                  .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.MessageTypeCode, y => y.RuleSeverityLevel));
+
+        public static IReadOnlyCollection<MessageTypeCode> GetMessageTypes(CheckMode checkMode)
+        { 
+             if (!CheckModes.TryGetValue(checkMode, out var checkModeRules))
+             {
+                  throw new ArgumentException($"Check mode {checkMode} nas no rules", nameof(checkModeRules));
+             }
+
+             return checkModeRules.Keys;
+        }
+        
+        public static RuleSeverityLevel GetSeverityLevel(CheckMode checkMode, MessageTypeCode messageTypeCode)
+        {
+             if (!CheckModes.TryGetValue(checkMode, out var checkModeRules))
+             {
+                  throw new ArgumentException($"Check mode {checkMode} nas no rules", nameof(checkModeRules));
+             }
+
+             if (!checkModeRules.TryGetValue(messageTypeCode, out var ruleSeverityLevel))
+             {
+                  throw new ArgumentException($"Message type {messageTypeCode} nas no severity levels", nameof(ruleSeverityLevel));
+             }
+            
+             return ruleSeverityLevel;
+        }
 
         private static Tuple<MessageTypeCode, IReadOnlyDictionary<CheckMode, RuleSeverityLevel>> Rule(
             MessageTypeCode rule,

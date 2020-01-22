@@ -61,8 +61,6 @@
     <Compile Include="App_Start\Int64ToStringConverter.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="CheckModes\CheckModeDescriptorFactory.cs" />
-    <Compile Include="CheckModes\CheckModeRegistry.cs" />
     <Compile Include="Composition\FirmRules\AtLeastOneLinkedPartnerFirmAddressShouldBeValidMessageComposer.cs" />
     <Compile Include="Composition\FirmRules\FirmAddressMustBeLocatedOnTheMapMessageComposer.cs" />
     <Compile Include="Composition\FirmRules\LinkedCategoryAsteriskMayBelongToFirmMessageComposer.cs" />

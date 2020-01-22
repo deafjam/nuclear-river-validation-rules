@@ -36,15 +36,15 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
             _distinctors = distinctors.ToDictionary(x => x.MessageType);
         }
 
-        public IReadOnlyCollection<ValidationResult> GetValidationResult(IReadOnlyCollection<Version.ValidationResult> validationResults, ICheckModeDescriptor checkModeDescriptor)
+        public IReadOnlyCollection<ValidationResult> GetValidationResult(CheckMode checkMode, IReadOnlyCollection<Version.ValidationResult> validationResults)
         {
             var messages = validationResults.Select(ToMessage).ToList();
             var resolvedNames = _nameResolvingService.Resolve(messages);
-            var result = MakeDistinct(messages).Select(x => Compose(x, resolvedNames, checkModeDescriptor)).ToList();
+            var result = MakeDistinct(messages).Select(x => Compose(checkMode, x, resolvedNames)).ToList();
             return result;
         }
 
-        private ValidationResult Compose(Message message, ResolvedNameContainer resolvedNames, ICheckModeDescriptor checkModeDescriptor)
+        private ValidationResult Compose(CheckMode checkMode, Message message, ResolvedNameContainer resolvedNames)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                         MainReference = ConvertReference(composerResult.MainReference),
                         References = composerResult.References.Select(ConvertReference).ToList(),
                         Template = composerResult.Template,
-                        Result = _messageSeverityProvider.GetLevel(message, checkModeDescriptor),
+                        Result = _messageSeverityProvider.GetSeverityLevel(checkMode, message),
                         Rule = message.MessageType
                     };
             }

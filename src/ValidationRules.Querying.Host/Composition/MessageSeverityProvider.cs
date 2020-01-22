@@ -1,12 +1,11 @@
-﻿using System;
-using NuClear.ValidationRules.Storage.Model.Messages;
+﻿using NuClear.ValidationRules.Storage.Model.Messages;
 
 namespace NuClear.ValidationRules.Querying.Host.Composition
 {
     // TODO: отрефакторить IMessageSeverityProvider и ICheckModeDescriptor, постараться свести всё к одному
     public sealed class MessageSeverityProvider : IMessageSeverityProvider
     {
-        public RuleSeverityLevel GetLevel(Message message, ICheckModeDescriptor checkModeDescriptor)
+        public RuleSeverityLevel GetSeverityLevel(CheckMode checkMode, Message message)
         {
             switch (message.MessageType)
             {
@@ -19,12 +18,13 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                     var isBranchOfficeOrganizationUnit = bool.Parse(message.Extra["branchOfficeOrganizationUnit"]);
                     var isLegalPerson = bool.Parse(message.Extra["legalPerson"]);
 
-                    if (checkModeDescriptor.CheckMode != CheckMode.Single && !isCurrency
-                        && !isBranchOfficeOrganizationUnit && !isLegalPerson && isLegalPersonProfile)
+                    if (checkMode != CheckMode.Single && !isCurrency
+                                                      && !isBranchOfficeOrganizationUnit && !isLegalPerson && isLegalPersonProfile)
                     {
                         return RuleSeverityLevel.Warning;
                     }
                     break;
+                
                 case MessageTypeCode.LinkedFirmAddressShouldBeValid:
                     var isPartnerAddress = bool.Parse(message.Extra["isPartnerAddress"]);
                     if (isPartnerAddress)
@@ -32,6 +32,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                         return RuleSeverityLevel.Warning;
                     }
                     break;
+                
                 case MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions:
                     var isSameAddress = bool.Parse(message.Extra["isSameAddress"]);
                     if (isSameAddress)
@@ -41,17 +42,7 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                     break;
             }
 
-            return GetConfiguredLevel(message, checkModeDescriptor);
-        }
-
-        private static RuleSeverityLevel GetConfiguredLevel(Message message, ICheckModeDescriptor checkModeDescriptor)
-        {
-            if (!checkModeDescriptor.Rules.TryGetValue(message.MessageType, out var level))
-            {
-                throw new ArgumentException($"Could not find level for message '{message.MessageType}'");
-            }
-
-            return level;
+            return CheckModeRegistry.GetSeverityLevel(checkMode, message.MessageType);
         }
     }
 }

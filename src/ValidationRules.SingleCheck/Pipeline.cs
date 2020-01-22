@@ -39,7 +39,7 @@ namespace NuClear.ValidationRules.SingleCheck
             _strategy = new OverOptimizedPipelineStrategy(); // new OptimizedPipelineStrategy();
         }
 
-        public IReadOnlyCollection<Version.ValidationResult> Execute(long orderId, ICheckModeDescriptor checkModeDescriptor)
+        public IReadOnlyCollection<Version.ValidationResult> Execute(CheckMode checkMode, long orderId)
         {
             // todo: можно использовать checkModeDescriptor для дальнейшей оптимизации
             var optimization = new Optimizer();
@@ -54,12 +54,15 @@ namespace NuClear.ValidationRules.SingleCheck
                 IReadOnlyCollection<Replicator> aggregateReplicators;
                 IReadOnlyCollection<Replicator> messageReplicators;
 
+                var messageTypes = CheckModeRegistry.GetMessageTypes(checkMode);
+                
                 using (Probe.Create("Initialization"))
                 {
                     factReplicators = CreateReplicators(_factAccessorTypes, erm.CreateQuery(), Wrap(store.CreateStore()));
                     aggregateReplicators = CreateReplicators(_aggregateAccessorTypes, store.CreateQuery(), Wrap(store.CreateStore()));
+
                     messageReplicators = CreateReplicators(_messageAccessorTypes, store.CreateQuery(), Wrap(messages.CreateStore()))
-                        .Where(x => x.DataObjectType == typeof(Version.ValidationResult) && checkModeDescriptor.Rules.ContainsKey(x.Rule)).ToList();
+                        .Where(x => x.DataObjectType == typeof(Version.ValidationResult) && messageTypes.Contains(x.Rule)).ToList();
 
                     var predicates = factReplicators.Concat(aggregateReplicators).Concat(messageReplicators).SelectMany(x => x.DependencyPredicates);
                     optimization.PrepareToUse(predicates.ToHashSet());
@@ -87,12 +90,12 @@ namespace NuClear.ValidationRules.SingleCheck
                     _strategy.ProcessMessages(messageReplicators, optimization);
                 }
 
-                var validationPeriodStart = GetValidationPeriodStart(erm.CreateQuery(), orderId, checkModeDescriptor);
+                var validationPeriodStart = GetValidationPeriodStart(erm.CreateQuery(), orderId, checkMode);
                 using (Probe.Create("Query result"))
                 {
                     return messages.CreateQuery()
                                    .For<Version.ValidationResult>()
-                                   .Where(x => x.OrderId == orderId && checkModeDescriptor.Rules.Keys.Contains((MessageTypeCode)x.MessageType) && x.PeriodEnd >= validationPeriodStart)
+                                   .Where(x => x.OrderId == orderId && messageTypes.Contains((MessageTypeCode)x.MessageType) && x.PeriodEnd >= validationPeriodStart)
                                    .ToList();
                 }
             }
@@ -107,10 +110,21 @@ namespace NuClear.ValidationRules.SingleCheck
             }
         }
 
-        private static DateTime GetValidationPeriodStart(IQuery query, long orderId, ICheckModeDescriptor checkModeDescriptor)
+        // Костыль для проверки заказа "на расторжении" только в той его части, которая ещё не размещалась
+        // https://github.com/2gis/nuclear-river-validation-rules/issues/193
+        private static DateTime GetValidationPeriodStart(IQuery query, long orderId, CheckMode checkMode)
         {
+            const int OrderStateOnTermination = 4;
+            
             var order  = query.For<Order>().Single(x => x.Id == orderId);
-            return checkModeDescriptor.GetValidationPeriodStart(order);
+            
+            if (checkMode == CheckMode.SingleForApprove && order.WorkflowStepId == OrderStateOnTermination)
+            {
+                return order.AgileDistributionEndFactDate.AddSeconds(1);
+            }
+
+            return order.AgileDistributionStartDate;
+
         }
 
         private static IReadOnlyCollection<Replicator> CreateReplicators(IReadOnlyCollection<Type> accessorTypes, IQuery source, IStore target)
