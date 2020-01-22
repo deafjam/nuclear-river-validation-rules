@@ -3,6 +3,7 @@ using NuClear.ValidationRules.Storage.Model.Messages;
 
 namespace NuClear.ValidationRules.Querying.Host.Composition
 {
+    // TODO: отрефакторить IMessageSeverityProvider и ICheckModeDescriptor, постараться свести всё к одному
     public sealed class MessageSeverityProvider : IMessageSeverityProvider
     {
         public RuleSeverityLevel GetLevel(Message message, ICheckModeDescriptor checkModeDescriptor)
@@ -31,12 +32,19 @@ namespace NuClear.ValidationRules.Querying.Host.Composition
                         return RuleSeverityLevel.Warning;
                     }
                     break;
+                case MessageTypeCode.PoiAmountForEntranceShouldMeetMaximumRestrictions:
+                    var isSameAddress = bool.Parse(message.Extra["isSameAddress"]);
+                    if (isSameAddress)
+                    {
+                        return RuleSeverityLevel.Error;
+                    }
+                    break;
             }
 
             return GetConfiguredLevel(message, checkModeDescriptor);
         }
 
-        private RuleSeverityLevel GetConfiguredLevel(Message message, ICheckModeDescriptor checkModeDescriptor)
+        private static RuleSeverityLevel GetConfiguredLevel(Message message, ICheckModeDescriptor checkModeDescriptor)
         {
             if (!checkModeDescriptor.Rules.TryGetValue(message.MessageType, out var level))
             {

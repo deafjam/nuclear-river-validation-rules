@@ -14,14 +14,14 @@ namespace NuClear.ValidationRules.Querying.Host.Controllers
     public class ManualWithAccountController : ApiController
     {
         private readonly VersioningService _versioningService;
-        private readonly ValidationResultRepositiory _repositiory;
+        private readonly ValidationResultRepositiory _repository;
         private readonly ValidationResultFactory _factory;
         private readonly ICheckModeDescriptor _checkModeDescriptor;
 
-        public ManualWithAccountController(VersioningService versioningService, ValidationResultRepositiory repositiory, ValidationResultFactory factory, CheckModeDescriptorFactory descriptorFactory)
+        public ManualWithAccountController(VersioningService versioningService, ValidationResultRepositiory repository, ValidationResultFactory factory, CheckModeDescriptorFactory descriptorFactory)
         {
             _versioningService = versioningService;
-            _repositiory = repositiory;
+            _repository = repository;
             _factory = factory;
             _checkModeDescriptor = descriptorFactory.GetDescriptorFor(CheckMode.ManualWithAccount);
         }
@@ -31,7 +31,7 @@ namespace NuClear.ValidationRules.Querying.Host.Controllers
         {
             var versionId = await _versioningService.WaitForVersion(stateToken);
 
-            var validationResults = _repositiory.GetResults(versionId, request.OrderIds, request.ProjectId, request.ReleaseDate, request.ReleaseDate.AddMonths(1), _checkModeDescriptor);
+            var validationResults = _repository.GetResults(versionId, request.OrderIds, request.ProjectId, request.ReleaseDate, request.ReleaseDate.AddMonths(1), _checkModeDescriptor);
             var result = _factory.GetValidationResult(validationResults, _checkModeDescriptor);
             return Ok(result);
         }
@@ -40,7 +40,7 @@ namespace NuClear.ValidationRules.Querying.Host.Controllers
         public IHttpActionResult Post([FromBody]ApiRequest request)
         {
             var versionId = _versioningService.GetLatestVersion();
-            var validationResults = _repositiory.GetResults(versionId, request.OrderIds, request.ProjectId, request.ReleaseDate, request.ReleaseDate.AddMonths(1), _checkModeDescriptor);
+            var validationResults = _repository.GetResults(versionId, request.OrderIds, request.ProjectId, request.ReleaseDate, request.ReleaseDate.AddMonths(1), _checkModeDescriptor);
             var result = _factory.GetValidationResult(validationResults, _checkModeDescriptor);
             return Ok(result);
         }
