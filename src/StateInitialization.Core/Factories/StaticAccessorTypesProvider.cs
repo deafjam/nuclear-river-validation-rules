@@ -39,9 +39,6 @@ namespace NuClear.StateInitialization.Core.Factories
                 interfaceType.GetGenericTypeDefinition() == typeof(IMemoryBasedDataObjectAccessor<>));
 
         public IReadOnlyCollection<Type> GetAccessorsFor(Type dataObjectType)
-        {
-            Type[] result;
-            return AccessorTypes.Value.TryGetValue(dataObjectType, out result) ? result : Array.Empty<Type>();
-        }
+            => AccessorTypes.Value.TryGetValue(dataObjectType, out var result) ? result : Array.Empty<Type>();
     }
 }

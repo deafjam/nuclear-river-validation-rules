@@ -11,7 +11,6 @@ using NuClear.Replication.Core;
 using NuClear.Replication.Core.Actors;
 using NuClear.Replication.Core.DataObjects;
 using NuClear.StateInitialization.Core.Commands;
-using NuClear.StateInitialization.Core.Storage;
 
 namespace NuClear.StateInitialization.Core.Actors
 {
@@ -21,7 +20,9 @@ namespace NuClear.StateInitialization.Core.Actors
         private readonly IStorageBasedDataObjectAccessor<TDataObject> _dataObjectAccessor;
         private readonly DataConnection _targetDataConnection;
 
-        public BulkInsertDataObjectsActor(IStorageBasedDataObjectAccessor<TDataObject> dataObjectAccessor, DataConnection targetDataConnection)
+        public BulkInsertDataObjectsActor(
+            IStorageBasedDataObjectAccessor<TDataObject> dataObjectAccessor,
+            DataConnection targetDataConnection)
         {
             _dataObjectAccessor = dataObjectAccessor;
             _targetDataConnection = targetDataConnection;
@@ -32,23 +33,24 @@ namespace NuClear.StateInitialization.Core.Actors
             var command = commands.OfType<BulkInsertDataObjectsCommand>().SingleOrDefault();
             if (command != null)
             {
-                ExecuteBulkCopy((int)command.BulkCopyTimeout.TotalSeconds, command.TargetTable);
+                ExecuteBulkCopy((int)command.BulkCopyTimeout.TotalSeconds);
             }
 
             return Array.Empty<IEvent>();
         }
-
-        private void ExecuteBulkCopy(int timeout, TableName targetTableName)
+        
+        private void ExecuteBulkCopy(int timeout)
         {
             var source = _dataObjectAccessor.GetSource();
 
-            var target = targetTableName != null
-                            ? _targetDataConnection.GetTable<TDataObject>().TableName(targetTableName.Table)
-                            : _targetDataConnection.GetTable<TDataObject>();
+            var target = _targetDataConnection.GetTable<TDataObject>();
+            var temp = _targetDataConnection.CreateTable<TDataObject>($"#{Guid.NewGuid():N}");
+
             try
             {
                 var options = new BulkCopyOptions { BulkCopyTimeout = timeout };
-                target.BulkCopy(options, source);
+                temp.BulkCopy(options, source);
+                temp.Where(x => !target.Contains(x)).Insert(target, x => x);
             }
             catch (Exception ex)
             {

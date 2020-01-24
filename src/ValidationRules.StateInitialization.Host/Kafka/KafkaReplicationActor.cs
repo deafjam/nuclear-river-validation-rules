@@ -13,7 +13,6 @@ using NuClear.Messaging.API.Flows;
 using NuClear.Messaging.Transports.Kafka;
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.Actors;
-using NuClear.Replication.Core.DataObjects;
 using NuClear.StateInitialization.Core;
 using NuClear.StateInitialization.Core.Commands;
 using NuClear.StateInitialization.Core.Factories;
@@ -30,7 +29,6 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
     internal sealed class KafkaReplicationActor : IActor
     {
         private readonly IConnectionStringSettings _connectionStringSettings;
-        private readonly IDataObjectTypesProvider _dataObjectTypesProvider;
         private readonly IKafkaMessageFlowReceiverFactory _receiverFactory;
         private readonly KafkaMessageFlowInfoProvider _kafkaMessageFlowInfoProvider;
         private readonly IReadOnlyCollection<IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>> _commandFactories;
@@ -40,14 +38,12 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
 
         public KafkaReplicationActor(
             IConnectionStringSettings connectionStringSettings,
-            IDataObjectTypesProvider dataObjectTypesProvider,
             IKafkaMessageFlowReceiverFactory kafkaMessageFlowReceiverFactory,
             KafkaMessageFlowInfoProvider kafkaMessageFlowInfoProvider,
             IReadOnlyCollection<IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>> commandFactories,
             ITracer tracer)
         {
             _connectionStringSettings = connectionStringSettings;
-            _dataObjectTypesProvider = dataObjectTypesProvider;
             _receiverFactory = kafkaMessageFlowReceiverFactory;
             _kafkaMessageFlowInfoProvider = kafkaMessageFlowInfoProvider;
             _commandFactories = commandFactories;
@@ -58,7 +54,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host.Kafka
         {
             foreach (var kafkaCommand in commands.OfType<KafkaReplicationCommand>())
             {
-                var dataObjectTypes = _dataObjectTypesProvider.Get(kafkaCommand);
+                var dataObjectTypes = kafkaCommand.ReplicateInBulkCommand.TypesToReplicate;
 
                 using var targetConnection = CreateDataConnection(kafkaCommand.ReplicateInBulkCommand.TargetStorageDescriptor);
                 

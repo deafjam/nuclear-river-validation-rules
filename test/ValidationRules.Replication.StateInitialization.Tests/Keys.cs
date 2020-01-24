@@ -1,4 +1,6 @@
-﻿using NuClear.StateInitialization.Core.Commands;
+﻿using System;
+
+using NuClear.StateInitialization.Core.Commands;
 using NuClear.StateInitialization.Core.Storage;
 using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
 using NuClear.ValidationRules.Storage;
@@ -13,7 +15,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
     public sealed class Facts : IKey
     {
         public ReplicateInBulkCommand Command =>
-            new ReplicateInBulkCommand(new StorageDescriptor(ErmConnectionStringIdentity.Instance, Schema.Erm),
+            new ReplicateInBulkCommand(
+                Array.Empty<Type>(), // todo: DataObjectTypesProvider
+                new StorageDescriptor(ErmConnectionStringIdentity.Instance, Schema.Erm),
                                        new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
                                        DbManagementMode.None);
     }
@@ -21,7 +25,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
     public sealed class Aggregates : IKey
     {
         public ReplicateInBulkCommand Command =>
-            new ReplicateInBulkCommand(new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
+            new ReplicateInBulkCommand(
+                Array.Empty<Type>(), // todo: DataObjectTypesProvider
+                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
                                        new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Aggregates),
                                        DbManagementMode.None);
     }
@@ -29,7 +35,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
     public sealed class Messages : IKey
     {
         public ReplicateInBulkCommand Command =>
-            new ReplicateInBulkCommand(new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Aggregates),
+            new ReplicateInBulkCommand(
+                Array.Empty<Type>(), // todo: DataObjectTypesProvider
+                new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Aggregates),
                                        new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Messages),
                                        DbManagementMode.None);
     }
