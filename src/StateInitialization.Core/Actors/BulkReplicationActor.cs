@@ -117,7 +117,7 @@ namespace NuClear.StateInitialization.Core.Actors
 
         private static IReadOnlyCollection<ICommand> CreateReplicationCommands(
             TableName table,
-            TimeSpan bulkCopyTimeout, 
+            TimeSpan bulkCopyTimeout,
             DbManagementMode mode,
             Tenant? tenant)
         {
@@ -187,7 +187,7 @@ namespace NuClear.StateInitialization.Core.Actors
         private void Replicate(ReplicateInBulkCommand command, TableName tableName, IReadOnlyCollection<Type> types)
         {
             using var targetConnection = CreateDataConnection(command.TargetStorageDescriptor);
-            using var sourceConnection = CreateSourceQuery(command.SourceStorageDescriptor);
+            using var sourceConnection = CreateSourceDataConnection(command.SourceStorageDescriptor);
 
             try
             {
@@ -227,7 +227,7 @@ namespace NuClear.StateInitialization.Core.Actors
             }
         }
 
-        private DataConnection CreateSourceQuery(StorageDescriptor storageDescriptor)
+        private DataConnection CreateSourceDataConnection(StorageDescriptor storageDescriptor)
         {
             var connectionString = storageDescriptor.Tenant.HasValue
                 ? _connectionStringSettings.GetConnectionString(
