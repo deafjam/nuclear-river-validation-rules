@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Confluent.Kafka;
-using NuClear.ValidationRules.Hosting.Common.Settings;
 using NuClear.ValidationRules.Replication.Dto;
 
 using Optional;
@@ -14,14 +12,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 {
     public sealed class RulesetDtoDeserializer : IDeserializer<ConsumeResult<Ignore, byte[]>, RulesetDto>
     {
-        private readonly string _targetBusinessModelAlias;
-        private static readonly Regex ExtractBusinessModelSuffixRegex = new Regex(@"(?:.+\.)+(?<suffix>\w+)", RegexOptions.Compiled);
-
-        public RulesetDtoDeserializer(IBusinessModelSettings businessModelSettings)
-        {
-            _targetBusinessModelAlias = Convert2SourceCode(businessModelSettings.BusinessModel);
-        }
-
         public IEnumerable<RulesetDto> Deserialize(IEnumerable<ConsumeResult<Ignore, byte[]>> consumeResults) =>
             consumeResults
                 // filter heartbeat & tombstone messages
@@ -30,33 +20,9 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                 {
                     var rawXmlRulesetMessage = Encoding.UTF8.GetString(x.Value);
                     var xmlRulesetMessage = XElement.Parse(rawXmlRulesetMessage);
-
-                    var sourceBusinessModel = xmlRulesetMessage.Attribute("SourceCode")
-                        .SomeNotNull()
-                        .Map(a => a.Value)
-                        .FlatMap(ExtractBusinessModelSuffix)
-                        .ValueOr(() => throw new InvalidOperationException("Required attribute \"SourceCode\" was not found"));
-                    if (!string.Equals(sourceBusinessModel, _targetBusinessModelAlias, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        // сообщение предназначено для другой businessmodel
-                        return (RulesetDto) null;
-                    }
-
-                    return ConvertToRulesetDto(xmlRulesetMessage);                    
+                    return ConvertToRulesetDto(xmlRulesetMessage);
                 })
                 .Where(x => x != null);
-
-        private Option<string> ExtractBusinessModelSuffix(string rawValue)
-        {
-            if (rawValue == null)
-            {
-                throw new ArgumentNullException(nameof(rawValue));
-            }
-
-            return ExtractBusinessModelSuffixRegex.Match(rawValue)
-                                                  .SomeWhen(match => match.Success)
-                                                  .Map(match => match.Groups["suffix"].Value);
-        }
 
         private static RulesetDto ConvertToRulesetDto(XElement rulesetXml)
         {
@@ -130,21 +96,6 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                 "NoDependency" => 2,
                 "Different" => 3,
                 _ => throw new ArgumentOutOfRangeException(nameof(rawValue), rawValue)
-            };
-
-        private static string Convert2SourceCode(string businessModel) =>
-            businessModel switch
-            {
-                "Russia" => "RU",
-                "Cyprus" => "CY",
-                "Czech" => "CZ",
-                "Ukraine" => "UA",
-                "Emirates" => "AE",
-                "Kazakhstan" => "KZ",
-                "Kyrgyzstan" => "KG",
-                "Uzbekistan" => "UZ",
-                "Azerbaijan" => "AZ",
-                _ => throw new ArgumentOutOfRangeException()
             };
     }
 }

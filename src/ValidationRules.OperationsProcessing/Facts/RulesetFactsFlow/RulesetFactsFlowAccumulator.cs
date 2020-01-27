@@ -11,15 +11,15 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
     {
         private readonly ICommandFactory<KafkaMessage> _commandFactory;
 
-        public RulesetFactsFlowAccumulator(IBusinessModelSettings businessModelSettings)
+        public RulesetFactsFlowAccumulator()
         {
-            _commandFactory = new RulesetFactsCommandFactory(businessModelSettings);
+            _commandFactory = new RulesetFactsCommandFactory();
         }
 
         protected override AggregatableMessage<ICommand> Process(KafkaMessage kafkaMessage)
         {
             var commands = _commandFactory.CreateCommands(kafkaMessage).ToList();
-            
+
             return new AggregatableMessage<ICommand>
             {
                 TargetFlow = MessageFlow,

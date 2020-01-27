@@ -1,4 +1,4 @@
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
 using NuClear.Assembling.TypeProcessing;
 using NuClear.Messaging.API.Flows;
 using NuClear.Replication.Core;
@@ -9,7 +9,6 @@ using NuClear.Tracing.Environment;
 using NuClear.Tracing.Log4Net.Config;
 using NuClear.ValidationRules.Hosting.Common;
 using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
-using NuClear.ValidationRules.Hosting.Common.Settings;
 using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
@@ -21,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NuClear.StateInitialization.Core.Storage;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
@@ -31,7 +31,8 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
         public static void Main(string[] args)
         {
-            StateInitializationRoot.Instance.PerformTypesMassProcessing(Array.Empty<IMassProcessor>(), true, typeof(object));
+            StateInitializationRoot.Instance.PerformTypesMassProcessing(Array.Empty<IMassProcessor>(), true,
+                typeof(object));
 
             var commands = new List<ICommand>();
 
@@ -59,10 +60,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 commands.Add(SchemaInitializationCommands.Messages);
             }
 
-            var connectionStringSettings = new TenantConnectionStringSettings();
             var environmentSettings = new EnvironmentSettingsAspect();
-            var businessModelSettings = new BusinessModelSettingsAspect();
-
             var tracer = CreateTracer(environmentSettings);
 
             var kafkaSettingsFactory = new KafkaSettingsFactory(new Dictionary<IMessageFlow, string>
@@ -78,7 +76,8 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 },
                 environmentSettings);
 
-            var kafkaMessageFlowReceiverFactory = new StateInitKafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
+            var kafkaMessageFlowReceiverFactory =
+                new StateInitKafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
 
             var bulkReplicationActor = new BulkReplicationActor(ConnectionStringSettings);
             var kafkaReplicationActor = new KafkaReplicationActor(ConnectionStringSettings,
@@ -87,7 +86,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 new IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>[]
                 {
                     new AmsFactsBulkCommandFactory(),
-                    new RulesetFactsBulkCommandFactory(businessModelSettings)
+                    new RulesetFactsBulkCommandFactory()
                 },
                 tracer);
 
@@ -95,9 +94,11 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             var sw = Stopwatch.StartNew();
             schemaInitializationActor.ExecuteCommands(commands);
-            bulkReplicationActor.ExecuteCommands(commands.Where(x => BulkReplicationCommands.ErmToFacts.Contains(x)).ToList());
+            bulkReplicationActor.ExecuteCommands(commands.Where(x => BulkReplicationCommands.ErmToFacts.Contains(x))
+                .ToList());
             kafkaReplicationActor.ExecuteCommands(commands);
-            bulkReplicationActor.ExecuteCommands(commands.Where(x => !BulkReplicationCommands.ErmToFacts.Contains(x)).ToList());
+            bulkReplicationActor.ExecuteCommands(commands.Where(x => !BulkReplicationCommands.ErmToFacts.Contains(x))
+                .ToList());
 
             var webAppSchemaHelper = new WebAppSchemaInitializationHelper(ConnectionStringSettings);
             if (args.Contains("-webapp"))
