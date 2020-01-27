@@ -13,6 +13,7 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
     /// При превышении допустимого количества POI на один вход должна выводиться ошибка:
     /// "Превышено допустимое количество POI на вход: {0}. Месяц: {1}. Адрес: {2}. Вход: {3}. Конфликтующие заказы: {4}"
     /// </summary>
+    // проверка должна быть Error если совпадает не только EntranceCode, но и FirmAddressId, для этого мы пробрасываем параметр isSameAddress
     public class PoiAmountForEntranceShouldMeetMaximumRestrictions : ValidationResultAccessorBase
     {
         private const int MaxSalesOnEntrance = 1;
@@ -55,7 +56,8 @@ namespace NuClear.ValidationRules.Replication.PriceRules.Validation
                                                       { "start", period.Start },
                                                       { "end", period.End },
                                                       { "maxCount", MaxSalesOnEntrance },
-                                                      { "entranceCode", period.EntranceCode }
+                                                      { "entranceCode", period.EntranceCode },
+                                                      { "isSameAddress", period.FirmAddressId == conflictPeriod.FirmAddressId },
                                                   },
                                               new Reference<EntityTypeOrder>(conflictPeriod.OrderId),
                                               new Reference<EntityTypeFirmAddress>(period.FirmAddressId))

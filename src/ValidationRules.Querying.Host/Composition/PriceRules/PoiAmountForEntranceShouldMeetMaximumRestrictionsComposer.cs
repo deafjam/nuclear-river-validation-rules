@@ -43,7 +43,8 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
                                             x.OrderId,
                                             FirmAddressId = x.References.Get<EntityTypeFirmAddress>().Id,
                                             MaxCount = x.Extra["maxCount"],
-                                            EntranceCode = x.Extra["entranceCode"]
+                                            EntranceCode = x.Extra["entranceCode"],
+                                            IsSameAddress = x.Extra["isSameAddress"]
                                         })
                            .Select(x => new Message
                                {
@@ -52,7 +53,8 @@ namespace NuClear.ValidationRules.Querying.Host.Composition.PriceRules
                                    Extra = x.UnionPeriod(new Dictionary<string, string>
                                    {
                                        ["maxCount"] = x.Key.MaxCount,
-                                       ["entranceCode"] = x.Key.EntranceCode
+                                       ["entranceCode"] = x.Key.EntranceCode,
+                                       ["isSameAddress"] = x.Key.IsSameAddress
                                    }),
                                    References = new[] { new Reference<EntityTypeOrder>(x.Key.OrderId.Value) }.Concat(x.SelectMany(y => y.References)).ToHashSet(Reference.Comparer)
                                });
