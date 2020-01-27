@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NuClear.Replication.Core;
-using NuClear.Replication.Core.DataObjects;
-using NuClear.StateInitialization.Core.Commands;
-using NuClear.ValidationRules.StateInitialization.Host.Kafka;
 using Facts = NuClear.ValidationRules.Storage.Model.Facts;
-
 using AccountAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.AccountRules;
 using AdvertisementAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.AdvertisementRules;
 using ThemeAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ThemeRules;
@@ -15,16 +10,13 @@ using FirmAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.FirmRule
 using PriceAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.PriceRules;
 using ProjectAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using SystemAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.SystemRules;
-
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
-    public sealed class DataObjectTypesProvider : IDataObjectTypesProvider
+    public static class DataObjectTypesProvider
     {
-        public static IReadOnlyCollection<Type> AllSourcesFactTypes => ErmFactTypes.Concat(AmsFactTypes).Concat(RulesetFactTypes).ToHashSet();
-
-        private static readonly Type[] ErmFactTypes =
+        public static readonly Type[] ErmFactTypes =
             {
                 typeof(Facts::Account),
                 typeof(Facts::AccountDetail),
@@ -160,7 +152,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             };
 
 
-        private static readonly Type[] MessagesTypes =
+        public static readonly Type[] MessagesTypes =
             {
                 typeof(Messages::Version),
                 typeof(Messages::Version.ValidationResult),
@@ -168,60 +160,15 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(Messages::Cache.ValidationResult),
             };
 
-        private static readonly Type[] ErmMessagesTypes =
-        {
-            typeof(Messages::Version.ErmState),
-        };
-
-        public static readonly IReadOnlyCollection<Type> AllMessagesTypes = MessagesTypes.Concat(ErmMessagesTypes).ToList();
-
-        public IReadOnlyCollection<Type> Get(ICommand command)
-        {
-            switch (command)
+        public static readonly Type[] ErmMessagesTypes =
             {
-                case ReplicateInBulkCommand replicateInBulkCommand:
-                {
-                    if (replicateInBulkCommand.SourceStorageDescriptor.MappingSchema == Storage.Schema.Erm &&
-                        replicateInBulkCommand.TargetStorageDescriptor.MappingSchema == Storage.Schema.Facts)
-                    {
-                        return ErmFactTypes;
-                    }
-                    if (replicateInBulkCommand.SourceStorageDescriptor.MappingSchema == Storage.Schema.Facts &&
-                        replicateInBulkCommand.TargetStorageDescriptor.MappingSchema == Storage.Schema.Aggregates)
-                    {
-                        return AggregateTypes;
-                    }
-                    if (replicateInBulkCommand.SourceStorageDescriptor.MappingSchema == Storage.Schema.Aggregates &&
-                        replicateInBulkCommand.TargetStorageDescriptor.MappingSchema == Storage.Schema.Messages)
-                    {
-                        return MessagesTypes;
-                    }
-                    if (replicateInBulkCommand.SourceStorageDescriptor.MappingSchema == Storage.Schema.Erm &&
-                        replicateInBulkCommand.TargetStorageDescriptor.MappingSchema == Storage.Schema.Messages)
-                    {
-                        return ErmMessagesTypes;
-                    }
+                typeof(Messages::Version.ErmState),
+            };
 
-                    break;
-                }
+        public static IReadOnlyCollection<Type> AllFactTypes =
+            ErmFactTypes.Concat(AmsFactTypes).Concat(RulesetFactTypes).Distinct().ToList();
 
-                case KafkaReplicationCommand kafkaReplicationCommand:
-                {
-                    if (kafkaReplicationCommand.ReplicateInBulkCommand == BulkReplicationCommands.AmsToFacts)
-                    {
-                        return AmsFactTypes;
-                    }
-
-                    if (kafkaReplicationCommand.ReplicateInBulkCommand == BulkReplicationCommands.RulesetsToFacts)
-                    {
-                        return RulesetFactTypes;
-                    }
-
-                    break;
-                }
-            }
-
-            throw new ArgumentException("Data object types cannot be created");
-        }
+        public static readonly IReadOnlyCollection<Type> AllMessagesTypes =
+            MessagesTypes.Concat(ErmMessagesTypes).Distinct().ToList();
     }
 }
