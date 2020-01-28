@@ -1,4 +1,4 @@
-﻿using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity;
 using NuClear.Assembling.TypeProcessing;
 using NuClear.DataTest.Engine;
 using NuClear.DataTest.Engine.Command;
@@ -40,6 +40,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
             _container.RegisterType<ITenantConnectionStringSettings, RunnerConnectionStringSettings>()
                       .RegisterType<IConnectionStringSettings, RunnerConnectionStringSettings>()
+                      .RegisterType<ConnectionStringSettingsAspect, RunnerConnectionStringSettings>()
                       .RegisterType<DataConnectionFactory>()
                       .RegisterInstance<IMetadataProvider>(_metadataProvider)
                       .RegisterType<IContextEntityTypesProvider, ContextEntityTypesProvider>();
