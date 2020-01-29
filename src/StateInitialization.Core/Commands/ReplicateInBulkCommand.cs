@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using NuClear.Replication.Core;
 using NuClear.StateInitialization.Core.Storage;
-using NuClear.Storage.API.ConnectionStrings;
 
 namespace NuClear.StateInitialization.Core.Commands
 {
@@ -24,12 +23,14 @@ namespace NuClear.StateInitialization.Core.Commands
         private static readonly TimeSpan DefaultBulkCopyTimeout = TimeSpan.FromMinutes(30);
 
         public ReplicateInBulkCommand(
+            IReadOnlyCollection<Type> typesToReplicate,
             StorageDescriptor sourceStorageDescriptor,
             StorageDescriptor targetStorageDescriptor,
             DbManagementMode databaseManagementMode = DbManagementMode.DropAndRecreateConstraints | DbManagementMode.EnableIndexManagment | DbManagementMode.UpdateTableStatistics | DbManagementMode.TruncateTable,
             ExecutionMode executionMode = null,
             TimeSpan? bulkCopyTimeout = null)
         {
+            TypesToReplicate = typesToReplicate;
             SourceStorageDescriptor = sourceStorageDescriptor;
             TargetStorageDescriptor = targetStorageDescriptor;
             DbManagementMode = databaseManagementMode;
@@ -37,31 +38,11 @@ namespace NuClear.StateInitialization.Core.Commands
             BulkCopyTimeout = bulkCopyTimeout ?? DefaultBulkCopyTimeout;
         }
 
+        public IReadOnlyCollection<Type> TypesToReplicate { get; }
         public StorageDescriptor SourceStorageDescriptor { get; }
         public StorageDescriptor TargetStorageDescriptor { get; }
         public DbManagementMode DbManagementMode { get; }
         public ExecutionMode ExecutionMode { get; }
         public TimeSpan BulkCopyTimeout { get; }
-    }
-
-    public sealed class InitializeFromFlowCommand : ICommand
-    {
-        private static readonly TimeSpan DefaultBulkCopyTimeout = TimeSpan.FromMinutes(30);
-
-        public InitializeFromFlowCommand(
-            Func<IConnectionStringSettings, IEnumerable<ICommand>> flowFactory,
-            StorageDescriptor targetStorageDescriptor,
-            DbManagementMode databaseManagementMode = DbManagementMode.DropAndRecreateConstraints | DbManagementMode.EnableIndexManagment | DbManagementMode.UpdateTableStatistics,
-            TimeSpan? bulkCopyTimeout = null)
-        {
-            TargetStorageDescriptor = targetStorageDescriptor;
-            FlowFactory = flowFactory;
-            DbManagementMode = databaseManagementMode;
-            BulkCopyTimeout = bulkCopyTimeout ?? DefaultBulkCopyTimeout;
-        }
-        public StorageDescriptor TargetStorageDescriptor { get; set; }
-        public DbManagementMode DbManagementMode { get; set; }
-        public TimeSpan BulkCopyTimeout { get; }
-        public Func<IConnectionStringSettings, IEnumerable<ICommand>> FlowFactory { get; set; }
     }
 }

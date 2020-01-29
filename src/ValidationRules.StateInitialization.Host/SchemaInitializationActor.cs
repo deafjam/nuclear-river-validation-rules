@@ -1,6 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Transactions;
+
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SqlServer;
 using LinqToDB.Mapping;
+
 using NuClear.Replication.Core;
 using NuClear.Replication.Core.Actors;
 using NuClear.Storage.API.ConnectionStrings;
@@ -9,10 +15,6 @@ using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
 using NuClear.ValidationRules.SingleCheck.Store;
 using NuClear.ValidationRules.Storage;
 using NuClear.ValidationRules.Storage.SchemaInitializer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Transactions;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
@@ -84,12 +86,13 @@ namespace NuClear.ValidationRules.StateInitialization.Host
     {
         public static SchemaInitializationCommand Facts { get; }
             = new SchemaInitializationCommand(Schema.Facts,
-                DataObjectTypesProvider.AllSourcesFactTypes,
+                DataObjectTypesProvider.AllFactTypes,
                 ValidationRulesConnectionStringIdentity.Instance,
                 new[] { "Facts" });
 
         public static SchemaInitializationCommand Aggregates { get; }
-            = new SchemaInitializationCommand(Schema.Aggregates, DataObjectTypesProvider.AggregateTypes,
+            = new SchemaInitializationCommand(Schema.Aggregates,
+                DataObjectTypesProvider.AggregateTypes,
                 ValidationRulesConnectionStringIdentity.Instance,
                 new[]
                 {

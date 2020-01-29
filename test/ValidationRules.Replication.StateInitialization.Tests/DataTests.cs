@@ -1,4 +1,4 @@
-﻿using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity;
 using NuClear.Assembling.TypeProcessing;
 using NuClear.DataTest.Engine;
 using NuClear.DataTest.Engine.Command;
@@ -14,6 +14,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NuClear.Replication.Core.Tenancy;
 using ContextEntityTypesProvider = NuClear.ValidationRules.Replication.StateInitialization.Tests.Infrastructure.ContextEntityTypesProvider;
 using CreateDatabaseSchemataCommand = NuClear.ValidationRules.Replication.StateInitialization.Tests.Infrastructure.CreateDatabaseSchemataCommand;
 
@@ -37,7 +38,9 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
                     new IMetadataSource[] { MetadataSources.SchemaMetadataSource, MetadataSources.TestCaseMetadataSource },
                     Array.Empty<IMetadataProcessor>());
 
-            _container.RegisterType<ConnectionStringSettingsAspect, RunnerConnectionStringSettings>()
+            _container.RegisterType<ITenantConnectionStringSettings, RunnerConnectionStringSettings>()
+                      .RegisterType<IConnectionStringSettings, RunnerConnectionStringSettings>()
+                      .RegisterType<ConnectionStringSettingsAspect, RunnerConnectionStringSettings>()
                       .RegisterType<DataConnectionFactory>()
                       .RegisterInstance<IMetadataProvider>(_metadataProvider)
                       .RegisterType<IContextEntityTypesProvider, ContextEntityTypesProvider>();

@@ -73,7 +73,7 @@ namespace NuClear.ValidationRules.Storage
 
             builder.Entity<EntityName>()
                    .HasSchemaName(FactsSchema)
-                   .HasPrimaryKey(x => new { x.Id, x.EntityType });
+                   .HasPrimaryKey(x => new { x.Id, x.EntityType, x.TenantId });
 
             builder.Entity<Firm>()
                    .HasSchemaName(FactsSchema)
