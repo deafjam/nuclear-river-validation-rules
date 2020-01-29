@@ -11,6 +11,7 @@ using PriceAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.PriceRu
 using ProjectAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.ProjectRules;
 using SystemAggregates = NuClear.ValidationRules.Storage.Model.Aggregates.SystemRules;
 using Messages = NuClear.ValidationRules.Storage.Model.Messages;
+using Events = NuClear.ValidationRules.Storage.Model.Events;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
@@ -163,6 +164,11 @@ namespace NuClear.ValidationRules.StateInitialization.Host
         public static readonly Type[] ErmMessagesTypes =
             {
                 typeof(Messages::Version.ErmState),
+            };
+
+        public static readonly Type[] EventTypes =
+            {
+                typeof(Events::EventRecord),
             };
 
         public static IReadOnlyCollection<Type> AllFactTypes =

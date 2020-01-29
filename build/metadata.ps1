@@ -54,6 +54,9 @@ function Get-BulkToolMetadata ($updateSchemas, $Context){
 	if($updateSchemas -contains 'Messages') {
 		$arguments += @('-messages')
 	}
+	if($updateSchemas -contains 'Events') {
+		$arguments += @('-events')
+	}
 
 	$metadata += @{ 'Arguments' = ( ($arguments + @('-webapp')) | select -Unique) }
 

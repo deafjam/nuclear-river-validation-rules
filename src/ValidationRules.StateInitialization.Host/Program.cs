@@ -60,6 +60,11 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 commands.Add(SchemaInitializationCommands.Messages);
             }
 
+            if (args.Contains("-events"))
+            {
+                commands.Add(SchemaInitializationCommands.Events);
+            }
+
             var environmentSettings = new EnvironmentSettingsAspect();
             var tracer = CreateTracer(environmentSettings);
 

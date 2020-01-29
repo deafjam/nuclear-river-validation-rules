@@ -110,5 +110,11 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 WebAppMappingSchemaHelper.GetWebAppMappingSchema(new VersionHelper().Version),
                 WebAppMappingSchemaHelper.DataObjectTypes, ValidationRulesConnectionStringIdentity.Instance,
                 new[] { "WebApp" });
+
+        public static SchemaInitializationCommand Events { get; }
+            = new SchemaInitializationCommand(Schema.Events,
+                DataObjectTypesProvider.EventTypes,
+                ValidationRulesConnectionStringIdentity.Instance,
+                new[] { "Events" });
     }
 }
