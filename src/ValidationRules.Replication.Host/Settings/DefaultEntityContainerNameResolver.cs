@@ -10,6 +10,7 @@ namespace NuClear.ValidationRules.Replication.Host.Settings
         private const string Facts = "Facts";
         private const string Aggregates = "Aggregates";
         private const string Messages = "Messages";
+        private const string Events = "Events";
 
         public string Resolve(Type objType)
         {
@@ -20,17 +21,22 @@ namespace NuClear.ValidationRules.Replication.Host.Settings
 
             if (objType.Namespace.Contains(Facts))
             {
-                return Facts;
+                return "ValidationRules";
             }
 
             if (objType.Namespace.Contains(Aggregates))
             {
-                return Aggregates;
+                return "ValidationRules";
             }
 
             if (objType.Namespace.Contains(Messages))
             {
-                return Messages;
+                return "ValidationRules";
+            }
+
+            if (objType.Namespace.Contains(Events))
+            {
+                return "ValidationRules";
             }
 
             throw new ArgumentException($"Unsupported type {objType.Name}: can not determine scope", nameof(objType));

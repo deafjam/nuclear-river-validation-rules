@@ -184,9 +184,7 @@ namespace NuClear.ValidationRules.Replication.Messages
                 List<Version.ValidationResult> sourceObjects;
 
                 using (Probe.Create("Query Source"))
-                using (new TransactionScope(TransactionScopeOption.RequiresNew, _transactionOptions))
                 {
-                    // Запрос к данным посылаем вне транзакции, иначе будет DTC
                     var accessor = _accessors[ruleCode];
                     var query = accessor.GetSource().Where(filter);
                     sourceObjects = query.ToList();

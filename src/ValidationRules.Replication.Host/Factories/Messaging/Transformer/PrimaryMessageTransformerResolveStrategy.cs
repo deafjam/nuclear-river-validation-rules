@@ -1,9 +1,10 @@
 ﻿using System;
 
+using NuClear.Messaging.API;
 using NuClear.Messaging.API.Flows.Metadata;
+using NuClear.Messaging.API.Processing.Actors.Transformers;
 using NuClear.Messaging.DI.Factories.Unity.Transformers.Resolvers;
 using NuClear.OperationsProcessing.Transports.ServiceBus.Primary;
-using NuClear.Replication.OperationsProcessing.Transports.ServiceBus;
 using NuClear.ValidationRules.OperationsProcessing.AggregatesFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.MessagesFlow;
@@ -25,18 +26,27 @@ namespace NuClear.ValidationRules.Replication.Host.Factories.Messaging.Transform
 
             if (messageFlow.Equals(AggregatesFlow.Instance))
             {
-                resolvedFlowReceiverType = typeof(BrokeredMessageWithXmlPayload2EventMessageTransformer);
+                resolvedFlowReceiverType = typeof(NullTransformer);
                 return true;
             }
 
             if (messageFlow.Equals(MessagesFlow.Instance))
             {
-                resolvedFlowReceiverType = typeof(BrokeredMessageWithXmlPayload2EventMessageTransformer);
+                resolvedFlowReceiverType = typeof(NullTransformer);
                 return true;
             }
 
             resolvedFlowReceiverType = null;
             return false;
+        }
+
+        private sealed class NullTransformer : IMessageTransformer
+        {
+            public bool CanTransform(IMessage originalMessage)
+                => true;
+
+            public IMessage Transform(IMessage originalMessage)
+                => originalMessage;
         }
     }
 }

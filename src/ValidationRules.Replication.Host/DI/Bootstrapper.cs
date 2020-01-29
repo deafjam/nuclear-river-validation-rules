@@ -61,9 +61,7 @@ using NuClear.Metamodeling.Provider.Sources;
 using NuClear.Metamodeling.Validators;
 using NuClear.Model.Common.Entities;
 using NuClear.Model.Common.Operations.Identity;
-using NuClear.OperationsLogging;
 using NuClear.OperationsLogging.API;
-using NuClear.OperationsLogging.Transports.ServiceBus;
 using NuClear.OperationsLogging.Transports.ServiceBus.Serialization.ProtoBuf;
 using NuClear.OperationsProcessing.Transports.Kafka;
 using NuClear.OperationsProcessing.Transports.ServiceBus.Primary;
@@ -101,7 +99,6 @@ using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
 using NuClear.ValidationRules.Storage.Model.Facts;
 using NuClear.ValidationRules.Replication.Accessors;
 using NuClear.ValidationRules.Replication.Accessors.Rulesets;
-using NuClear.ValidationRules.Replication.Host.Customs;
 using NuClear.ValidationRules.Replication.Host.Jobs;
 using NuClear.ValidationRules.Storage.FieldComparer;
 
@@ -243,10 +240,8 @@ namespace NuClear.ValidationRules.Replication.Host.DI
             // final
             container.RegisterTypeWithDependencies(typeof(AggregatesFlowHandler), Lifetime.PerResolve, null);
 
-            container.RegisterType<IEventLoggingStrategyProvider, UnityEventLoggingStrategyProvider>()
-                     .RegisterType<IEvent2BrokeredMessageConverter<IEvent>, Event2BrokeredMessageConverter>()
-                     .RegisterType<IEventLogger, SequentialEventLogger>()
-                     .RegisterType<IServiceBusMessageSender, BatchingServiceBusMessageSender>();
+            container.RegisterType<IEventLogger, SqlEventLogger>();
+                     //.RegisterType<IMessageReceiver, SqlEventReceiver>();
 
             var kafkaSettingsFactory =
                 new KafkaSettingsFactory(new Dictionary<IMessageFlow, string>
@@ -306,9 +301,7 @@ namespace NuClear.ValidationRules.Replication.Host.DI
             var schemaMapping = new Dictionary<string, MappingSchema>
                                 {
                                     { Scope.Erm, Schema.Erm },
-                                    { Scope.Facts, Schema.Facts },
-                                    { Scope.Aggregates, Schema.Aggregates },
-                                    { Scope.Messages, Schema.Messages },
+                                    { Scope.ValidationRules, new MappingSchema(Schema.Facts, Schema.Aggregates, Schema.Messages, Schema.Events) },
                                 };
 
             return container
@@ -409,16 +402,12 @@ namespace NuClear.ValidationRules.Replication.Host.DI
             var readConnectionStringNameMap = new Dictionary<string, IConnectionStringIdentity>
                 {
                     { Scope.Erm, ErmConnectionStringIdentity.Instance },
-                    { Scope.Facts, ValidationRulesConnectionStringIdentity.Instance },
-                    { Scope.Aggregates, ValidationRulesConnectionStringIdentity.Instance },
-                    { Scope.Messages, ValidationRulesConnectionStringIdentity.Instance },
+                    { Scope.ValidationRules, ValidationRulesConnectionStringIdentity.Instance },
                 };
 
             var writeConnectionStringNameMap = new Dictionary<string, IConnectionStringIdentity>
                 {
-                    { Scope.Facts, ValidationRulesConnectionStringIdentity.Instance },
-                    { Scope.Aggregates, ValidationRulesConnectionStringIdentity.Instance },
-                    { Scope.Messages, ValidationRulesConnectionStringIdentity.Instance },
+                    { Scope.ValidationRules, ValidationRulesConnectionStringIdentity.Instance },
                 };
 
             return container.RegisterInstance<IConnectionStringIdentityResolver>(new ConnectionStringIdentityResolver(readConnectionStringNameMap, writeConnectionStringNameMap));
@@ -427,9 +416,7 @@ namespace NuClear.ValidationRules.Replication.Host.DI
         private static class Scope
         {
             public const string Erm = "Erm";
-            public const string Facts = "Facts";
-            public const string Aggregates = "Aggregates";
-            public const string Messages = "Messages";
+            public const string ValidationRules = "ValidationRules";
         }
 
         private sealed class VrTracingJobExecutionObserver : TracingJobExecutionObserver

@@ -46,17 +46,16 @@ namespace NuClear.ValidationRules.OperationsProcessing.AggregatesFlow
                     var syncEvents = Handle(commands.OfType<IAggregateCommand>().ToList())
                                     .Select(x => new FlowEvent(AggregatesFlow.Instance, x)).ToList();
 
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                        _eventLogger.Log<IEvent>(syncEvents);
+                    var stateEvents = Handle(commands.OfType<IncrementErmStateCommand>().ToList()).Concat(
+                            Handle(commands.OfType<IncrementAmsStateCommand>().ToList())).Concat(
+                            Handle(commands.OfType<LogDelayCommand>().ToList()))
+                        .Select(x => new FlowEvent(AggregatesFlow.Instance, x)).ToList();
+
+                    _eventLogger.Log<IEvent>(syncEvents);
+                    _eventLogger.Log<IEvent>(stateEvents);
 
                     transaction.Complete();
                 }
-                
-                var stateEvents = Handle(commands.OfType<IncrementErmStateCommand>().ToList()).Concat(
-                        Handle(commands.OfType<IncrementAmsStateCommand>().ToList())).Concat(
-                        Handle(commands.OfType<LogDelayCommand>().ToList()))
-                    .Select(x => new FlowEvent(AggregatesFlow.Instance, x)).ToList();
-                _eventLogger.Log<IEvent>(stateEvents);
 
                 return processingResultsMap.Keys.Select(bucketId => MessageProcessingStage.Handling.ResultFor(bucketId).AsSucceeded());
             }

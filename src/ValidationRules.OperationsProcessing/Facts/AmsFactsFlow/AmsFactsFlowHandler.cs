@@ -59,15 +59,14 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow
                     var replaceEvents = Handle(commands.OfType<IReplaceDataObjectCommand>().ToList())
                                         .Select(x => new FlowEvent(AmsFactsFlow.Instance, x)).ToList();
 
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                        _eventLogger.Log<IEvent>(replaceEvents);
+                    var stateEvents = Handle(commands.OfType<IncrementAmsStateCommand>().ToList())
+                        .Select(x => new FlowEvent(AmsFactsFlow.Instance, x)).ToList();
+
+                    _eventLogger.Log<IEvent>(replaceEvents);
+                    _eventLogger.Log<IEvent>(stateEvents);
 
                     transaction.Complete();
                 }
-                
-                var stateEvents = Handle(commands.OfType<IncrementAmsStateCommand>().ToList())
-                    .Select(x => new FlowEvent(AmsFactsFlow.Instance, x)).ToList();
-                _eventLogger.Log<IEvent>(stateEvents);
 
                 return processingResultsMap.Keys.Select(bucketId => MessageProcessingStage.Handling.ResultFor(bucketId).AsSucceeded());
             }

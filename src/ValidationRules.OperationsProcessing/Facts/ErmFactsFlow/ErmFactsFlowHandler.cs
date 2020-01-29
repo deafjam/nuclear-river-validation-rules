@@ -53,16 +53,15 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.ErmFactsFlow
                 {
                     var syncEvents = Handle(commands.OfType<ISyncDataObjectCommand>().ToList())
                                      .Select(x => new FlowEvent(ErmFactsFlow.Instance, x)).ToList();
-                    
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                        _eventLogger.Log<IEvent>(syncEvents);
+
+                    var stateEvents = Handle(commands.OfType<IncrementErmStateCommand>().ToList())
+                        .Select(x => new FlowEvent(ErmFactsFlow.Instance, x)).ToList();
+
+                    _eventLogger.Log<IEvent>(stateEvents);
+                    _eventLogger.Log<IEvent>(syncEvents);
 
                     transaction.Complete();
                 }
-
-                var stateEvents = Handle(commands.OfType<IncrementErmStateCommand>().ToList())
-                    .Select(x => new FlowEvent(ErmFactsFlow.Instance, x)).ToList();
-                _eventLogger.Log<IEvent>(stateEvents);
                 
                 return processingResultsMap.Keys.Select(bucketId => MessageProcessingStage.Handling.ResultFor(bucketId).AsSucceeded());
             }

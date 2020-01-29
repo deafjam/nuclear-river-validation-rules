@@ -11,8 +11,6 @@ using NuClear.Replication.Core;
 using NuClear.Replication.Core.Commands;
 using NuClear.Replication.OperationsProcessing;
 using NuClear.Tracing.API;
-using NuClear.ValidationRules.Replication;
-using NuClear.ValidationRules.Replication.Events;
 
 namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
 {
@@ -53,8 +51,7 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
                     var replaceEvents = events.Select(x => new FlowEvent(RulesetFactsFlow.Instance, x))
                                               .ToList();
 
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                        _eventLogger.Log<IEvent>(replaceEvents);
+                    _eventLogger.Log<IEvent>(replaceEvents);
 
                     transaction.Complete();
                 }
