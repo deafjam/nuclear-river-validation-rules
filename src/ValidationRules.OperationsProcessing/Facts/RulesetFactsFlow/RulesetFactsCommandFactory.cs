@@ -14,9 +14,9 @@ namespace NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow
     {
         private readonly IDeserializer<ConsumeResult<Ignore, byte[]>, RulesetDto> _deserializer;
 
-        public RulesetFactsCommandFactory(IBusinessModelSettings businessModelSettings)
+        public RulesetFactsCommandFactory()
         {
-            _deserializer = new RulesetDtoDeserializer(businessModelSettings);
+            _deserializer = new RulesetDtoDeserializer();
         }
 
         IEnumerable<ICommand> ICommandFactory<KafkaMessage>.CreateCommands(KafkaMessage kafkaMessage)

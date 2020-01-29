@@ -1,5 +1,4 @@
-﻿
-using NuClear.Messaging.API.Flows;
+﻿using NuClear.Messaging.API.Flows;
 using NuClear.Replication.Core;
 using NuClear.StateInitialization.Core.Commands;
 

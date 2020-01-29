@@ -4,14 +4,11 @@ using NuClear.Messaging.API.Flows;
 using NuClear.Replication.Core;
 using NuClear.River.Hosting.Common.Settings;
 using NuClear.StateInitialization.Core.Actors;
-using NuClear.Storage.API.ConnectionStrings;
 using NuClear.Tracing.API;
 using NuClear.Tracing.Environment;
 using NuClear.Tracing.Log4Net.Config;
 using NuClear.ValidationRules.Hosting.Common;
 using NuClear.ValidationRules.Hosting.Common.Identities.Connections;
-using NuClear.ValidationRules.Hosting.Common.Settings;
-using NuClear.ValidationRules.Hosting.Common.Settings.Connections;
 using NuClear.ValidationRules.Hosting.Common.Settings.Kafka;
 using NuClear.ValidationRules.OperationsProcessing.Facts.AmsFactsFlow;
 using NuClear.ValidationRules.OperationsProcessing.Facts.RulesetFactsFlow;
@@ -23,20 +20,26 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NuClear.StateInitialization.Core.Storage;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
 {
     public sealed class Program
     {
+        private static readonly TenantConnectionStringSettings ConnectionStringSettings =
+            new TenantConnectionStringSettings();
+
         public static void Main(string[] args)
         {
-            StateInitializationRoot.Instance.PerformTypesMassProcessing(Array.Empty<IMassProcessor>(), true, typeof(object));
+            StateInitializationRoot.Instance.PerformTypesMassProcessing(Array.Empty<IMassProcessor>(), true,
+                typeof(object));
 
             var commands = new List<ICommand>();
 
             if (args.Any(x => x.Contains("-facts")))
             {
-                commands.Add(BulkReplicationCommands.ErmToFacts);
+                commands.AddRange(BulkReplicationCommands.ErmToFacts
+                    .Where(x => IsConfigured(x.SourceStorageDescriptor)));
                 commands.Add(new KafkaReplicationCommand(AmsFactsFlow.Instance, BulkReplicationCommands.AmsToFacts));
                 commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts, 500));
                 // TODO: отдельный schema init для erm\ams\ruleset facts
@@ -51,52 +54,53 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
             if (args.Contains("-messages"))
             {
-                commands.Add(BulkReplicationCommands.ErmToMessages);
+                commands.AddRange(BulkReplicationCommands.ErmToMessages
+                    .Where(x => IsConfigured(x.SourceStorageDescriptor)));
                 commands.Add(BulkReplicationCommands.AggregatesToMessages);
                 commands.Add(SchemaInitializationCommands.Messages);
             }
 
-            var connectionStrings = ConnectionStrings.For(ErmConnectionStringIdentity.Instance,
-                                                          AmsConnectionStringIdentity.Instance,
-                                                          ValidationRulesConnectionStringIdentity.Instance,
-                                                          RulesetConnectionStringIdentity.Instance);
-            var connectionStringSettings = new ConnectionStringSettingsAspect(connectionStrings);
             var environmentSettings = new EnvironmentSettingsAspect();
-            var businessModelSettings = new BusinessModelSettingsAspect();
-
-            var tracer = CreateTracer(environmentSettings, businessModelSettings);
+            var tracer = CreateTracer(environmentSettings);
 
             var kafkaSettingsFactory = new KafkaSettingsFactory(new Dictionary<IMessageFlow, string>
                 {
-                    {AmsFactsFlow.Instance, connectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance)},
-                    {RulesetFactsFlow.Instance, connectionStringSettings.GetConnectionString(RulesetConnectionStringIdentity.Instance)}
+                    {
+                        AmsFactsFlow.Instance,
+                        ConnectionStringSettings.GetConnectionString(AmsConnectionStringIdentity.Instance)
+                    },
+                    {
+                        RulesetFactsFlow.Instance,
+                        ConnectionStringSettings.GetConnectionString(RulesetConnectionStringIdentity.Instance)
+                    }
                 },
                 environmentSettings);
 
-            var kafkaMessageFlowReceiverFactory = new StateInitKafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
+            var kafkaMessageFlowReceiverFactory =
+                new StateInitKafkaMessageFlowReceiverFactory(new NullTracer(), kafkaSettingsFactory);
 
-            var dataObjectTypesProvider = new DataObjectTypesProvider();
-            var bulkReplicationActor = new BulkReplicationActor(dataObjectTypesProvider, connectionStringSettings);
-            var kafkaReplicationActor = new KafkaReplicationActor(connectionStringSettings,
-                                                                  dataObjectTypesProvider,
-                                                                  kafkaMessageFlowReceiverFactory,
-                                                                  new KafkaMessageFlowInfoProvider(kafkaSettingsFactory),
-                                                                  new IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>[]
-                                                                      {
-                                                                          new AmsFactsBulkCommandFactory(),
-                                                                          new RulesetFactsBulkCommandFactory(businessModelSettings)
-                                                                      },
-                                                                  tracer);
+            var bulkReplicationActor = new BulkReplicationActor(ConnectionStringSettings);
+            var kafkaReplicationActor = new KafkaReplicationActor(ConnectionStringSettings,
+                kafkaMessageFlowReceiverFactory,
+                new KafkaMessageFlowInfoProvider(kafkaSettingsFactory),
+                new IBulkCommandFactory<ConsumeResult<Ignore, byte[]>>[]
+                {
+                    new AmsFactsBulkCommandFactory(),
+                    new RulesetFactsBulkCommandFactory()
+                },
+                tracer);
 
-            var schemaInitializationActor = new SchemaInitializationActor(connectionStringSettings);
+            var schemaInitializationActor = new SchemaInitializationActor(ConnectionStringSettings);
 
             var sw = Stopwatch.StartNew();
             schemaInitializationActor.ExecuteCommands(commands);
-            bulkReplicationActor.ExecuteCommands(commands.Where(x => x == BulkReplicationCommands.ErmToFacts).ToList());
+            bulkReplicationActor.ExecuteCommands(commands.Where(x => BulkReplicationCommands.ErmToFacts.Contains(x))
+                .ToList());
             kafkaReplicationActor.ExecuteCommands(commands);
-            bulkReplicationActor.ExecuteCommands(commands.Where(x => x != BulkReplicationCommands.ErmToFacts).ToList());
+            bulkReplicationActor.ExecuteCommands(commands.Where(x => !BulkReplicationCommands.ErmToFacts.Contains(x))
+                .ToList());
 
-            var webAppSchemaHelper = new WebAppSchemaInitializationHelper(connectionStringSettings);
+            var webAppSchemaHelper = new WebAppSchemaInitializationHelper(ConnectionStringSettings);
             if (args.Contains("-webapp"))
             {
                 webAppSchemaHelper.CreateWebAppSchema(SchemaInitializationCommands.WebApp);
@@ -110,18 +114,26 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             Console.WriteLine($"Total time: {sw.ElapsedMilliseconds}ms");
         }
 
-        private static ITracer CreateTracer(IEnvironmentSettings environmentSettings, IBusinessModelSettings businessModelSettings)
+        private static ITracer CreateTracer(IEnvironmentSettings environmentSettings)
         {
             return Log4NetTracerBuilder.Use
-                                       .ApplicationXmlConfig
-                                       .Console
-                                       .WithGlobalProperties(x =>
-                                                                 x.Property(TracerContextKeys.Tenant, environmentSettings.EnvironmentName)
-                                                                  .Property(TracerContextKeys.EntryPoint, environmentSettings.EntryPointName)
-                                                                  .Property(TracerContextKeys.EntryPointHost, NetworkInfo.ComputerFQDN)
-                                                                  .Property(TracerContextKeys.EntryPointInstanceId, Guid.NewGuid().ToString())
-                                                                  .Property(nameof(IBusinessModelSettings.BusinessModel), businessModelSettings.BusinessModel))
-                                       .Build;
+                .ApplicationXmlConfig
+                .Console
+                .WithGlobalProperties(x =>
+                    x.Property(TracerContextKeys.Tenant, environmentSettings.EnvironmentName)
+                        .Property(TracerContextKeys.EntryPoint, environmentSettings.EntryPointName)
+                        .Property(TracerContextKeys.EntryPointHost, NetworkInfo.ComputerFQDN)
+                        .Property(TracerContextKeys.EntryPointInstanceId, Guid.NewGuid().ToString()))
+                .Build;
         }
+
+        private static bool IsConfigured(StorageDescriptor descriptor) =>
+            !string.IsNullOrWhiteSpace(
+                descriptor.Tenant.HasValue
+                    ? ConnectionStringSettings.GetConnectionString(
+                        descriptor.ConnectionStringIdentity,
+                        descriptor.Tenant.Value)
+                    : ConnectionStringSettings.GetConnectionString(
+                        descriptor.ConnectionStringIdentity));
     }
 }

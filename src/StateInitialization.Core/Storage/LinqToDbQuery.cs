@@ -17,21 +17,13 @@ namespace NuClear.StateInitialization.Core.Storage
             _dataContext = dataContext;
         }
 
-        public string LastQuery => _dataContext.LastQuery;
-
         public IQueryable For(Type objType)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public IQueryable<T> For<T>() where T : class
-        {
-            return _dataContext.GetTable<T>();
-        }
+            => _dataContext.GetTable<T>();
 
         public IQueryable<T> For<T>(FindSpecification<T> findSpecification) where T : class
-        {
-            return _dataContext.GetTable<T>().Where(findSpecification);
-        }
+            => _dataContext.GetTable<T>().Where(findSpecification);
     }
 }

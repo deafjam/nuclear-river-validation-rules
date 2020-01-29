@@ -1,7 +1,7 @@
 ﻿using NuClear.DataTest.Metamodel.Dsl;
+using NuClear.Replication.Core;
+using NuClear.Replication.Core.Tenancy;
 using NuClear.StateInitialization.Core.Actors;
-using NuClear.Storage.API.ConnectionStrings;
-using NuClear.ValidationRules.StateInitialization.Host;
 
 namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 {
@@ -9,7 +9,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
         where T : IKey, new()
     {
         private readonly T _key;
-        private readonly IConnectionStringSettings _connectionStringSettings;
+        private readonly ITenantConnectionStringSettings _connectionStringSettings;
 
         public BulkReplicationAdapter()
         {
@@ -19,7 +19,7 @@ namespace NuClear.ValidationRules.Replication.StateInitialization.Tests
 
         public void Act()
         {
-            var bulkReplicationActor = new BulkReplicationActor(new DataObjectTypesProvider(), _connectionStringSettings);
+            var bulkReplicationActor = new BulkReplicationActor(_connectionStringSettings);
             bulkReplicationActor.ExecuteCommands(new[] { _key.Command });
         }
     }
