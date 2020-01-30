@@ -42,44 +42,22 @@ function Get-TopicsMetadata ($Context) {
 						'Name' = 'topic.performedoperations'
 						'ConnectionStringName' = 'ServiceBus'
 					} + $topicProperties
-					
-					'CommonEventsFlowTopic' = @{
-						'Name' = 'topic.river.validationrules.common'
-						'ConnectionStringName' = 'ServiceBus'
-					} + $topicProperties
-
-					'MessageEventsFlowTopic' = @{
-						'Name' = 'topic.river.validationrules.messages'
-						'ConnectionStringName' = 'ServiceBus'
-					} + $topicProperties
 
 				}
 
 				'CreateSubscriptions' = @{
-					
+
 					'ErmEventsFlowSubscription' = @{
 						'TopicName' = 'topic.performedoperations'
 						'Name' = '6A75B8B4-74A6-4523-9388-84E4DFFD5B06'
 						'ConnectionStringName' = 'ServiceBus'
 					} + $subscriptionProperties
 
-					'CommonEventsFlowSubscription' = @{
-						'TopicName' = 'topic.river.validationrules.common'
-						'Name' = 'CB1434CA-D575-4470-8616-4F08D074C8DA'
-						'ConnectionStringName' = 'ServiceBus'
-					} + $subscriptionProperties
-
-					'MessageEventsFlowSubscription' = @{
-						'TopicName' = 'topic.river.validationrules.messages'
-						'Name' = '2B3D30F7-6E59-4510-B680-D7FDD9DEFE0F'
-						'ConnectionStringName' = 'ServiceBus'
-					} + $subscriptionProperties
-					
 				}
 
 				'DeleteTopics' = @{}
 				'DeleteSubscriptions' = @{}
-			} 
+			}
 		}
 	}
 
