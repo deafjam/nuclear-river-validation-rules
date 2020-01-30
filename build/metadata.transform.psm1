@@ -29,23 +29,26 @@ $DBSuffixes = @{
 	'Azerbaijan' = 'AZ'
 }
 
-function Get-DBSuffix($Context){
+function Get-DbIndex($Context){
+	return $Context['Index']
+}
 
-	$countrySuffix = $DBSuffixes[$Context['Country']];
+function Get-DbCountry($Context){
+	return $DBSuffixes[$Context['Country']]
+}
 
+function Get-DbEnv($Context){
 	switch($Context.EnvType){
 		'Business' {
-			$envTypeSuffix = $Context.EnvType
+			return $Context.EnvType
 		}
 		'Edu' {
-			$envTypeSuffix = $Context.EnvType
+			return $Context.EnvType
 		}
 		default {
-			$envTypeSuffix = $null
+			return $null
 		}
 	}
-
-	return $envTypeSuffix + $countrySuffix + $Context['Index']
 }
 
 function Get-DBHostMetadata($Context){
@@ -146,7 +149,9 @@ function Get-RegexMetadata($Context){
 	}
 	if ($Context['Country']){
 		$regex += @{ '{Country}' = $Context['Country'] }
-		$regex += @{ '{DBSuffix}' = (Get-DBSuffix $Context) }
+		$regex += @{ '{DbIndex}' = (Get-DbIndex $Context) }
+		$regex += @{ '{DbCountry}' = (Get-DbCountry $Context) }
+		$regex += @{ '{DbEnv}' = (Get-DbEnv $Context) }
 	}
 	if ($Context['EnvType']){
 		$regex += @{ '{EnvType}' = $Context['EnvType'] }

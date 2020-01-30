@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "environments", "environment
 		environments\Erm.Load.config = environments\Erm.Load.config
 		environments\Erm.Production.config = environments\Erm.Production.config
 		environments\quartz.Production.config = environments\quartz.Production.config
+		environments\quartz.Production.Russia.config = environments\quartz.Production.Russia.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{286AF053-EC9B-4746-93B9-28A3DBB7C9F3}"
@@ -50,6 +51,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{
 	ProjectSection(SolutionItems) = preProject
 		environments\Templates\Erm.Test.config = environments\Templates\Erm.Test.config
 		environments\Templates\quartz.Test.config = environments\Templates\quartz.Test.config
+		environments\Templates\quartz.Test.Russia.config = environments\Templates\quartz.Test.Russia.config
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Replication.Core", "src\Replication.Core\Replication.Core.csproj", "{D919999A-7708-4F55-9600-D34EBD4EC36C}"
