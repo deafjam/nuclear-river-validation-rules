@@ -23,6 +23,11 @@ namespace NuClear.ValidationRules.Replication.Accessors
         {
             var dtos = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<AdvertisementDto>();
 
+            // @m.pashuk: не совсем уверен, но ведь эту проблему уже кто-то когда-то где-то должен был решить?
+            // в пакете может несколько раз втречаться один и тот-же РМ.
+            // подскажи, где это решенеи должно быть?
+            dtos = dtos.ToLookup(x => x.Id).Select(x => x.OrderByDescending(x => x.Offset).First());
+
             return dtos.Select(x => new Advertisement
             {
                 Id = x.Id,
