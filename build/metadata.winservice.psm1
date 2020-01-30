@@ -10,32 +10,36 @@ Import-Module "$PSScriptRoot\metadata.servicebus.psm1" -DisableNameChecking
 function Get-QuartzConfigMetadata ($Context){
 
 	$quartzConfigs = @()
-	$alterQuartzConfigs = @()
 
 	switch ($Context.EnvType){
-		'Test' {
-			switch ($Context.Country){
-				default {
-					$quartzConfigs += @('Templates\quartz.Test.config')
-				}
-			}
-		}
 		'Production' {
 			switch ($Context.Country){
+				'Russia' {
+					$quartzConfigs += @('kafka.quartz.Production.Russia.config')
+					$quartzConfigs += @('quartz.Production.Russia.config')
+					$quartzConfigs += @('quartz.Production.config')
+				}
 				default {
 					$quartzConfigs += @('quartz.Production.config')
 				}
 			}
 		}
 		default {
-			$quartzConfigs += @("quartz.$($Context.EnvType).config")
-			$alterQuartzConfigs += @('Templates\quartz.Test.config')
+			switch ($Context.Country){
+				'Russia' {
+					$quartzConfigs += @('Templates\kafka.quartz.Test.Russia.config')
+					$quartzConfigs += @('Templates\quartz.Test.Russia.config')
+					$quartzConfigs += @('Templates\quartz.Test.config')
+				}
+				default {
+					$quartzConfigs += @('Templates\quartz.Test.config')
+				}
+			}
 		}
 	}
 
 	return @{
 		'QuartzConfigs' =  $quartzConfigs
-		'AlterQuartzConfigs' = $alterQuartzConfigs
 	}
 }
 
@@ -70,7 +74,7 @@ function Get-TargetHostsMetadata ($Context){
 			if ($webMetadata -eq $null){
 				throw "Can't find web metadata for entrypoint $($Context.EntryPoint)"
 			}
-			
+
 			return @{'TargetHosts' = $webMetadata[$Context.EntryPoint].TargetHosts}
 		}
 	}
@@ -98,7 +102,7 @@ function Get-WinServiceMetadata ($Context) {
 	$metadata += Get-ServiceNameMetadata $Context
 	$metadata += Get-TransformMetadata $Context
 	$metadata += Get-ServiceBusMetadata $Context
-	
+
 	return @{ "$($Context.EntryPoint)" = $metadata }
 }
 

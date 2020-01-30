@@ -24,7 +24,7 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
         // хотел назвать quartz.kafka.config, но стандартный Scheduler
         // процессит все файлы quartz*.config, поэтому пришлось изголяться
         // чтобы этот файл не попал под массовый процессинг
-        private const string ConfigName = "quartz.kafka_config";
+        private const string ConfigName = "kafka.quartz*.config";
 
         private readonly IJobFactory _jobFactory;
 
