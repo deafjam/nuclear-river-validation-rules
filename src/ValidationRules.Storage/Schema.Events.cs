@@ -19,7 +19,8 @@ namespace NuClear.ValidationRules.Storage
         {
             builder.Entity<EventRecord>()
                    .HasSchemaName(EventsSchema)
-                   .HasPrimaryKey(x => x.Id);
+                   .HasPrimaryKey(x => x.Id)
+                   .HasIdentity(x => x.Id);
 
             return builder;
         }
