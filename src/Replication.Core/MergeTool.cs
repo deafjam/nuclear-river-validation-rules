@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-
+using System.Transactions;
 using NuClear.Telemetry.Probing;
 
 namespace NuClear.Replication.Core
@@ -19,8 +19,10 @@ namespace NuClear.Replication.Core
 
             HashSet<T> set1;
             using (Probe.Create("Query source"))
+            using (var scope = new TransactionScope(TransactionScopeOption.Suppress))
             {
                 set1 = new HashSet<T>(data1, comparer);
+                scope.Complete();
             }
 
             HashSet<T> set2;
