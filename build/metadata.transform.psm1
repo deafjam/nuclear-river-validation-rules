@@ -132,8 +132,14 @@ function Get-XdtMetadata($Context){
 		'Load' {
 			$xdt += @("environments\Erm.Load.config")
 		}
+		'Edu' {
+			$xdt += @("environments\Erm.Edu.config")
+		}
+		'Business' {
+			$xdt += @("environments\Erm.Business.config")
+		}
 		default {
-			$xdt += @("environments\Erm.config")
+			throw "Environment type is not supported: {$(Context.EnvType)}"
 		}
 	}
 
