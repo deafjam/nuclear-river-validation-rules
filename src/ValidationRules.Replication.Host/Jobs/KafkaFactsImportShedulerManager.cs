@@ -35,6 +35,10 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
 
         public void Start()
         {
+            var configFileNames = string.Join(",", Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, ConfigName));
+            if(string.IsNullOrWhiteSpace(configFileNames))
+                return;
+
             var instanceId = new SimpleInstanceIdGenerator().GenerateInstanceId();
 
             var threadPool = new SimpleThreadPool(threadCount: 2, threadPriority: ThreadPriority.Normal)
@@ -49,13 +53,10 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
                 InstanceId = instanceId,
             };
 
-            var baseUri = new Uri(Assembly.GetExecutingAssembly().GetName().EscapedCodeBase);
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var fileName = Path.Combine(Path.GetDirectoryName(baseUri.LocalPath), ConfigName);
 
             var jobInitializationPlugin = new ConfigFileProcessorPlugin
             {
-                FileNames = fileName,
+                FileNames = configFileNames,
                 ScanInterval = QuartzConfigFileScanInterval.DisableScanning
             };
 
@@ -80,7 +81,7 @@ namespace NuClear.ValidationRules.Replication.Host.Jobs
         public void Stop()
         {
             var scheduler = DirectSchedulerFactory.Instance.GetScheduler(SchedulerName);
-            scheduler.Shutdown(true);
+            scheduler?.Shutdown(true);
         }
 
         // copy\paste from 'jobs' repo
