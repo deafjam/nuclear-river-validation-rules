@@ -21,7 +21,12 @@ namespace NuClear.ValidationRules.Replication.Accessors
 
         public IReadOnlyCollection<Advertisement> GetDataObjects(IEnumerable<ICommand> commands)
         {
-            var dtos = commands.Cast<ReplaceDataObjectCommand>().SelectMany(x => x.Dtos).Cast<AdvertisementDto>();
+            var dtos = commands
+                .Cast<ReplaceDataObjectCommand>()
+                .SelectMany(x => x.Dtos)
+                .Cast<AdvertisementDto>()
+                .GroupBy(x => x.Id)
+                .Select(x => x.OrderByDescending(y => y.Offset).First());
 
             return dtos.Select(x => new Advertisement
             {
