@@ -44,7 +44,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
 
         public static ReplicateInBulkCommand KafkaToFacts { get; } =
             new ReplicateInBulkCommand(
-                DataObjectTypesProvider.AmsFactTypes.Concat(DataObjectTypesProvider.RulesetFactTypes).ToList(),
+                DataObjectTypesProvider.KafkaFactTypes,
                 new StorageDescriptor(KafkaConnectionStringIdentity.Instance, null),
                 new StorageDescriptor(ValidationRulesConnectionStringIdentity.Instance, Schema.Facts),
                 DbManagementMode.UpdateTableStatistics);
