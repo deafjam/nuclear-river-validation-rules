@@ -11,9 +11,7 @@ namespace NuClear.ValidationRules.Querying.Host
     {
         public QueryingServiceSettings()
         {
-            var connectionString = ConnectionStrings.For(ErmConnectionStringIdentity.Instance,
-                                                         AmsConnectionStringIdentity.Instance,
-                                                         ValidationRulesConnectionStringIdentity.Instance,
+            var connectionString = ConnectionStrings.For(AmsConnectionStringIdentity.Instance,
                                                          LoggingConnectionStringIdentity.Instance);
 
             Aspects.Use(new ConnectionStringSettingsAspect(connectionString))

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 using LinqToDB;
 using LinqToDB.Data;
-
+using NuClear.ValidationRules.SingleCheck.Tenancy;
 using NuClear.ValidationRules.Storage.Model.Messages;
 using NuClear.ValidationRules.Storage.Specifications;
 
@@ -15,16 +15,16 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 {
     public sealed class ValidationResultRepositiory
     {
-        private readonly DataConnectionFactory _factory;
+        private readonly IDataConnectionProvider _connectionProvider;
 
-        public ValidationResultRepositiory(DataConnectionFactory factory)
+        public ValidationResultRepositiory(IDataConnectionProvider connectionProvider)
         {
-            _factory = factory;
+            _connectionProvider = connectionProvider;
         }
 
         public IReadOnlyCollection<Version.ValidationResult> GetResults(long versionId, IReadOnlyCollection<long> orderIds, long? projectId, DateTime start, DateTime end, ICheckModeDescriptor checkModeDescriptor)
         {
-            using (var connection = _factory.CreateDataConnection())
+            using (var connection = _connectionProvider.CreateConnection(DataConnectionName.ValidationRules))
             {
                 var orderIdentities = ToTemporaryTable(connection, orderIds);
                 var validationResults = connection.GetTable<Version.ValidationResult>()

@@ -12,6 +12,7 @@ using NuClear.Storage.API.Readings;
 using NuClear.Telemetry.Probing;
 using NuClear.ValidationRules.SingleCheck.DataLoaders;
 using NuClear.ValidationRules.SingleCheck.Store;
+using NuClear.ValidationRules.SingleCheck.Tenancy;
 using NuClear.ValidationRules.Storage;
 using NuClear.ValidationRules.Storage.Model.Erm;
 using NuClear.ValidationRules.Storage.Model.Messages;
@@ -28,14 +29,16 @@ namespace NuClear.ValidationRules.SingleCheck
         private readonly IEqualityComparerFactory _equalityComparerFactory;
         private readonly MappingSchema _webAppMappingSchema; // todo: убрать, некрасиво
         private readonly IPipelineStrategy _strategy;
+        private readonly IDataConnectionProvider _connectionProvider;
 
-        public Pipeline(IReadOnlyCollection<Type> factAccessorTypes, IReadOnlyCollection<Type> aggregateAccessorTypes, IReadOnlyCollection<Type> messageAccessorTypes, IEqualityComparerFactory equalityComparerFactory, MappingSchema webAppMappingSchema)
+        public Pipeline(IReadOnlyCollection<Type> factAccessorTypes, IReadOnlyCollection<Type> aggregateAccessorTypes, IReadOnlyCollection<Type> messageAccessorTypes, IEqualityComparerFactory equalityComparerFactory, MappingSchema webAppMappingSchema, IDataConnectionProvider connectionProvider)
         {
             _factAccessorTypes = factAccessorTypes;
             _aggregateAccessorTypes = aggregateAccessorTypes;
             _messageAccessorTypes = messageAccessorTypes;
             _equalityComparerFactory = equalityComparerFactory;
             _webAppMappingSchema = webAppMappingSchema;
+            _connectionProvider = connectionProvider;
             _strategy = new OverOptimizedPipelineStrategy(); // new OptimizedPipelineStrategy();
         }
 
@@ -47,7 +50,7 @@ namespace NuClear.ValidationRules.SingleCheck
 
             using (Probe.Create("Execute"))
             using (var erm = new HashSetStoreFactory(_equalityComparerFactory))
-            using (var store = new PersistentTableStoreFactory(_equalityComparerFactory, _webAppMappingSchema))
+            using (var store = new PersistentTableStoreFactory(_equalityComparerFactory, _webAppMappingSchema, _connectionProvider))
             using (var messages = new HashSetStoreFactory(_equalityComparerFactory))
             {
                 IReadOnlyCollection<Replicator> factReplicators;
@@ -98,10 +101,10 @@ namespace NuClear.ValidationRules.SingleCheck
             }
         }
 
-        private static void ReadErmSlice(long orderId, IStore store, out ErmDataLoader.ResolvedOrderSummary orderSummary)
+        private void ReadErmSlice(long orderId, IStore store, out ErmDataLoader.ResolvedOrderSummary orderSummary)
         {
             using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
-            using (var connection = new DataConnection("Erm").AddMappingSchema(Schema.Erm))
+            using (var connection = _connectionProvider.CreateConnection(DataConnectionName.Erm).AddMappingSchema(Schema.Erm))
             {
                 ErmDataLoader.Load(orderId, connection, store, out orderSummary);
             }

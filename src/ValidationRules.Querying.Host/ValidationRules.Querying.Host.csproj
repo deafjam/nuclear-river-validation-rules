@@ -44,6 +44,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -107,7 +109,6 @@
     <Compile Include="Controllers\PrereleaseController.cs" />
     <Compile Include="Controllers\ManualController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
-    <Compile Include="DataAccess\DataConnectionFactory.cs" />
     <Compile Include="Composition\Message.cs" />
     <Compile Include="DataAccess\ValidationResultRepositiory.cs" />
     <Compile Include="DataAccess\VersioningService.cs" />
@@ -161,11 +162,17 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Tenancy\DataConnectionProvider.cs" />
+    <Compile Include="Tenancy\HttpContextTenantProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hosting.Common\Hosting.Common.csproj">
       <Project>{bbc660b1-d17e-4747-a96a-591ce469296d}</Project>
       <Name>Hosting.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Replication.Core\Replication.Core.csproj">
+      <Project>{d919999a-7708-4f55-9600-d34ebd4ec36c}</Project>
+      <Name>Replication.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\ValidationRules.Hosting.Common\ValidationRules.Hosting.Common.csproj">
       <Project>{876CF585-D099-4C5A-949E-E76DA08764D8}</Project>

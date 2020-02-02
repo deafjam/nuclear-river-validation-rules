@@ -8,6 +8,7 @@ using NuClear.Replication.Core.Equality;
 using NuClear.Storage.API.Readings;
 using NuClear.Storage.API.Specifications;
 using NuClear.Telemetry.Probing;
+using NuClear.ValidationRules.SingleCheck.Tenancy;
 
 namespace NuClear.ValidationRules.SingleCheck.Store
 {
@@ -19,18 +20,17 @@ namespace NuClear.ValidationRules.SingleCheck.Store
         private readonly IEqualityComparerFactory _equalityComparerFactory;
         private readonly DataConnection _connection;
 
-        public PersistentTableStoreFactory(IEqualityComparerFactory equalityComparerFactory, MappingSchema webAppMappingSchema)
+        public PersistentTableStoreFactory(IEqualityComparerFactory equalityComparerFactory,
+            MappingSchema webAppMappingSchema, IDataConnectionProvider connectionProvider)
         {
             _equalityComparerFactory = equalityComparerFactory;
 
-            using (Probe.Create("Get lock"))
-            {
-                _connection = new DataConnection("ValidationRules").AddMappingSchema(webAppMappingSchema);
+            _connection = connectionProvider.CreateConnection(DataConnectionName.ValidationRules)
+                .AddMappingSchema(webAppMappingSchema);
 
-                // чтобы параллельные запуски single-проверок не накладывали блокировки на webapp-таблицы и не ждали друг друга
-                // запускаем single-проверки в транзакции с режимом snapshot, который не накладывает никаких блокировок
-                _connection.BeginTransaction(System.Data.IsolationLevel.Snapshot);
-            }
+            // чтобы параллельные запуски single-проверок не накладывали блокировки на webapp-таблицы и не ждали друг друга
+            // запускаем single-проверки в транзакции с режимом snapshot, который не накладывает никаких блокировок
+            _connection.BeginTransaction(System.Data.IsolationLevel.Snapshot);
         }
 
         public IStore CreateStore() => new Linq2DbStore(_equalityComparerFactory, _connection);
@@ -42,7 +42,7 @@ namespace NuClear.ValidationRules.SingleCheck.Store
             // не коммитим транзакцию
             //_connection.CommitTransaction();
             _connection.RollbackTransaction();
-            
+
             _connection.Dispose();
         }
 
@@ -56,7 +56,8 @@ namespace NuClear.ValidationRules.SingleCheck.Store
 
             IQueryable IQuery.For(Type objType) => throw new NotSupportedException();
 
-            IQueryable<T> IQuery.For<T>(FindSpecification<T> findSpecification) => _connection.GetTable<T>().Where(findSpecification);
+            IQueryable<T> IQuery.For<T>(FindSpecification<T> findSpecification) =>
+                _connection.GetTable<T>().Where(findSpecification);
         }
 
         private sealed class Linq2DbStore : IStore
@@ -70,7 +71,8 @@ namespace NuClear.ValidationRules.SingleCheck.Store
             void IStore.Add<T>(T entity) => _connection.Insert(entity);
 
             void IStore.AddRange<T>(IReadOnlyCollection<T> entities) =>
-                _connection.GetTable<T>().BulkCopy(new HashSet<T>(entities, _equalityComparerFactory.CreateIdentityComparer<T>()));
+                _connection.GetTable<T>()
+                    .BulkCopy(new HashSet<T>(entities, _equalityComparerFactory.CreateIdentityComparer<T>()));
         }
     }
 }

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
+using NuClear.Replication.Core.Tenancy;
 using NuClear.ValidationRules.Querying.Host.Composition;
+using NuClear.ValidationRules.SingleCheck.Tenancy;
 using NuClear.ValidationRules.Storage.Model.Facts;
 using NuClear.ValidationRules.Storage.Model.Messages;
 
@@ -9,11 +10,13 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
 {
     public class NameResolvingService
     {
-        private readonly DataConnectionFactory _factory;
+        private readonly IDataConnectionProvider _connectionProvider;
+        private readonly ITenantProvider _tenantProvider;
 
-        public NameResolvingService(DataConnectionFactory factory)
+        public NameResolvingService(IDataConnectionProvider connectionProvider, ITenantProvider tenantProvider)
         {
-            _factory = factory;
+            _connectionProvider = connectionProvider;
+            _tenantProvider = tenantProvider;
         }
 
         public ResolvedNameContainer Resolve(IReadOnlyCollection<Message> messages)
@@ -30,10 +33,14 @@ namespace NuClear.ValidationRules.Querying.Host.DataAccess
         {
             var searchKeys = references.Select(x => new { x.Id, x.EntityType });
 
-            using (var connection = _factory.CreateDataConnection())
+            // Есть сущности, общие для всех инсталляций - их имена имеют TenantId = 0;
+            var tenants = new Tenant[] {0, _tenantProvider.Current};
+
+            using (var connection = _connectionProvider.CreateConnection(DataConnectionName.ValidationRules))
             {
                 return connection
                     .GetTable<EntityName>()
+                    .Where(x => tenants.Contains(x.TenantId))
                     .Where(x => searchKeys.Contains(new { x.Id, x.EntityType }))
                     .ToDictionary(x => new Reference(x.EntityType, x.Id), x => x.Name);
             }
