@@ -9,14 +9,7 @@ function Get-TargetHostsMetadata ($Context) {
 
 	switch ($Context.EnvType) {
 		'Test' {
-			switch ($Context.Country) {
-				'Russia' {
-					return @{ 'TargetHosts' = @('uk-erm-test01') }
-				}
-				default {
-					return @{ 'TargetHosts' = @('uk-erm-test02') }
-				}
-			}
+			return @{ 'TargetHosts' = @('uk-erm-test01') }
 		}
 		'Edu' {
 			return @{ 'TargetHosts' = @('uk-erm-edu03') }
@@ -25,7 +18,7 @@ function Get-TargetHostsMetadata ($Context) {
 			return @{ 'TargetHosts' = @('uk-erm-edu03') }
 		}
 		'Production' {
-			return @{ 
+			return @{
 			'TargetHosts' = @('uk-erm-iis03', 'uk-erm-iis01', 'uk-erm-iis02', 'uk-erm-iis04')
 				'HAProxyUris' = @('tcp://uk-erm-hap01:2000', 'tcp://uk-erm-hap02:2000')
 				# интервал 5 минут
@@ -35,7 +28,7 @@ function Get-TargetHostsMetadata ($Context) {
 		}
 		'Load' {
 			return @{
-				'TargetHosts' = @('uk-erm-iis12', 'uk-erm-iis11', 'uk-erm-iis10') 
+				'TargetHosts' = @('uk-erm-iis12', 'uk-erm-iis11', 'uk-erm-iis10')
 				'HAProxyUris' = @('tcp://uk-erm-hap10:2000', 'tcp://uk-erm-hap11:2000')
 				# интервал 5 минут
 				'Attempts' = 30
@@ -51,74 +44,82 @@ function Get-TargetHostsMetadata ($Context) {
 	}
 }
 
-	function Get-ValidateWebsiteMetadata ($Context) {
-		return @{ 'ValidateUriPath' = 'healthcheck' }
+function Get-ValidateWebsiteMetadata ($Context) {
+	return @{ 'ValidateUriPath' = 'healthcheck' }
+}
+
+function Get-IisAppPathMetadata ($Context) {
+	if($Context.EntryPoint -ne 'ValidationRules.Querying.Host') {
+		return @{ }
 	}
 
-	function Get-IisAppPathMetadata ($Context) {
+	$mainDomain = $DomainNames["Russia"]
+	return @{ 'IisAppPath' = Get-WebsiteDomain $Context $mainDomain }
+}
 
-		switch ($Context.EntryPoint) {
-			'ValidationRules.Querying.Host' { $prefix = "validation$($Context['Index']).api" }
-			default {
-				return @{ }
-			}
+function Get-IisAppPoolMetadata ($Context) {
+
+	switch ($Context.EnvType) {
+		{ @('Production', 'Load') -contains $_ } {
+			$appPoolName = "$($Context.EntryPoint) ($($Context.EnvironmentName))"
 		}
-
-		$envTypeLower = $Context.EnvType.ToLowerInvariant()
-		$domain = $DomainNames[$Context.Country]
-
-		switch ($Context.EnvType) {
-			'Production' {
-				return @{ 'IisAppPath' = "$prefix.prod.erm.2gis.$domain" }
-			}
-			default {
-				return @{ 'IisAppPath' = "$prefix.$envTypeLower.erm.2gis.$domain" }
-			}
+		default {
+			$appPoolName = "ERM ($($Context.EnvironmentName))"
 		}
 	}
 
-	function Get-IisAppPoolMetadata ($Context) {
-
-		switch ($Context.EnvType) {
-			{ @('Production', 'Load') -contains $_ } {
-				switch ($Context.Country) {
-					'Russia' {
-						$appPoolName = "$($Context.EntryPoint) ($($Context.EnvironmentName))"
-					}
-					default {
-						$appPoolName = "ERM ($($Context.EnvironmentName))"
-					}
-				}
-			}
-			default {
-				$appPoolName = "ERM ($($Context.EnvironmentName))"
-			}
-		}
-
-		return @{ 'AppPool' = @{
-				'Name' = $appPoolName
-			}
+	return @{ 'AppPool' = @{
+			'Name' = $appPoolName
 		}
 	}
+}
 
-	function Get-IisMetadata ($Context) {
-		$metadata = @{ }
-		$metadata += Get-IisAppPathMetadata $Context
-		$metadata += Get-IisAppPoolMetadata $Context
+function Get-IisAppAliasesMetadata($Context) {
+	$aliases = @()
+	foreach ($country in ($DomainNames.Keys | where { $_ -ne "Russia" })) {
+		$hostName = Get-WebsiteDomain $Context $DomainNames[$country]
+		$aliases += @{'Protocol' = "http"; 'Binding' = "*:80:$hostName"}
+		$aliases += @{'Protocol' = "https"; 'Binding' = "*:443:$hostName"}
+	}
+	return @{ 'Aliases' = $aliases }
+}
 
-		return @{ 'IIS' = $metadata }
+function Get-WebsiteDomain($Context, $domain) {
+	switch ($Context.EnvType) {
+		'Production' {
+			return "validation.api.prod.erm.2gis.$mainDomain"
+		}
+		default {
+			$envIndex = $Context['Index']
+			$envTypeLower = $Context.EnvType.ToLowerInvariant()
+			return "validation$envIndex.api.$envTypeLower.erm.2gis.$domain"
+		}
+	}
+}
+
+function Get-IisMetadata ($Context) {
+	if($Context["Country"] -ne "Russia") {
+		throw "Web app deployment supported only with 'Russia' parameter"
 	}
 
-	function Get-WebMetadata ($Context) {
+	$metadata = @{ }
+	$metadata += Get-IisAppPathMetadata $Context
+	$metadata += Get-IisAppPoolMetadata $Context
+	$metadata += Get-IisAppAliasesMetadata $Context
 
-		$metadata = @{ }
-		$metadata += Get-ValidateWebsiteMetadata $Context
-		$metadata += Get-TargetHostsMetadata $Context
-		$metadata += Get-IisMetadata $Context
+	return @{ 'IIS' = $metadata }
+}
 
-		$metadata += Get-TransformMetadata $Context
+function Get-WebMetadata ($Context) {
 
-		return @{ "$($Context.EntryPoint)" = $metadata }
-	}
+	$metadata = @{ }
+	$metadata += Get-ValidateWebsiteMetadata $Context
+	$metadata += Get-TargetHostsMetadata $Context
+	$metadata += Get-IisMetadata $Context
 
-	Export-ModuleMember -Function Get-WebMetadata
+	$metadata += Get-TransformMetadata $Context
+
+	return @{ "$($Context.EntryPoint)" = $metadata }
+}
+
+Export-ModuleMember -Function Get-WebMetadata
