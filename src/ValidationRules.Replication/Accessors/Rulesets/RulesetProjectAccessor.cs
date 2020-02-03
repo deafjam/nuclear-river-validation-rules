@@ -26,7 +26,7 @@ namespace NuClear.ValidationRules.Replication.Accessors.Rulesets
                 .SelectMany(x => x.Dtos)
                 .Cast<RulesetDto>()
                 .GroupBy(x => x.Id)
-                .Select(x => x.OrderByDescending(y => y.Version).First());
+                .Select(x => x.Aggregate((a,b) => a.Version > b.Version ? a : b));
 
             return dtos.SelectMany(ruleset => ruleset.Projects
                                                      .Select(projectId => new Ruleset.RulesetProject

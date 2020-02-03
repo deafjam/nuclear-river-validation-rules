@@ -26,7 +26,7 @@ namespace NuClear.ValidationRules.Replication.Accessors
                 .SelectMany(x => x.Dtos)
                 .Cast<AdvertisementDto>()
                 .GroupBy(x => x.Id)
-                .Select(x => x.OrderByDescending(y => y.Offset).First());
+                .Select(x => x.Aggregate((a,b) => a.Offset > b.Offset ? a : b));
 
             return dtos.Select(x => new Advertisement
             {

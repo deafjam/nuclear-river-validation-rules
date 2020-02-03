@@ -97,7 +97,7 @@ namespace NuClear.ValidationRules.Hosting.Common
         {
             var maxResults = batch
                 .GroupBy(x => x.Topic)
-                .Select(x => x.OrderByDescending(y => y.Offset.Value).First());
+                .Select(x => x.Aggregate((a, b) => a.Offset > b.Offset ? a : b  ));
 
             foreach (var maxResult in maxResults)
             {
