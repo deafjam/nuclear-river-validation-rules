@@ -20,6 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NuClear.Replication.Core.Tenancy;
+using NuClear.StateInitialization.Core.Commands;
 using NuClear.StateInitialization.Core.Storage;
 
 namespace NuClear.ValidationRules.StateInitialization.Host
@@ -35,13 +37,15 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 typeof(object));
 
             var commands = new List<ICommand>();
+            var tenants = ParseTenants(args);
 
             if (args.Any(x => x.Contains("-facts")))
             {
                 commands.AddRange(BulkReplicationCommands.ErmToFacts
-                    .Where(x => IsConfigured(x.SourceStorageDescriptor)));
+                    .Where(x => IsConfigured(x, tenants)));
                 commands.Add(new KafkaReplicationCommand(AmsFactsFlow.Instance, BulkReplicationCommands.AmsToFacts));
-                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance, BulkReplicationCommands.RulesetsToFacts, 500));
+                commands.Add(new KafkaReplicationCommand(RulesetFactsFlow.Instance,
+                    BulkReplicationCommands.RulesetsToFacts, 500));
                 // TODO: отдельный schema init для erm\ams\ruleset facts
                 commands.Add(SchemaInitializationCommands.Facts);
             }
@@ -55,7 +59,7 @@ namespace NuClear.ValidationRules.StateInitialization.Host
             if (args.Contains("-messages"))
             {
                 commands.AddRange(BulkReplicationCommands.ErmToMessages
-                    .Where(x => IsConfigured(x.SourceStorageDescriptor)));
+                    .Where(x => IsConfigured(x, tenants)));
                 commands.Add(BulkReplicationCommands.AggregatesToMessages);
                 commands.Add(SchemaInitializationCommands.Messages);
             }
@@ -132,13 +136,22 @@ namespace NuClear.ValidationRules.StateInitialization.Host
                 .Build;
         }
 
-        private static bool IsConfigured(StorageDescriptor descriptor) =>
-            !string.IsNullOrWhiteSpace(
-                descriptor.Tenant.HasValue
-                    ? ConnectionStringSettings.GetConnectionString(
-                        descriptor.ConnectionStringIdentity,
-                        descriptor.Tenant.Value)
-                    : ConnectionStringSettings.GetConnectionString(
-                        descriptor.ConnectionStringIdentity));
+        private static IReadOnlyCollection<Tenant> ParseTenants(IEnumerable<string> args)
+        {
+            var tenants = args.Where(x => x.StartsWith("-tenants="))
+                .SelectMany(x => x.Replace("-tenants=", "").Split(','))
+                .Select(x => Enum.Parse(typeof(Tenant), x))
+                .Cast<Tenant>()
+                .ToList();
+
+            if (tenants.Count == 0)
+                tenants.AddRange(Enum.GetValues(typeof(Tenant)).Cast<Tenant>());
+
+            return new HashSet<Tenant>(tenants);
+        }
+
+        private static bool IsConfigured(ReplicateInBulkCommand command, IEnumerable<Tenant> tenants)
+            => command.SourceStorageDescriptor.Tenant.HasValue &&
+                tenants.Contains(command.SourceStorageDescriptor.Tenant.Value);
     }
 }

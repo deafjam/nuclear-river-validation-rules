@@ -38,10 +38,10 @@ function Get-EntryPointsMetadata ($EntryPoints, $Context) {
 	return $entryPointsMetadata
 }
 
-function Get-BulkToolMetadata ($updateSchemas, $Context){
+function Get-BulkToolMetadata ($updateSchemas, $tenants, $Context){
 	$metadata = @{}
 
-	$arguments = @()
+	$arguments = @("-tenants=$tenants")
 	if($updateSchemas -contains 'ErmFacts') {
 		$arguments += @('-erm-facts', '-aggregates', '-messages')
 	}
@@ -82,7 +82,7 @@ function Get-MSBuildMetadata {
 		'MSBuild' = @{
 			'Setup' = @{
 				'UseVisualStudioBuild' = $true
-				
+
 				# параллельный билд падает, в sdk пока есть проблемы с этим
 				'MaxCpuCount' = 1
 			}
@@ -131,26 +131,27 @@ function Parse-EnvironmentMetadata ($Properties) {
 
 		if ($Properties['EntryPoints']){
 			$entryPoints = $Properties.EntryPoints
-		
+
 			if ($entryPoints -and $entryPoints -isnot [array]){
 				$entryPoints = $entryPoints.Split(@(','), [System.StringSplitOptions]::RemoveEmptyEntries)
 			}
-	
+
 			$environmentMetadata += Get-EntryPointsMetadata $entryPoints $context
 		}
 
 		if ($Properties['UpdateSchemas']){
-			$updateSchemas = $Properties.UpdateSchemas 
-	
+			$updateSchemas = $Properties.UpdateSchemas
+			$tenants = $Properties.Tenants
+
 			if ($updateSchemas -isnot [array]){
 				$updateSchemas = $updateSchemas.Split(@(','), [System.StringSplitOptions]::RemoveEmptyEntries)
 			}
 			$environmentMetadata += @{ 'UpdateSchemas' = $true }
-	
-			$environmentMetadata += Get-BulkToolMetadata $updateSchemas $context
+
+			$environmentMetadata += Get-BulkToolMetadata $updateSchemas $tenants $context
 		}
 	}
-	
+
 	return $environmentMetadata
 }
 
